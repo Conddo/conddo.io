@@ -112,10 +112,18 @@ export async function registerStart(input: {
   return data;
 }
 
-/** AI-classify a business description mid-signup. Returns the ranked module
- *  list; the FE preselects everything in `recommended` on the review screen. */
+/** AI-classify a business description mid-signup. Returns:
+ *    - vertical / verticalConfidence: the BE-chosen vertical from a closed list
+ *      (never invented). Unknown / low-confidence signups get "general" — the
+ *      catch-all bundle. This is the ONLY authoritative source of the tenant's
+ *      vertical; the FE must never guess it from module id prefixes.
+ *    - scores: every module ranked
+ *    - recommended: the subset with confidence ≥ 0.6, preselected on review
+ */
 export type ClassifiedModule = { id: string; confidence: number; reason: string };
 export type ClassifyResult = {
+  vertical: string;
+  verticalConfidence: number;
   scores: ClassifiedModule[];
   recommended: ClassifiedModule[];
 };

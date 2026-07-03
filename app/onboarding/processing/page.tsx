@@ -68,25 +68,28 @@ export default function ProcessingStep() {
         const merged: ModuleSuggestion[] = result.scores.map((m) =>
           toModule(m, recommendedIds.has(m.id)),
         );
-        // Pick the vertical implied by the top recommended module id (form:
-        // "<vertical>.<capability>"). Confidence = top module's confidence.
-        const topId = result.recommended[0]?.id ?? result.scores[0]?.id ?? "";
-        const vertical = topId.includes(".") ? topId.split(".")[0] : null;
-        const verticalConfidence = result.recommended[0]?.confidence
-          ?? result.scores[0]?.confidence
-          ?? 0;
-        update({ modules: merged, vertical, verticalConfidence });
+        // Trust the backend's chosen vertical. Never guess from module id
+        // prefixes — that heuristic used to leak consultancies onto retail
+        // dashboards when their top module id had no dot in it.
+        update({
+          modules: merged,
+          vertical: result.vertical,
+          verticalConfidence: result.verticalConfidence,
+        });
         reachStep(3);
       } catch {
-        // Fallback: seed a generic retail bundle so the review screen has
-        // something to render. The owner can add/remove freely.
+        // Fallback: seed the vertical-agnostic "general" bundle so the review
+        // screen has something to render even on a classifier outage. The
+        // owner can add/remove freely; the BE will treat "general" as the
+        // catch-all business tools set. NEVER fall back to a real vertical
+        // (retail, pharmacy, etc.) — that misrepresents unclassified signups.
         update({
           modules: [
-            { id: "retail.pos", confidence: 0.5, reason: "Point-of-sale", enabled: true },
-            { id: "retail.inventory", confidence: 0.5, reason: "Inventory tracking", enabled: true },
-            { id: "retail.customers", confidence: 0.5, reason: "Customer records", enabled: true },
+            { id: "crm", confidence: 0.5, reason: "Customer records", enabled: true },
+            { id: "orders", confidence: 0.5, reason: "Orders & invoicing", enabled: true },
+            { id: "payments", confidence: 0.5, reason: "Payments", enabled: true },
           ],
-          vertical: "retail",
+          vertical: "general",
           verticalConfidence: 0.5,
         });
         reachStep(3);
