@@ -12,7 +12,7 @@ const CODE_LENGTH = 4;
 
 // Built from the Stitch "OTP Verification" screen. The code is emailed (Resend
 // free path), so this verifies the account email. Sub-step of step 1.
-export default function VerifyPhoneStep() {
+export default function VerifyEmailStep() {
   const router = useRouter();
   const { email, registrationId, resendCooldownSeconds, update } = useOnboarding();
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(""));
@@ -49,7 +49,7 @@ export default function VerifyPhoneStep() {
     setSubmitting(true);
     try {
       await registerVerify({ registrationId, code });
-      const next = nextStep("verify-phone");
+      const next = nextStep("verify-email");
       if (next) router.push(hrefFor(next.slug));
     } catch (err) {
       setError(err instanceof Error ? err.message : "That code didn't work. Check it and try again.");
@@ -72,7 +72,7 @@ export default function VerifyPhoneStep() {
   };
 
   const goBack = () => {
-    const prev = prevStep("verify-phone");
+    const prev = prevStep("verify-email");
     if (prev) router.push(hrefFor(prev.slug));
   };
 

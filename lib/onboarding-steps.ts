@@ -1,7 +1,7 @@
 // The guided signup flow (PRD §15), built from the Stitch designs.
 //
-// There are 6 *routes* but only 5 numbered *progress steps* — phone
-// verification (verify-phone) is a sub-step of step 1 (account creation), so
+// There are 6 *routes* but only 5 numbered *progress steps* — email OTP
+// verification (verify-email) is a sub-step of step 1 (account creation), so
 // it shares progressIndex 1. This matches the Stitch screens, which label the
 // flow "Step X of 5" (Create account = 1 … Ready = 5).
 
@@ -22,10 +22,10 @@ export const FLOW: OnboardingRoute[] = [
     subtitle: "Free for 14 days. No credit card.",
   },
   {
-    slug: "verify-phone",
+    slug: "verify-email",
     progressIndex: 1,
-    title: "Verify your phone number",
-    subtitle: "Enter the code we sent to continue.",
+    title: "Verify your email",
+    subtitle: "Enter the 4-digit code we emailed you.",
   },
   {
     slug: "business-type",

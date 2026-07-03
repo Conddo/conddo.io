@@ -8,7 +8,7 @@ import { routeBySlug, TOTAL_STEPS } from "@/lib/onboarding-steps";
 
 /**
  * Onboarding chrome — cinematic dark version. Shared shell for every
- * step in the onboarding flow (create-account → verify-phone →
+ * step in the onboarding flow (create-account → verify-email →
  * business-type → business-profile → choose-plan → ready). Matches
  * the auth flow + marketing surface so the conversion path reads as
  * one continuous experience.
