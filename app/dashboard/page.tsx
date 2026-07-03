@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/components/ui/Toast";
 import { ApiError } from "@/lib/api/client";
 import { CreditsWidget } from "@/components/app/CreditsWidget";
+import { DailyBriefWidget } from "@/components/app/DailyBriefWidget";
 import { DashboardFollowupsWidget } from "@/components/app/DashboardFollowupsWidget";
 import { DashboardProgramsWidget } from "@/components/app/DashboardProgramsWidget";
 import { verticalOf } from "@/lib/verticalCopy";
@@ -212,6 +213,13 @@ export default function DashboardPage() {
       {checklist && !setupDone && (
         <SetupNudge checklist={checklist} onChanged={refetchChecklist} />
       )}
+
+      {/* Daily Business Brief — the AI-generated morning check-in. Sits
+          above the KPIs so the first thing the owner sees is a plain-
+          English "here's what to focus on today", not raw numbers. */}
+      <div className="mb-6">
+        <DailyBriefWidget />
+      </div>
 
       {/* Stat cards — only those whose module is in the tenant's plan */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
