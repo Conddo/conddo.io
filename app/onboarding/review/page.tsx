@@ -10,14 +10,19 @@ import { hrefFor, nextStep, prevStep } from "@/lib/onboarding-steps";
 const SLUG = "review";
 const CONFIDENCE_LOW = 0.7;
 
+// The closed list must match backend/conddo-core/src/main/resources/verticals/*.yml.
+// Any id shipped here that the BE doesn't recognise will be resolved to the
+// "general" catch-all when the tenant is created — a silent misclassification.
 const VERTICAL_LABELS: Record<string, string> = {
   pharmacy: "Pharmacy",
-  fashion: "Fashion & Retail",
-  studio: "Music Studio",
+  fashion: "Fashion",
+  "music-studio": "Music Studio",
   retail: "Retail",
   logistics: "Logistics",
-  services: "Services",
-  restaurant: "Restaurant",
+  "professional-services": "Consulting & Services",
+  "food-and-beverage": "Food & Beverage",
+  "beauty-and-wellness": "Beauty & Wellness",
+  general: "General Business",
 };
 
 const humanizeModule = (id: string): string => {
@@ -52,7 +57,7 @@ export default function ReviewStep() {
   const enabledCount = modules.filter((m) => m.enabled).length;
   const lowConfidence = verticalConfidence > 0 && verticalConfidence < CONFIDENCE_LOW;
 
-  const verticalLabel = VERTICAL_LABELS[verticalOverride] ?? verticalOverride ?? "Retail";
+  const verticalLabel = VERTICAL_LABELS[verticalOverride] ?? "General Business";
 
   const onConfirm = async () => {
     setError(null);
