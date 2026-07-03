@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { ApiError } from "@/lib/api/client";
+import { CreditsWidget } from "@/components/app/CreditsWidget";
 import { DashboardFollowupsWidget } from "@/components/app/DashboardFollowupsWidget";
 import { DashboardProgramsWidget } from "@/components/app/DashboardProgramsWidget";
 import { verticalOf } from "@/lib/verticalCopy";
@@ -235,6 +236,13 @@ export default function DashboardPage() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Credits widget — every tenant sees their monthly credit standing
+          at all times per the Billing spec. Lives above vertical-specific
+          widgets so the ambient awareness is the first thing after the KPIs. */}
+      <div className="mb-6">
+        <CreditsWidget />
       </div>
 
       {/* Pharmacy Beta-feature widgets — each self-gates on its feature
