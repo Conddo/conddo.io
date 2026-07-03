@@ -47,6 +47,9 @@ export type Me = {
     id: string;
     fullName: string | null;
     email: string;
+    /** True once the user has clicked the post-onboarding verification link.
+     *  Gates publish / payments / automations on the FE. */
+    emailVerified: boolean;
     /** "TENANT_ADMIN" | "STAFF" | "SUPER_ADMIN". STAFF users also carry a
      *  `staffRole` below — see StaffSubRole. */
     role: string;
@@ -139,6 +142,16 @@ export async function registerComplete(input: {
 /** Start a password reset. Always succeeds server-side (doesn't reveal if the email exists). */
 export async function forgotPassword(input: { tenantSlug: string; email: string }): Promise<void> {
   await authApi.post("/auth/forgot-password", input);
+}
+
+/** Redeem an email verification token — the /verify-email page auto-calls this on mount. */
+export async function verifyEmail(token: string): Promise<void> {
+  await authApi.post("/auth/verify-email", { token });
+}
+
+/** Reissue a fresh verification link for the signed-in user. Called from the dashboard banner. */
+export async function resendVerificationEmail(): Promise<void> {
+  await api.post("/me/verify-email/resend");
 }
 
 /** Complete a password reset with the emailed token. */
