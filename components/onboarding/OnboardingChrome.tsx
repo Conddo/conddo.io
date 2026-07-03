@@ -9,10 +9,10 @@ import { BRAND_NAME } from "@/lib/brand";
 
 /**
  * Onboarding chrome — cinematic dark version. Shared shell for every
- * step in the onboarding flow (create-account → verify-phone →
- * business-type → business-profile → choose-plan → ready). Matches
- * the auth flow + marketing surface so the conversion path reads as
- * one continuous experience.
+ * step in the Onboarding v2 flow (create-account → business-description →
+ * processing → review → website-vibe → ready). Matches the auth flow +
+ * marketing surface so the conversion path reads as one continuous
+ * experience.
  *
  * Sets the html background to cinema-base on mount + restores on
  * unmount, same pattern as MarketingShell and CinematicAuthShell.

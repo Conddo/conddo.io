@@ -1,15 +1,24 @@
-// The guided signup flow (PRD §15), built from the Stitch designs.
+// The guided signup flow. Per the Onboarding v2 spec:
+//   1. Account       — email + password (no OTP)
+//   2. Description   — one big textarea, free-text
+//   3. Processing    — AI classification runs, cycling copy
+//   4. Review        — AI proposes modules; owner confirms
+//   5. Website vibe  — optional style prompt (Skip for now)
+//   6. Ready         — success + banner about verifying email later
 //
-// There are 6 *routes* but only 5 numbered *progress steps* — phone
-// verification (verify-phone) is a sub-step of step 1 (account creation), so
-// it shares progressIndex 1. This matches the Stitch screens, which label the
-// flow "Step X of 5" (Create account = 1 … Ready = 5).
+// The FLOW list drives OnboardingChrome's progress dots. "processing" has
+// no back button and no visible progress advance — it lives between
+// steps 2 and 4 but reuses step 2's progress index so the dots feel
+// stable.
 
 export type OnboardingRoute = {
   slug: string;
   progressIndex: number; // 1..TOTAL_STEPS
   title: string;
   subtitle: string;
+  /** When true the OnboardingChrome hides the back button (used for the
+   *  processing step, which is a one-way transition). */
+  hideBack?: boolean;
 };
 
 export const TOTAL_STEPS = 5;
@@ -22,28 +31,29 @@ export const FLOW: OnboardingRoute[] = [
     subtitle: "Free for 14 days. No credit card.",
   },
   {
-    slug: "verify-phone",
-    progressIndex: 1,
-    title: "Verify your phone number",
-    subtitle: "Enter the code we sent to continue.",
-  },
-  {
-    slug: "business-type",
+    slug: "business-description",
     progressIndex: 2,
-    title: "What kind of business do you run?",
-    subtitle: "We set everything up based on your answer.",
-  },
-  {
-    slug: "business-profile",
-    progressIndex: 3,
     title: "Tell us about your business",
-    subtitle: "This builds your website automatically based on the details you provide.",
+    subtitle: "What do you sell or do, and where are you based?",
   },
   {
-    slug: "choose-plan",
+    slug: "processing",
+    progressIndex: 2,
+    title: "",
+    subtitle: "",
+    hideBack: true,
+  },
+  {
+    slug: "review",
+    progressIndex: 3,
+    title: "Here's what we've set up for you",
+    subtitle: "Review the tools we've selected. Add or remove any before you continue.",
+  },
+  {
+    slug: "website-vibe",
     progressIndex: 4,
-    title: "Choose your plan.",
-    subtitle: "14 days free on every plan. No credit card needed.",
+    title: "One more thing",
+    subtitle: "Describe the vibe you want for your website. This step is optional.",
   },
   {
     slug: "ready",
@@ -64,5 +74,11 @@ export const nextStep = (slug: string) => {
 
 export const prevStep = (slug: string) => {
   const i = FLOW.findIndex((r) => r.slug === slug);
-  return i > 0 ? FLOW[i - 1] : undefined;
+  if (i <= 0) return undefined;
+  // Walking backwards skips any hideBack step so users can't land on the
+  // processing screen via the back button.
+  for (let j = i - 1; j >= 0; j--) {
+    if (!FLOW[j].hideBack) return FLOW[j];
+  }
+  return undefined;
 };

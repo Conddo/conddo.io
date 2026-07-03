@@ -94,9 +94,11 @@ export async function getMe(): Promise<Me> {
   return data;
 }
 
-// ----- Staged signup wizard (/auth/register/*, §6.2) -------------------------
-// start → verify (email OTP) → complete (creates tenant + logs in with a JWT
-// carrying vertical/plan/activeModules).
+// ----- Onboarding v2 signup wizard (/auth/register/*) ------------------------
+// start → classify → complete (creates tenant + logs in). No OTP: email
+// verification is deferred to a post-onboarding link the FE surfaces as a
+// dashboard banner. The old /verify + /resend endpoints still exist on the
+// BE for backward compat but are unused by the new flow.
 
 export type RegisterStartResult = { registrationId: string; resendCooldownSeconds: number };
 
@@ -107,16 +109,25 @@ export async function registerStart(input: {
   return data;
 }
 
-export async function registerVerify(input: { registrationId: string; code: string }): Promise<void> {
-  await authApi.post("/auth/register/verify", input);
-}
+/** AI-classify a business description mid-signup. Returns the ranked module
+ *  list; the FE preselects everything in `recommended` on the review screen. */
+export type ClassifiedModule = { id: string; confidence: number; reason: string };
+export type ClassifyResult = {
+  scores: ClassifiedModule[];
+  recommended: ClassifiedModule[];
+};
 
-export async function registerResend(registrationId: string): Promise<RegisterStartResult> {
-  const { data } = await authApi.post<RegisterStartResult>("/auth/register/resend", { registrationId });
+export async function classifyBusiness(input: {
+  registrationId: string;
+  description: string;
+  verticalHint?: string | null;
+}): Promise<ClassifyResult> {
+  const { data } = await authApi.post<ClassifyResult>("/auth/register/classify", input);
   return data;
 }
 
-/** Final step — creates the tenant + admin and logs in (stores the access token). */
+/** Final step — creates the tenant + admin and logs in (stores the access token).
+ *  With CONDDO_REQUIRE_OTP_VERIFY=false on the BE, no prior /verify call is needed. */
 export async function registerComplete(input: {
   registrationId: string; businessName: string; businessType?: string | null; planId?: string | null;
 }): Promise<LoginResult> {
