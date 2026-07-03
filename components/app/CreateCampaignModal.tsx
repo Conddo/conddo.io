@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { VerifiedOnly } from "@/components/app/VerifiedOnly";
 import { Field, TextInput, TextArea } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { marketingApi, type Campaign } from "@/lib/api/marketing";
@@ -66,9 +67,11 @@ export function CreateCampaignModal({
       footer={
         <>
           <Button variant="secondary" size="md" onClick={close} disabled={saving}>Cancel</Button>
-          <Button variant="primary" size="md" type="submit" form="create-campaign-form" disabled={saving}>
-            {saving ? "Creating…" : "Create draft"}
-          </Button>
+          <VerifiedOnly message="Verify your email before creating campaigns — check the banner at the top.">
+            <Button variant="primary" size="md" type="submit" form="create-campaign-form" disabled={saving}>
+              {saving ? "Creating…" : "Create draft"}
+            </Button>
+          </VerifiedOnly>
         </>
       }
     >

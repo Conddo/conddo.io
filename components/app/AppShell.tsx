@@ -12,6 +12,7 @@ import { logout, meQuery, type Me } from "@/lib/api/account";
 import { getAccessToken } from "@/lib/api/auth";
 import { refreshAccessToken } from "@/lib/api/client";
 import { InstallAppButton } from "@/components/app/InstallAppButton";
+import { VerifyEmailBanner } from "@/components/app/VerifyEmailBanner";
 import { Wordmark } from "@/components/marketing/Wordmark";
 
 type Identity = { businessName: string; userName: string; roleLabel: string; initials: string };
@@ -300,6 +301,8 @@ export function AppShell({
             {actions}
           </div>
         </header>
+
+        <VerifyEmailBanner />
 
         <main className="px-4 py-6 md:px-8">{children}</main>
       </div>
