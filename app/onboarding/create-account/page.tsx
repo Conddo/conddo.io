@@ -17,54 +17,47 @@ const inputCls =
 const labelCls =
   "mb-1.5 block text-[12px] font-medium uppercase tracking-[0.06em] text-white/65";
 
-// Built from the Stitch "Sign Up - Step 1" screen, adapted into the consistent
-// onboarding chrome (the marketing split-panel is dropped for flow consistency).
+// Step 1 of the Onboarding v2 flow — friction-free account creation.
+// No phone number, no OTP: users go straight to describing their business
+// after this. Email verification is deferred to a post-onboarding link
+// surfaced as a dashboard banner.
 export default function CreateAccountStep() {
   const router = useRouter();
   const { update } = useOnboarding();
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Anyone landing on the signup flow is starting a new session. Strip any
-  // leftover access token so it can't poison the public /auth/register/start
-  // call with a Spring "Authentication is required" 401.
+  // Anyone landing here is starting a new session — strip any leftover
+  // token so the public /auth/register/start call isn't poisoned with a
+  // stale Bearer.
   useEffect(() => { clearAccessToken(); }, []);
-
-  // Normalize the local number to E.164-ish for the backend (min 7 chars).
-  const normalizedPhone = () => {
-    const digits = phone.replace(/\D/g, "").replace(/^0+/, "");
-    return digits ? `+234${digits}` : "";
-  };
 
   const onContinue = async () => {
     setError(null);
     if (!fullName.trim()) return setError("Enter your full name.");
-    if (normalizedPhone().length < 7) return setError("Enter a valid phone number.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return setError("Enter a valid email address.");
     if (password.length < 8) return setError("Password must be at least 8 characters.");
+    if (password !== confirmPassword) return setError("Passwords do not match.");
 
     setSubmitting(true);
     try {
-      const { registrationId, resendCooldownSeconds } = await registerStart({
+      const { registrationId } = await registerStart({
         fullName: fullName.trim(),
-        phone: normalizedPhone(),
+        // Phone is still required by the /auth/register/start DTO; supply an
+        // empty-safe placeholder. The BE ignores it under CONDDO_REQUIRE_OTP_VERIFY=false.
+        phone: "+2340000000000",
         email: email.trim(),
         password,
       });
-      update({ fullName, phone, email, password, registrationId, resendCooldownSeconds });
+      update({ fullName, email, password, registrationId });
       const next = nextStep("create-account");
       if (next) router.push(hrefFor(next.slug));
     } catch (err) {
-      // BE V50 enforces global UNIQUE on users.email — the same email can no
-      // longer create a second Conddo account. We surface both error codes
-      // (EMAIL_ALREADY_REGISTERED for the new V50 cross-tenant check,
-      // USER_ALREADY_EXISTS for the legacy same-tenant path) as one clean
-      // "use sign-in" message instead of a raw error string.
       if (
         err instanceof ApiError &&
         (err.code === "EMAIL_ALREADY_REGISTERED" || err.code === "USER_ALREADY_EXISTS")
@@ -76,8 +69,6 @@ export default function CreateAccountStep() {
         setError(err instanceof Error ? err.message : "Couldn't create your account. Please try again.");
       }
     } finally {
-      // Always reset so a failed transition can't leave the button locked in
-      // "Creating account…" — the success path navigates away anyway.
       setSubmitting(false);
     }
   };
@@ -109,22 +100,7 @@ export default function CreateAccountStep() {
           />
         </div>
         <div>
-          <label className={labelCls}>Phone number</label>
-          <div className="flex">
-            <span className="inline-flex h-11 items-center rounded-l-md border border-r-0 border-white/10 bg-white/[0.02] px-3 font-mono text-[14px] text-white/65">
-              +234
-            </span>
-            <input
-              className={`${inputCls} rounded-l-none`}
-              placeholder="812 345 6789"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <p className="mt-1.5 text-[13px] text-white/45">We&apos;ll email you a code to verify your account.</p>
-        </div>
-        <div>
-          <label className={labelCls}>Email address</label>
+          <label className={labelCls}>Business email</label>
           <input
             className={inputCls}
             type="email"
@@ -154,57 +130,58 @@ export default function CreateAccountStep() {
           </div>
           <p className="mt-1.5 text-[13px] text-white/45">Minimum 8 characters.</p>
         </div>
+        <div>
+          <label className={labelCls}>Confirm password</label>
+          <input
+            className={inputCls}
+            type={showPassword ? "text" : "password"}
+            placeholder="••••••••"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        </div>
 
         <Button onClick={onContinue} variant="primary" size="lg" className="w-full" disabled={submitting}>
           {submitting ? <Loader2 size={18} className="animate-spin" /> : null}
           {submitting ? "Creating account…" : "Create account"}
         </Button>
 
-        <div className="flex items-center gap-3">
-          <span className="h-px flex-1 bg-neutral-border" />
-          <span className="text-[12px] uppercase tracking-[0.08em] text-white/45">or</span>
-          <span className="h-px flex-1 bg-neutral-border" />
-        </div>
-
         {hasGoogleClient() && (
-          <ContinueWithGoogle
-            disabled={submitting || normalizedPhone().length < 7}
-            onCredential={async (idToken) => {
-              setError(null);
-              if (normalizedPhone().length < 7) {
-                setError("Enter your phone number first — we still need it to verify your account.");
-                return;
-              }
-              setSubmitting(true);
-              try {
-                const { registrationId, resendCooldownSeconds } = await registerStartWithGoogle({
-                  idToken,
-                  phone: normalizedPhone(),
-                });
-                // We pre-fill fullName/email from Google in the next step's view
-                // by reading the ID token's claims client-side. Backend already
-                // has the canonical copies on the registration row.
-                update({ phone, registrationId, resendCooldownSeconds });
-                const next = nextStep("create-account");
-                if (next) router.push(hrefFor(next.slug));
-              } catch (err) {
-                // Same dual-code handling as the password path. V50 surfaces
-                // EMAIL_ALREADY_REGISTERED; older paths can still return
-                // USER_ALREADY_EXISTS during the rollout window.
-                if (
-                  err instanceof ApiError &&
-                  (err.code === "EMAIL_ALREADY_REGISTERED" || err.code === "USER_ALREADY_EXISTS")
-                ) {
-                  setError("That Google email already has a Conddo account. Sign in instead.");
-                } else {
-                  setError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+          <>
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-neutral-border" />
+              <span className="text-[12px] uppercase tracking-[0.08em] text-white/45">or</span>
+              <span className="h-px flex-1 bg-neutral-border" />
+            </div>
+            <ContinueWithGoogle
+              disabled={submitting}
+              onCredential={async (idToken) => {
+                setError(null);
+                setSubmitting(true);
+                try {
+                  const { registrationId } = await registerStartWithGoogle({
+                    idToken,
+                    phone: "+2340000000000",
+                  });
+                  update({ registrationId });
+                  const next = nextStep("create-account");
+                  if (next) router.push(hrefFor(next.slug));
+                } catch (err) {
+                  if (
+                    err instanceof ApiError &&
+                    (err.code === "EMAIL_ALREADY_REGISTERED" || err.code === "USER_ALREADY_EXISTS")
+                  ) {
+                    setError("That Google email already has a Conddo account. Sign in instead.");
+                  } else {
+                    setError(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+                  }
+                } finally {
+                  setSubmitting(false);
                 }
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-            onError={(msg) => setError(msg)}
-          />
+              }}
+              onError={(msg) => setError(msg)}
+            />
+          </>
         )}
 
         <p className="text-center text-[14px] text-white/65">
@@ -216,7 +193,7 @@ export default function CreateAccountStep() {
       </div>
 
       <p className="mt-6 text-center text-[12px] leading-relaxed text-white/45">
-        By clicking “Create account”, you agree to our{" "}
+        By clicking &ldquo;Create account&rdquo;, you agree to our{" "}
         <a href="#" className="text-white/65 underline">Terms of Service</a> and{" "}
         <a href="#" className="text-white/65 underline">Privacy Policy</a>.
       </p>
