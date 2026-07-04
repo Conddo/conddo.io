@@ -8,6 +8,7 @@ import { Chip } from "@/components/ui/Chip";
 import { QueryBoundary } from "@/components/ui/QueryBoundary";
 import { EmptyState } from "@/components/ui/States";
 import { useToast } from "@/components/ui/Toast";
+import { ManagedSitePanel } from "@/components/app/ManagedSitePanel";
 import { RequestChangesModal } from "@/components/app/RequestChangesModal";
 import { SiteIntegrationPanel } from "@/components/app/SiteIntegrationPanel";
 import { api, ApiError } from "@/lib/api/client";
@@ -284,6 +285,13 @@ export default function WebsitePage() {
 
   return (
     <AppShell title="Website" subtitle="Your online storefront">
+      {/* Managed website (Path A) — sits above the legacy Studio-hosted UI.
+          Auto-hides for tenants that don't have a managed row (returns null),
+          so pre-V60 accounts see the old page unchanged. */}
+      <div className="mb-6">
+        <ManagedSitePanel />
+      </div>
+
       <QueryBoundary
         loading={loading}
         error={error}
