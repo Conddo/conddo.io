@@ -138,9 +138,15 @@ export async function classifyBusiness(input: {
 }
 
 /** Final step — creates the tenant + admin and logs in (stores the access token).
- *  With CONDDO_REQUIRE_OTP_VERIFY=false on the BE, no prior /verify call is needed. */
+ *  With CONDDO_REQUIRE_OTP_VERIFY=false on the BE, no prior /verify call is needed.
+ *  {@code websiteVibe} is passed from onboarding step 5 into the BE-side
+ *  WebsiteGenerationService that seeds the managed site's initial draft. */
 export async function registerComplete(input: {
-  registrationId: string; businessName: string; businessType?: string | null; planId?: string | null;
+  registrationId: string;
+  businessName: string;
+  businessType?: string | null;
+  planId?: string | null;
+  websiteVibe?: string | null;
 }): Promise<LoginResult> {
   const { data } = await authApi.post<LoginResult>("/auth/register/complete", input);
   setAccessToken(data.accessToken);

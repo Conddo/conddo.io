@@ -14,7 +14,7 @@ import { hrefFor } from "@/lib/onboarding-steps";
 // fails, the user can retry without losing state.
 export default function ReadyStep() {
   const router = useRouter();
-  const { registrationId, businessName, email, vertical, modules, fullName, reset } =
+  const { registrationId, businessName, email, vertical, modules, fullName, websiteVibe, reset } =
     useOnboarding();
   const [status, setStatus] = useState<"creating" | "ready" | "error">("creating");
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +38,9 @@ export default function ReadyStep() {
           // Plan is picked post-onboarding when the owner hits a billing
           // gate. Free-tier during trial.
           planId: null,
+          // Feeds the BE-side WebsiteGenerationService that seeds the
+          // managed site's draft. Blank = generator uses vertical defaults.
+          websiteVibe: websiteVibe?.trim() || null,
         });
         setStatus("ready");
       } catch (err) {
@@ -45,7 +48,7 @@ export default function ReadyStep() {
         setStatus("error");
       }
     })();
-  }, [registrationId, businessName, vertical, router]);
+  }, [registrationId, businessName, vertical, websiteVibe, router]);
 
   const enabledCount = modules.filter((m) => m.enabled).length;
   const firstName = fullName.trim().split(/\s+/)[0];
