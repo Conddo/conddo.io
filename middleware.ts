@@ -36,7 +36,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const rawHost = (request.headers.get("host") ?? "").toLowerCase();
+  // Prefer X-Forwarded-Host when set — the request came through Caddy on
+  // EC2 (which owns the *.getconddo.com wildcard TLS) and rewrote the Host
+  // header to getconddo.com before proxying us. The tenant's real hostname
+  // rides on X-Forwarded-Host. Direct Vercel requests (previews, apex)
+  // don't set it, so we fall back to Host.
+  const rawHost = (
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? ""
+  ).toLowerCase();
   const host = rawHost.split(":")[0];
 
   // Apex + www pass through — the app owns these.
