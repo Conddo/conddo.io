@@ -45,12 +45,25 @@ const NEXT_TIER: Record<CreditTier, { id: CreditTier; quota: number } | null> = 
   growth:  null,
 };
 
+// Human labels for the dashboard credit-usage breakdown. Match the constants
+// in CreditActions.java on the backend; a missing entry falls back to the
+// humanized action string, so a new action ships with reasonable copy even
+// before its label is added here.
 const ACTION_LABELS: Record<string, string> = {
   "ai.provisioning":              "AI setup",
-  "order.processed":              "Orders",
-  "workflow.trigger":             "Automations",
-  "marketing.ai_message":         "AI marketing",
+  // HIGH tier — outbound + money-making
+  "marketing.customer_blast":     "Customer blasts",
+  "marketing.ai_campaign":        "AI campaigns",
+  "insight.business_report":      "Business insights",
+  "payment.followup_sequence":    "Payment follow-ups",
   "website.generation":           "Website builds",
+  "website.publish":              "Website publish",
+  "outreach.ai_automation":       "AI outreach",
+  // MEDIUM tier — AI-assisted ops
+  "customer.ai_add":              "AI-added customers",
+  "order.ai_log":                 "AI-logged orders",
+  "social.ai_schedule":           "AI social posts",
+  "design.request":               "Design requests",
   "website.ai_copy_regeneration": "AI copy edits",
 };
 
