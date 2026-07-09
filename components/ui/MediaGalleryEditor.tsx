@@ -58,7 +58,7 @@ export function MediaGalleryEditor({
       for (const file of take) {
         try {
           const uploaded = await mediaApi.upload(file, purpose);
-          if (uploaded?.url) next.push(uploaded.url);
+          if (uploaded?.data?.url) next.push(uploaded.data.url);
         } catch (err) {
           setError(err instanceof ApiError ? err.message : `Couldn't upload ${file.name}`);
           break;
