@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Save, Loader2, Trash2, ChevronDown, Building2, FileText, ImagePlus, AlertCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/Button";
@@ -453,7 +454,7 @@ export default function PropertyDetailPage() {
 function Panel({
   title, icon: Icon, children,
 }: {
-  title: string; icon?: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+  title: string; icon?: LucideIcon;
   children: React.ReactNode;
 }) {
   return (
