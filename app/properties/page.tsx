@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Building2, Plus, MapPin, Bed, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/Button";
@@ -87,7 +88,10 @@ export default function PropertiesPage() {
 
 function PropertyCard({ row }: { row: PropertyRow }) {
   return (
-    <article className="group overflow-hidden rounded-2xl border border-white/[0.08] bg-cinema-elev transition-colors hover:border-white/[0.15]">
+    <Link
+      href={`/properties/${row.id}`}
+      className="group block overflow-hidden rounded-2xl border border-white/[0.08] bg-cinema-elev transition-colors hover:border-white/[0.15]"
+    >
       <div className="relative aspect-[16/10] w-full bg-cinema-base">
         {row.primaryImageUrl ? (
           // Server-fetched, tenant-supplied; no next/image because Cloudinary
@@ -134,7 +138,7 @@ function PropertyCard({ row }: { row: PropertyRow }) {
           )}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
