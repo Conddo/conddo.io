@@ -52,7 +52,7 @@ export default function PropertiesPage() {
         <EmptyState
           icon={Building2}
           title="No properties yet"
-          message="Add your first listing and it'll appear here + on your website's featured section."
+          description="Add your first listing and it'll appear here + on your website's featured section."
           action={
             <Button onClick={() => setCreateOpen(true)} variant="primary" size="md">
               <Plus size={16} strokeWidth={2.25} />

@@ -84,7 +84,7 @@ export default function DealsPage() {
         <EmptyState
           icon={GitPullRequest}
           title="Empty pipeline"
-          message="Add your first deal and it'll appear in the Lead column. Drag it right as it progresses — commission accrues automatically at Deposit paid."
+          description="Add your first deal and it'll appear in the Lead column. Drag it right as it progresses — commission accrues automatically at Deposit paid."
           action={
             <Button onClick={() => setCreateOpen(true)} variant="primary" size="md">
               <Plus size={16} strokeWidth={2.25} />
