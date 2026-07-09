@@ -118,37 +118,241 @@ function ApiKeyRow({ site, onRegenerated }: { site: TenantSite; onRegenerated: (
   );
 }
 
-function QuickStart({ slug, apiKey }: { slug: string; apiKey: string }) {
-  // Example uses the masked key visually but is a real working snippet —
-  // the developer needs to substitute their key. Two endpoints (read +
-  // write) cover the common cases.
-  const snippet = `// Fetch store info
-const res = await fetch(
-  "${PUBLIC_API_BASE}/api/v1/public/${slug}/store-info",
-  { headers: { "X-Conddo-Site-Key": "${apiKey}" } }
-);
-const store = await res.json();
+/** One code sample — one titled block. Multiple blocks compose the vertical-
+ *  specific quick-start. `readEndpoint` is `POST` false; write is true. */
+type Snippet = { title: string; code: string };
 
-// Submit an order
+/** Snippet catalog — the ONE place to add or refine per-vertical examples.
+ *  Everything is a runnable fetch() targeting the tenant's own site key. */
+function snippetsFor(verticalId: string | undefined, slug: string, apiKey: string): Snippet[] {
+  const base = PUBLIC_API_BASE;
+  const key = `"X-Conddo-Site-Key": "${apiKey}"`;
+
+  // Enquiry snippet is universal — every vertical benefits from a contact form.
+  const enquiry: Snippet = {
+    title: "Contact form (contact us)",
+    code: `// Submit an enquiry from your site's contact form.
+// Creates a Lead in your Conddo deals pipeline.
 await fetch(
-  "${PUBLIC_API_BASE}/api/v1/public/${slug}/pharmacy/orders",
+  "${base}/api/v1/public/${slug}/enquiries",
   {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Conddo-Site-Key": "${apiKey}",
+      ${key},
+    },
+    body: JSON.stringify({
+      name: "Amaka Okafor",
+      phone: "+2348012345678",
+      email: "amaka@example.com",
+      message: "I'm interested in the Lekki 3-bedroom listing.",
+      // propertyId: "..." (optional — set when submitted from a listing page)
+    }),
+  }
+);`,
+  };
+
+  if (verticalId === "real-estate") {
+    const listProperties: Snippet = {
+      title: "Fetch available properties",
+      code: `// Show all available listings on your site.
+const res = await fetch(
+  "${base}/api/v1/public/${slug}/real-estate/properties",
+  { headers: { ${key} } }
+);
+const { properties, count } = await res.json();
+
+// Filter by listing type (sale/rent/short-let) + property type (duplex/apartment/…):
+const filtered = await fetch(
+  "${base}/api/v1/public/${slug}/real-estate/properties?listingType=sale&propertyType=duplex",
+  { headers: { ${key} } }
+);`,
+    };
+    const propertyDetail: Snippet = {
+      title: "Fetch one property (detail page)",
+      code: `// Render an individual listing — pass its slug.
+const res = await fetch(
+  "${base}/api/v1/public/${slug}/real-estate/properties/lekki-3bed-serviced",
+  { headers: { ${key} } }
+);
+const { property } = await res.json();
+
+// property.images is an array (first = hero)
+// property.documents.cOfO / deedOfAssignment / governorConsent are flags
+// property.description, price, bedrooms, features, etc.`,
+    };
+    return [listProperties, propertyDetail, enquiry];
+  }
+
+  if (verticalId === "pharmacy") {
+    const storeInfo: Snippet = {
+      title: "Fetch store info (business hours, etc.)",
+      code: `const res = await fetch(
+  "${base}/api/v1/public/${slug}/store-info",
+  { headers: { ${key} } }
+);
+const store = await res.json();`,
+    };
+    const listProducts: Snippet = {
+      title: "List available medicines",
+      code: `const res = await fetch(
+  "${base}/api/v1/public/${slug}/pharmacy/products",
+  { headers: { ${key} } }
+);
+const { products, pagination } = await res.json();`,
+    };
+    const submitOrder: Snippet = {
+      title: "Submit an order (customer-authenticated)",
+      code: `// After the customer signs in via /auth/register or /auth/login,
+// use the returned JWT alongside the site key:
+await fetch(
+  "${base}/api/v1/public/${slug}/pharmacy/orders",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer <customer-jwt>",
+      ${key},
     },
     body: JSON.stringify({
       items: [{ product_id: "abc123", quantity: 2 }],
-      customer: { name: "John Doe", phone: "08012345678" },
       delivery_address: "14 Balogun Street, Lagos",
     }),
   }
-);`;
+);`,
+    };
+    return [storeInfo, listProducts, submitOrder, enquiry];
+  }
+
+  // Generic (fashion, retail, services, general, …) — store info + enquiry.
+  return [
+    {
+      title: "Fetch business info",
+      code: `const res = await fetch(
+  "${base}/api/v1/public/${slug}/store-info",
+  { headers: { ${key} } }
+);
+const store = await res.json();`,
+    },
+    enquiry,
+  ];
+}
+
+function QuickStart({
+  slug,
+  apiKey,
+  verticalId,
+}: {
+  slug: string;
+  apiKey: string;
+  verticalId: string | undefined;
+}) {
+  const snippets = snippetsFor(verticalId, slug, apiKey);
   return (
-    <pre className="overflow-x-auto rounded-lg border border-white/[0.06] bg-cinema-base p-4 font-mono text-[11px] leading-relaxed text-white/65">
-      <code>{snippet}</code>
-    </pre>
+    <div className="space-y-4">
+      {snippets.map((s) => (
+        <div key={s.title}>
+          <p className="mb-1.5 text-[12.5px] font-medium text-white/70">{s.title}</p>
+          <pre className="overflow-x-auto rounded-lg border border-white/[0.06] bg-cinema-base p-4 font-mono text-[11px] leading-relaxed text-white/65">
+            <code>{s.code}</code>
+          </pre>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Self-service activation panel — tenant confirms their site is live at
+ *  {@code submittedUrl} and flips the site key active in one call. */
+function LiveUrlPanel({
+  site,
+  onChanged,
+}: {
+  site: TenantSite;
+  onChanged: (next: TenantSite) => void;
+}) {
+  const toast = useToast();
+  const [url, setUrl] = useState(site.submittedUrl ?? "");
+  const [saving, setSaving] = useState(false);
+
+  const active = site.isActive === true;
+
+  async function activate() {
+    setSaving(true);
+    try {
+      const { data } = await websiteApi.activateSite(url.trim());
+      onChanged(data);
+      toast.success("Site live", "Your site key now accepts traffic from your published URL.");
+    } catch (err) {
+      toast.error("Couldn't activate", err instanceof ApiError ? err.message : "Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deactivate() {
+    setSaving(true);
+    try {
+      const { data } = await websiteApi.deactivateSite();
+      onChanged(data);
+      toast.success("Site offline", "Your site key won't accept traffic until you activate again.");
+    } catch (err) {
+      toast.error("Couldn't deactivate", err instanceof ApiError ? err.message : "Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Globe size={15} className="text-white/65" />
+          <span className="text-[13px] font-medium text-white/85">Your live site</span>
+        </div>
+        <Chip tone={active ? "success" : "neutral"}>{active ? "Live" : "Not live"}</Chip>
+      </div>
+      <Field label="Site URL" htmlFor="site-live-url">
+        <TextInput
+          id="site-live-url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://amakastore.com"
+          disabled={saving}
+        />
+      </Field>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {!active && (
+          <Button
+            variant="primary"
+            size="md"
+            onClick={activate}
+            disabled={saving || !url.trim()}
+          >
+            <Power size={15} /> {saving ? "Activating…" : "Activate my site"}
+          </Button>
+        )}
+        {active && (
+          <>
+            <Button variant="secondary" size="md" onClick={activate} disabled={saving}>
+              Update URL
+            </Button>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={deactivate}
+              disabled={saving}
+            >
+              <PowerOff size={15} /> Take offline
+            </Button>
+          </>
+        )}
+      </div>
+      <p className="mt-2 text-[12px] text-white/45">
+        Confirming your URL activates your site key. Your API key is bcrypt-hashed on our
+        side — a wrong URL doesn't leak anything.
+      </p>
+    </div>
   );
 }
 
@@ -159,6 +363,8 @@ await fetch(
 export function SiteIntegrationPanel({ slug }: { slug: string }) {
   const [siteOverride, setSiteOverride] = useState<TenantSite | null>(null);
   const { data, loading, error, refetch } = useApiQuery(websiteApi.site);
+  const meQ = useApiQuery<Me>(meQuery);
+  const verticalId = meQ.data?.tenant.verticalId;
   const site = siteOverride ?? data;
 
   // Soft-error / not-yet-provisioned state. Studio hasn't registered this
@@ -198,6 +404,8 @@ export function SiteIntegrationPanel({ slug }: { slug: string }) {
 
       <ApiKeyRow site={site} onRegenerated={(next) => { setSiteOverride(next); refetch(); }} />
 
+      <LiveUrlPanel site={site} onChanged={(next) => { setSiteOverride(next); refetch(); }} />
+
       {/* Quick start */}
       <div>
         <div className="mb-2 flex items-center justify-between">
@@ -213,7 +421,7 @@ export function SiteIntegrationPanel({ slug }: { slug: string }) {
             Full docs <ExternalLink size={12} />
           </a>
         </div>
-        <QuickStart slug={slug} apiKey={site.apiKeyMasked} />
+        <QuickStart slug={slug} apiKey={site.apiKeyMasked} verticalId={verticalId} />
       </div>
 
       {/* Submitted URL */}

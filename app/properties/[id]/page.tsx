@@ -347,15 +347,17 @@ export default function PropertyDetailPage() {
                 onChange={(v) => patch({ documents: { ...property.documents, gazette: v } })}
               />
             </div>
-            <Field label="Notes on documents" htmlFor="ed-doc-notes" className="mt-4">
-              <TextArea
-                id="ed-doc-notes"
-                rows={2}
-                value={property.documentNotes ?? ""}
-                onChange={(e) => patch({ documentNotes: e.target.value || null })}
-                placeholder="Excision in progress. Consent expected in Q3."
-              />
-            </Field>
+            <div className="mt-4">
+              <Field label="Notes on documents" htmlFor="ed-doc-notes">
+                <TextArea
+                  id="ed-doc-notes"
+                  rows={2}
+                  value={property.documentNotes ?? ""}
+                  onChange={(e) => patch({ documentNotes: e.target.value || null })}
+                  placeholder="Excision in progress. Consent expected in Q3."
+                />
+              </Field>
+            </div>
           </Panel>
         </div>
 
