@@ -158,7 +158,7 @@ export default function PropertyDetailPage() {
     setFloorPlanUploading(true);
     try {
       const uploaded = await mediaApi.upload(file, "property-floor-plan");
-      patch({ floorPlanUrl: uploaded.url });
+      patch({ floorPlanUrl: uploaded.data.url });
       toast.toast({ tone: "success", title: "Floor plan uploaded" });
     } catch (err) {
       toast.toast({
