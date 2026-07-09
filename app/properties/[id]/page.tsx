@@ -116,11 +116,11 @@ export default function PropertyDetailPage() {
       };
       const saved = await propertiesApi.update(property.id, body);
       setProperty(saved);
-      toast.push({ tone: "success", message: "Saved." });
+      toast.toast({ tone: "success", title: "Saved" });
     } catch (err) {
-      toast.push({
-        tone: "danger",
-        message: err instanceof ApiError ? err.message : "Couldn't save.",
+      toast.toast({
+        tone: "error",
+        title: err instanceof ApiError ? err.message : "Couldn't save",
       });
     } finally {
       setSaving(false);
@@ -131,11 +131,11 @@ export default function PropertyDetailPage() {
     try {
       const updated = await propertiesApi.changeStatus(property!.id, status);
       setProperty(updated);
-      toast.push({ tone: "success", message: `Status is now ${propertyStatusLabel(status)}.` });
+      toast.toast({ tone: "success", title: `Status is now ${propertyStatusLabel(status)}` });
     } catch (err) {
-      toast.push({
-        tone: "danger",
-        message: err instanceof ApiError ? err.message : "Couldn't change status.",
+      toast.toast({
+        tone: "error",
+        title: err instanceof ApiError ? err.message : "Couldn't change status",
       });
     }
   }
@@ -144,12 +144,12 @@ export default function PropertyDetailPage() {
     if (!confirm("Delete this listing? This cannot be undone.")) return;
     try {
       await propertiesApi.delete(property!.id);
-      toast.push({ tone: "success", message: "Listing deleted." });
+      toast.toast({ tone: "success", title: "Listing deleted" });
       router.push("/properties");
     } catch (err) {
-      toast.push({
-        tone: "danger",
-        message: err instanceof ApiError ? err.message : "Couldn't delete.",
+      toast.toast({
+        tone: "error",
+        title: err instanceof ApiError ? err.message : "Couldn't delete",
       });
     }
   }
@@ -159,11 +159,11 @@ export default function PropertyDetailPage() {
     try {
       const uploaded = await mediaApi.upload(file, "property-floor-plan");
       patch({ floorPlanUrl: uploaded.url });
-      toast.push({ tone: "success", message: "Floor plan uploaded." });
+      toast.toast({ tone: "success", title: "Floor plan uploaded" });
     } catch (err) {
-      toast.push({
-        tone: "danger",
-        message: err instanceof ApiError ? err.message : "Couldn't upload floor plan.",
+      toast.toast({
+        tone: "error",
+        title: err instanceof ApiError ? err.message : "Couldn't upload floor plan",
       });
     } finally {
       setFloorPlanUploading(false);
