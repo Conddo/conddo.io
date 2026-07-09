@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, RotateCw, Code2, ExternalLink, AlertTriangle } from "lucide-react";
+import {
+  Copy, Check, RotateCw, Code2, ExternalLink, AlertTriangle,
+  Globe, Power, PowerOff,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
 import { Modal } from "@/components/ui/Modal";
+import { Field, TextInput } from "@/components/ui/Field";
 import { useToast } from "@/components/ui/Toast";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { websiteApi, type TenantSite } from "@/lib/api/website";
+import { meQuery, type Me } from "@/lib/api/account";
 import { ApiError } from "@/lib/api/client";
 import { DOCS_URL, PUBLIC_API_BASE } from "@/lib/brand";
 

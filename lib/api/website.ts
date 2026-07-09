@@ -73,6 +73,19 @@ export const websiteApi = {
   // old one immediately, returns the new one. TENANT_ADMIN only.
   regenerateSiteKey: () => api.post<TenantSite>("/website/site/regenerate-key"),
 
+  /** Self-service submit + activate. Tenant confirms their site is live
+   *  at {@code submittedUrl}; row flips to is_active=true immediately. */
+  activateSite: (submittedUrl: string) =>
+    api.post<TenantSite>("/website/site/activate", { submittedUrl }),
+
+  /** Take the site offline without deleting the record. */
+  deactivateSite: () => api.post<TenantSite>("/website/site/deactivate"),
+
+  /** Submit the URL for Studio's featured-sites review — separate from
+   *  activation, purely for the platform "Sites we love" badge. */
+  submitForReview: (submittedUrl: string) =>
+    api.post<TenantSite>("/website/site/submit", { submittedUrl }),
+
   /** Attach (or change) the tenant's custom domain — bare hostname only, no
    *  scheme or path. BE validates + returns the updated site row. */
   connectDomain: (domain: string) =>
