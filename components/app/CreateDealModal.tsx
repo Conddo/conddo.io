@@ -56,7 +56,7 @@ export function CreateDealModal({
         commissionPct: parsedPct,
         notes: notes.trim() || undefined,
       });
-      toast.push({ tone: "success", message: "Deal created — starts as a Lead." });
+      toast.toast({ tone: "success", title: "Deal created — starts as a Lead" });
       onCreated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't save the deal.");

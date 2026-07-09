@@ -65,7 +65,7 @@ export function CreatePropertyModal({
         bedrooms: bedrooms ? Number(bedrooms) : undefined,
         description: description.trim() || undefined,
       });
-      toast.push({ tone: "success", message: "Listing added." });
+      toast.toast({ tone: "success", title: "Listing added" });
       onCreated();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't save the listing.");
