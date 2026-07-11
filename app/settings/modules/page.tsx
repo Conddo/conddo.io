@@ -5,11 +5,12 @@ import {
   Globe, Users, ShoppingCart, CalendarDays, Package, Wallet, Megaphone,
   BarChart3, IdCard, Pill, ClipboardList, ReceiptText, ScanLine, Music2,
   Scissors, Sparkles, ShoppingBag, Tag, Folder, Layers,
-  LayoutGrid, AlertCircle, Loader2, Info, type LucideIcon,
+  LayoutGrid, AlertCircle, Loader2, type LucideIcon,
 } from "lucide-react";
 import { SettingsShell } from "@/components/app/SettingsShell";
 import { useToast } from "@/components/ui/Toast";
 import { useApiQuery } from "@/hooks/useApiQuery";
+import { resetManifests } from "@/hooks/useManifests";
 import { tenantModulesApi, type ModuleState } from "@/lib/api/tenantModules";
 import { ApiError } from "@/lib/api/client";
 
@@ -37,7 +38,6 @@ function ModulesBody() {
   const toast = useToast();
   const { data, loading, error, refetch } = useApiQuery(tenantModulesApi.list);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [pendingChange, setPendingChange] = useState(false);
 
   const grouped = useMemo(() => groupModules(data ?? []), [data]);
 
@@ -50,11 +50,13 @@ function ModulesBody() {
       } else {
         await tenantModulesApi.enable(state.id);
       }
-      setPendingChange(true);
+      // Invalidate the sidebar's cached manifests so it re-fetches the live
+      // effective set — no more "sign out and back in" copy needed.
+      resetManifests();
       await refetch();
       toast.success(
         state.enabled ? "Module turned off" : "Module turned on",
-        "Sign in again to see the change in the sidebar.",
+        "The sidebar updates immediately.",
       );
     } catch (err) {
       toast.error(
@@ -94,20 +96,6 @@ function ModulesBody() {
 
   return (
     <div className="space-y-6">
-      {/* Heads-up about JWT staleness — only show after the user has
-          toggled something this session. */}
-      {pendingChange && (
-        <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/[0.08] p-4 text-[13.5px] text-white/85">
-          <Info size={16} className="mt-0.5 shrink-0 text-primary-light" />
-          <div>
-            <p className="font-medium text-white">Changes pending sign-in</p>
-            <p className="mt-0.5 text-white/65">
-              Modules you turn on or off appear in your sidebar the next time you sign in. Sign out and back in to refresh.
-            </p>
-          </div>
-        </div>
-      )}
-
       {grouped.map((group) => (
         <section
           key={group.key}

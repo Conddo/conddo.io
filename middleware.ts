@@ -51,6 +51,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // studio.getconddo.com is the internal admin surface. Rewrite root + everything
+  // beneath it to /admin/* so the same conddo-app deploy serves both. The
+  // pathname suffix is preserved so nested routes (e.g. /admin/tenants/[id])
+  // reachable at studio.getconddo.com/tenants/[id]. Direct hits on /admin/*
+  // paths on the apex domain (e.g. Vercel preview) still work — this rewrite
+  // is subdomain-scoped.
+  if (host === "studio.getconddo.com") {
+    const rewritten = url.clone();
+    rewritten.pathname = path === "/" ? "/admin" : `/admin${path}`;
+    return NextResponse.rewrite(rewritten);
+  }
+
   // Env-specific hosts pass through — dev, preview, local.
   if (
     host === "localhost" ||

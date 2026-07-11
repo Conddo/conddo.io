@@ -3,7 +3,6 @@
 import { Home, Settings, Activity, Sparkles, Package, Scissors } from "lucide-react";
 import { useManifests } from "./useManifests";
 import { useApiQuery } from "./useApiQuery";
-import { APP_NAV } from "@/lib/app-nav";
 import { iconFor } from "@/lib/manifest/icons";
 import { meQuery } from "@/lib/api/account";
 import { verticalOf, type VerticalId } from "@/lib/verticalCopy";
@@ -106,5 +105,10 @@ export function useAppNav(): NavLink[] {
 
     return [HOME, ...merged, SETTINGS];
   }
-  return APP_NAV;
+  // Live source of truth was unreachable AND JWT held no activeModules — render
+  // the minimal skeleton. A universal APP_NAV fallback used to live here, but it
+  // silently leaks tools that don't belong (e.g. Tables in a fashion sidebar) —
+  // better to under-render than to mis-render. Settings > Modules is reachable
+  // so the owner can always fix it.
+  return [HOME, SETTINGS];
 }

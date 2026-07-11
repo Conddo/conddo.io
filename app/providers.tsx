@@ -3,6 +3,7 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { ToastProvider } from "@/components/ui/Toast";
 import { CinematicTransition } from "@/components/CinematicTransition";
+import { QueryProvider } from "@/lib/query/QueryProvider";
 
 // All client-side context providers live here so the root layout can stay a
 // pure Server Component. We do the Google client-id gating at the top: if the
@@ -17,9 +18,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   const content = (
-    <ToastProvider>
-      <CinematicTransition>{children}</CinematicTransition>
-    </ToastProvider>
+    <QueryProvider>
+      <ToastProvider>
+        <CinematicTransition>{children}</CinematicTransition>
+      </ToastProvider>
+    </QueryProvider>
   );
 
   if (!googleClientId) return content;
