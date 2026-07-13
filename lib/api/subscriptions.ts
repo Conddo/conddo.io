@@ -1,14 +1,16 @@
 // Subscriptions module — typed API surface for billing tiers.
-// Backend spec lives in backend/BILLING_TIERS_SPEC.md.
+// Pricing v2 (V67): five tiers × three cycles.
 //
-// A tenant has a subscription pointing at a plan. Plans (launcher / growth /
-// scaler) are tier identifiers — the BE owns the canonical list via
-// /billing/plans and gates module access via feature_key checks.
+// A tenant has a subscription pointing at a plan. Plans are tier identifiers —
+// the BE owns the canonical list via /billing/plans and gates module access
+// via feature_key checks.
 
 import { api } from "./client";
 
-export type PlanId = "launcher" | "growth" | "scaler";
-export type BillingCycle = "monthly" | "quarterly" | "custom";
+/** Product tier ids. Pre-V67 names (launcher / scaler) still resolve on the
+ *  BE for backwards-compat but shouldn't be used in new code. */
+export type PlanId = "free" | "student" | "starter" | "growth" | "pro";
+export type BillingCycle = "monthly" | "quarterly" | "yearly";
 export type SubscriptionStatus = "active" | "trialing" | "grace" | "expired" | "cancelled";
 
 // Feature keys gate specific modules / actions. Keep this in sync with the
@@ -33,10 +35,11 @@ export type FeatureKey =
 
 export type Plan = {
   id: PlanId;
-  displayName: string;             // "Launcher" / "Growth" / "Scaler"
-  monthlyPrice: number | null;     // ₦; null for Scaler (custom)
-  quarterlyPrice: number | null;   // ₦; null for Scaler (custom)
-  isCustom: boolean;               // true for Scaler
+  displayName: string;             // "Free" / "Student" / "Starter" / "Growth" / "Pro"
+  monthlyPrice: number | null;     // ₦
+  quarterlyPrice: number | null;   // ₦
+  yearlyPrice: number | null;      // ₦ — V67
+  isCustom: boolean;               // reserved; false for every V67 tier
   // Feature map — true/false for boolean gates, string for numeric limits
   // ("2", "5", "unlimited"). FE coerces.
   features: Partial<Record<FeatureKey, string>>;

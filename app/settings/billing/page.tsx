@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight, CalendarClock, CheckCircle2, Sparkles, Info } from "lucide-react";
+import { CalendarClock, CheckCircle2, Sparkles, Info } from "lucide-react";
 import { SettingsShell } from "@/components/app/SettingsShell";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -17,22 +17,25 @@ import {
 import { meQuery } from "@/lib/api/account";
 import { ApiError } from "@/lib/api/client";
 import { openPaystackInline, paystackInlineAvailable } from "@/lib/paystack-inline";
-import { mailtoSupport } from "@/lib/brand";
 
-// Catalog mirrors the marketing pricing page. Source of truth at run time is
-// /billing/plans (BE), but the static copy here lets the page render fully
-// before the BE ships — and never lies about prices that aren't already in
-// the spec.
+// Catalog mirrors the marketing pricing page (Pricing v2 / V67). Source of
+// truth at run time is /billing/plans; this static copy lets the page render
+// fully before that request lands and gives a compile-time home for the
+// price ladder we display.
 const PLAN_CATALOG: {
   id: PlanId;
   name: string;
   blurb: string;
-  monthly: number | null;
-  quarterly: number | null;
+  monthly: number;
+  quarterly: number;
+  yearly: number;
+  requiresAcademicEmail?: boolean;
 }[] = [
-  { id: "launcher", name: "Launcher", blurb: "Going digital for the first time.", monthly: 20_000, quarterly: 54_000 },
-  { id: "growth", name: "Growth", blurb: "Actively selling every day.", monthly: 45_000, quarterly: 120_000 },
-  { id: "scaler", name: "Scaler", blurb: "Multi-location, teams, custom needs.", monthly: 120_000, quarterly: null },
+  { id: "free",    name: "Free",    blurb: "Website + basic dashboard.",         monthly: 0,      quarterly: 0,       yearly: 0 },
+  { id: "student", name: "Student", blurb: "For side-hustlers in school.",       monthly: 3_000,  quarterly: 7_650,   yearly: 25_200, requiresAcademicEmail: true },
+  { id: "starter", name: "Starter", blurb: "Run your business online.",          monthly: 5_000,  quarterly: 12_750,  yearly: 42_000 },
+  { id: "growth",  name: "Growth",  blurb: "Automate + market at scale.",        monthly: 15_000, quarterly: 38_250,  yearly: 126_000 },
+  { id: "pro",     name: "Pro",     blurb: "Multi-location + advanced ops.",     monthly: 30_000, quarterly: 76_500,  yearly: 252_000 },
 ];
 
 const statusChip: Record<SubscriptionStatus, { tone: "success" | "warning" | "danger" | "neutral"; label: string }> = {
@@ -55,13 +58,12 @@ export default function BillingSettings() {
   const sub = useApiQuery(subscriptionsApi.current);
   const meQ = useApiQuery(meQuery);
   const [upgrading, setUpgrading] = useState<PlanId | null>(null);
+  // Cycle the picker cards render prices for. Independent from the tenant's
+  // CURRENT sub cycle (which we treat as read-only for display below) so
+  // the user can price-shop yearly before committing.
+  const [selectedCycle, setSelectedCycle] = useState<BillingCycle>("monthly");
 
   const data = sub.data;
-  // BE may return 404 / a "no active subscription" error for tenants who
-  // existed before billing rolled out. Treat that as "no current plan" —
-  // the plan picker still works as the path forward. Only show a real
-  // error state when the request fails for a different reason (network /
-  // 5xx without a recognisable shape).
   const subError = sub.error;
   const isMissingSubscription = subError instanceof ApiError && (
     subError.status === 404 ||
@@ -70,14 +72,8 @@ export default function BillingSettings() {
   const isHardError = subError && !isMissingSubscription;
 
   const currentPlan = data?.planId ?? null;
-  const cycle = data?.billingCycle ?? "monthly";
 
   async function selectPlan(targetId: PlanId) {
-    if (targetId === "scaler") {
-      // Scaler is sales-led, not self-serve — open consultation email.
-      window.location.href = mailtoSupport("Scaler upgrade");
-      return;
-    }
     if (targetId === currentPlan) return;
     setUpgrading(targetId);
 
@@ -85,14 +81,20 @@ export default function BillingSettings() {
     try {
       const { data } = await subscriptionsApi.checkout({
         planId: targetId,
-        billingCycle: cycle as BillingCycle,
+        billingCycle: selectedCycle,
       });
       checkout = data;
     } catch (err) {
-      // Detect the env-var-not-set case (BE returns 503 PaystackNotConfigured)
-      // and surface a clearer message so the user/ops can fix it.
       const apiErr = err instanceof ApiError ? err : null;
-      if (apiErr?.status === 503) {
+      if (apiErr?.code === "STUDENT_VERIFICATION_REQUIRED") {
+        // BE gate — this account's email doesn't end in an academic suffix.
+        // Surface the exact reason so the user knows the fix is "use your
+        // school email, not the workaround of a personal one".
+        toast.error(
+          "Student plan needs an academic email",
+          "Sign in with your .edu / .edu.ng / .ac.uk email to switch to Student.",
+        );
+      } else if (apiErr?.status === 503) {
         toast.error(
           "Paystack isn't set up yet",
           "Ops needs to add PAYSTACK_SECRET_KEY on the backend before checkout works.",
@@ -113,8 +115,10 @@ export default function BillingSettings() {
     // worse UX but never broken.
     const targetPlan = PLAN_CATALOG.find((p) => p.id === targetId);
     const email = meQ.data?.user?.email;
-    const monthly = targetPlan?.monthly;
-    const amountKobo = monthly ? monthly * 100 : null;
+    const cyclePrice = targetPlan
+      ? targetPlan[selectedCycle]
+      : 0;
+    const amountKobo = cyclePrice > 0 ? cyclePrice * 100 : null;
     const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
 
     if (paystackInlineAvailable() && publicKey && email && amountKobo) {
@@ -124,7 +128,7 @@ export default function BillingSettings() {
           email,
           amount: amountKobo,
           ref: checkout.reference,
-          metadata: { planId: targetId, billingCycle: cycle },
+          metadata: { planId: targetId, billingCycle: selectedCycle },
           callback: async (response) => {
             // Modal closes immediately on success — verify with BE and
             // refresh the subscription state so the page updates inline.
@@ -273,23 +277,34 @@ export default function BillingSettings() {
             existing; that's the whole point of this page on a fresh tenant. */}
         {!isHardError && (
           <div>
-            <h2 className="mb-1 text-[18px] font-medium tracking-[-0.01em] text-white">
-              {data ? "Change plan" : "Choose a plan"}
-            </h2>
-            <p className="mb-5 text-[14px] text-white/65">
-              {data
-                ? "Upgrades take effect immediately and are prorated. Downgrades apply at the end of your billing period."
-                : "All plans include a 14-day free trial. You won't be charged until day 15."}
-            </p>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="mb-4 flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="text-[18px] font-medium tracking-[-0.01em] text-white">
+                  {data ? "Change plan" : "Choose a plan"}
+                </h2>
+                <p className="mt-1 text-[14px] text-white/65">
+                  {data
+                    ? "Upgrades take effect immediately and are prorated. Downgrades apply at the end of your billing period."
+                    : "Starter, Growth, and Pro include a 14-day free trial. You won't be charged until day 15."}
+                </p>
+              </div>
+              <CycleSelector value={selectedCycle} onChange={setSelectedCycle} />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
               {PLAN_CATALOG.map((p) => {
                 const isCurrent = p.id === currentPlan;
-                const isCustom = p.id === "scaler";
-                const price = isCustom ? `From ${naira(p.monthly!)}` : naira(p.monthly!);
+                const price = p[selectedCycle];
+                const perLabel =
+                  selectedCycle === "monthly"
+                    ? "/mo"
+                    : selectedCycle === "quarterly"
+                    ? "/qtr"
+                    : "/yr";
                 return (
                   <div
                     key={p.id}
-                    className={`rounded-xl border bg-cinema-elev p-5 ${
+                    className={`rounded-xl border bg-cinema-elev p-5 flex flex-col ${
                       isCurrent
                         ? "border-2 border-primary"
                         : "border-white/[0.06] hover:border-primary-light"
@@ -306,10 +321,19 @@ export default function BillingSettings() {
                       )}
                     </div>
                     <div className="mb-2 flex items-baseline gap-1">
-                      <span className="font-mono text-[22px] text-white">{price}</span>
-                      <span className="text-[13px] text-white/45">/month</span>
+                      <span className="font-mono text-[22px] text-white">
+                        {price === 0 ? "Free" : naira(price)}
+                      </span>
+                      {price > 0 && (
+                        <span className="text-[13px] text-white/45">{perLabel}</span>
+                      )}
                     </div>
-                    <p className="mb-4 text-[13px] text-white/65">{p.blurb}</p>
+                    <p className="mb-3 text-[13px] text-white/65 flex-1">{p.blurb}</p>
+                    {p.requiresAcademicEmail && (
+                      <p className="mb-3 text-[11px] text-white/45 leading-relaxed">
+                        Requires an academic email (.edu, .edu.ng, .ac.uk).
+                      </p>
+                    )}
                     <Button
                       variant={isCurrent ? "secondary" : "primary"}
                       size="md"
@@ -317,11 +341,11 @@ export default function BillingSettings() {
                       disabled={isCurrent || upgrading !== null}
                       onClick={() => selectPlan(p.id)}
                     >
-                      {upgrading === p.id ? "Switching…" : isCurrent ? "Current plan" : isCustom ? (
-                        <>Book a call <ArrowUpRight size={15} /></>
-                      ) : (
-                        "Switch to this plan"
-                      )}
+                      {upgrading === p.id
+                        ? "Switching…"
+                        : isCurrent
+                        ? "Current plan"
+                        : "Switch to this plan"}
                     </Button>
                   </div>
                 );
@@ -331,5 +355,61 @@ export default function BillingSettings() {
         )}
       </div>
     </SettingsShell>
+  );
+}
+
+/** Segmented control for monthly / quarterly / yearly. Small dark chip;
+ *  the yearly + quarterly options show a "Save" badge so the savings are
+ *  obvious without a footnote. */
+function CycleSelector({
+  value,
+  onChange,
+}: {
+  value: BillingCycle;
+  onChange: (c: BillingCycle) => void;
+}) {
+  const labels: Record<BillingCycle, string> = {
+    monthly: "Monthly",
+    quarterly: "Quarterly",
+    yearly: "Yearly",
+  };
+  const badges: Record<BillingCycle, string | null> = {
+    monthly: null,
+    quarterly: "-15%",
+    yearly: "-30%",
+  };
+  return (
+    <div
+      role="tablist"
+      aria-label="Billing cycle"
+      className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] p-1"
+    >
+      {(["monthly", "quarterly", "yearly"] as const).map((c) => {
+        const active = value === c;
+        return (
+          <button
+            key={c}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(c)}
+            className={`rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors ${
+              active ? "bg-primary text-white" : "text-white/60 hover:text-white/85"
+            }`}
+          >
+            {labels[c]}
+            {badges[c] && (
+              <span
+                className={`ml-1.5 inline-block rounded px-1 py-0.5 font-mono text-[9.5px] tracking-wide ${
+                  active ? "bg-white/15 text-white" : "bg-primary/15 text-primary-light"
+                }`}
+              >
+                {badges[c]}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
   );
 }
