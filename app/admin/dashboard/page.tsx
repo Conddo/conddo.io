@@ -11,6 +11,8 @@ import {
   Globe,
   ClipboardCheck,
   Sparkles,
+  ExternalLink,
+  PowerOff,
 } from "lucide-react";
 import {
   adminApi,
@@ -18,7 +20,8 @@ import {
   getAdminToken,
   loginAdmin,
   type PlatformOverview,
-  type PendingSiteRow,
+  type AdminSiteRow,
+  type SiteFilter,
   AdminApiError,
 } from "@/lib/api/admin";
 
@@ -133,32 +136,43 @@ function SignInCard({ onSignedIn }: { onSignedIn: () => void }) {
 
 function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
   const [overview, setOverview] = useState<PlatformOverview | null>(null);
-  const [sites, setSites] = useState<PendingSiteRow[] | null>(null);
+  const [sites, setSites] = useState<AdminSiteRow[] | null>(null);
+  const [siteFilter, setSiteFilter] = useState<SiteFilter>("pending");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function load() {
-    setLoading(true);
-    setError(null);
+  async function loadOverview() {
     try {
-      const [ov, ps] = await Promise.all([
-        adminApi.overview(),
-        adminApi.pendingSites().catch(() => [] as PendingSiteRow[]),
-      ]);
+      const ov = await adminApi.overview();
       setOverview(ov);
-      setSites(ps);
     } catch (err) {
-      setError(err instanceof AdminApiError ? err.message : "Couldn't load dashboard");
-    } finally {
-      setLoading(false);
+      setError(err instanceof AdminApiError ? err.message : "Couldn't load overview");
     }
   }
 
-  useEffect(() => { load(); }, []);
+  async function loadSites(filter: SiteFilter) {
+    try {
+      const rows = await adminApi.sites(filter);
+      setSites(rows);
+    } catch {
+      setSites([]);
+    }
+  }
+
+  async function loadAll() {
+    setLoading(true);
+    setError(null);
+    await Promise.all([loadOverview(), loadSites(siteFilter)]);
+    setLoading(false);
+  }
+
+  useEffect(() => { loadAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  // Refetch when the filter changes without re-triggering the overview call.
+  useEffect(() => { loadSites(siteFilter); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [siteFilter]);
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-6">
-      <TopBar onRefresh={load} onSignOut={onSignOut} />
+      <TopBar onRefresh={loadAll} onSignOut={onSignOut} />
       {loading && !overview && (
         <div className="mt-16 flex items-center justify-center text-white/50">
           <Loader2 size={18} className="mr-2 animate-spin" /> Loading platform snapshot…
@@ -179,7 +193,12 @@ function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
           <BreakdownRow overview={overview} />
         </>
       )}
-      <QaQueue sites={sites ?? []} />
+      <SitesPanel
+        sites={sites ?? []}
+        filter={siteFilter}
+        onFilterChange={setSiteFilter}
+        onMutated={() => loadSites(siteFilter)}
+      />
     </div>
   );
 }
@@ -282,56 +301,222 @@ function BreakdownCard({ title, values }: { title: string; values: Record<string
   );
 }
 
-function QaQueue({ sites }: { sites: PendingSiteRow[] }) {
-  const [approvingId, setApprovingId] = useState<string | null>(null);
-  const [local, setLocal] = useState<PendingSiteRow[]>(sites);
-  useEffect(() => setLocal(sites), [sites]);
+/** Full tenant-sites CRUD panel. Filter tabs across the top; each row
+ *  headlines the business name (from the tenant record) with the
+ *  subdomain / URL as a secondary chip, and exposes approve + deactivate
+ *  actions gated on the row's current state. */
+function SitesPanel({
+  sites,
+  filter,
+  onFilterChange,
+  onMutated,
+}: {
+  sites: AdminSiteRow[];
+  filter: SiteFilter;
+  onFilterChange: (f: SiteFilter) => void;
+  onMutated: () => void;
+}) {
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function approve(id: string) {
-    if (approvingId) return;
-    setApprovingId(id);
+    if (busyId) return;
+    setBusyId(id);
+    setErrorMsg(null);
     try {
       await adminApi.approveSite(id);
-      setLocal((prev) => prev.filter((s) => s.id !== id));
-    } catch {
-      // stay quiet — a toast provider isn't mounted on the admin subdomain
+      onMutated();
+    } catch (err) {
+      setErrorMsg(err instanceof AdminApiError ? err.message : "Approve failed");
     } finally {
-      setApprovingId(null);
+      setBusyId(null);
     }
   }
 
+  async function deactivate(id: string) {
+    if (busyId) return;
+    if (!window.confirm("Take this site offline? Tenants and visitors will lose access.")) {
+      return;
+    }
+    setBusyId(id);
+    setErrorMsg(null);
+    try {
+      await adminApi.deactivateSite(id);
+      onMutated();
+    } catch (err) {
+      setErrorMsg(err instanceof AdminApiError ? err.message : "Deactivate failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  const filterCopy: Record<SiteFilter, string> = {
+    pending: "Pending",
+    approved: "Approved",
+    active: "Live",
+    all: "All",
+  };
+
   return (
-    <section className="mt-6 rounded-2xl border border-white/[0.06] bg-[#111114]">
-      <header className="border-b border-white/[0.06] px-5 py-3.5">
-        <h2 className="text-[14px] font-medium text-white">Sites awaiting QA</h2>
+    <section className="mt-6 rounded-2xl border border-white/[0.06] bg-[#111114] overflow-hidden">
+      <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-3.5">
+        <h2 className="text-[14px] font-medium text-white">Tenant sites</h2>
+        <div
+          role="tablist"
+          aria-label="Site filter"
+          className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.03] p-1"
+        >
+          {(["pending", "approved", "active", "all"] as const).map((f) => {
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => onFilterChange(f)}
+                className={`rounded-full px-3 py-1 text-[11.5px] font-medium transition-colors ${
+                  active
+                    ? "bg-primary text-white"
+                    : "text-white/60 hover:text-white/85"
+                }`}
+              >
+                {filterCopy[f]}
+              </button>
+            );
+          })}
+        </div>
       </header>
-      {local.length === 0 ? (
-        <p className="px-5 py-6 text-[13px] text-white/45">Queue is empty.</p>
+
+      {errorMsg && (
+        <div className="border-b border-rose-400/20 bg-rose-500/[0.06] px-5 py-2.5 text-[12.5px] text-rose-200">
+          {errorMsg}
+        </div>
+      )}
+
+      {sites.length === 0 ? (
+        <p className="px-5 py-8 text-center text-[13px] text-white/45">
+          No sites in this bucket yet.
+        </p>
       ) : (
         <ul className="divide-y divide-white/[0.06]">
-          {local.map((s) => (
-            <li key={s.id} className="flex items-center gap-4 px-5 py-3.5">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[13.5px] text-white">
-                  {s.customDomain ?? s.submittedUrl ?? s.subdomain ?? s.id}
-                </p>
-                <p className="mt-0.5 truncate font-mono text-[11px] text-white/45">
-                  {s.siteType ?? "unspecified"} · {s.hostingProvider ?? "unknown host"} ·{" "}
-                  {new Date(s.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                onClick={() => approve(s.id)}
-                disabled={approvingId === s.id}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary/85 px-3 py-1.5 text-[12.5px] font-medium text-white hover:bg-primary disabled:opacity-60"
-              >
-                {approvingId === s.id && <Loader2 size={12} className="animate-spin" />}
-                Approve
-              </button>
-            </li>
+          {sites.map((s) => (
+            <SiteRow
+              key={s.id}
+              site={s}
+              busy={busyId === s.id}
+              onApprove={() => approve(s.id)}
+              onDeactivate={() => deactivate(s.id)}
+            />
           ))}
         </ul>
       )}
     </section>
   );
+}
+
+function SiteRow({
+  site,
+  busy,
+  onApprove,
+  onDeactivate,
+}: {
+  site: AdminSiteRow;
+  busy: boolean;
+  onApprove: () => void;
+  onDeactivate: () => void;
+}) {
+  const externalUrl = site.customDomain
+    ? `https://${site.customDomain}`
+    : site.submittedUrl
+      ? site.submittedUrl
+      : site.subdomain
+        ? `https://${site.subdomain}.getconddo.com`
+        : null;
+
+  return (
+    <li className="flex flex-wrap items-center gap-4 px-5 py-4">
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-baseline gap-2">
+          <p className="truncate text-[14px] font-medium text-white">
+            {site.tenantName}
+          </p>
+          {site.tenantSlug && (
+            <span className="font-mono text-[11px] text-white/45">
+              @{site.tenantSlug}
+            </span>
+          )}
+          <StatusChip site={site} />
+        </div>
+        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-white/50">
+          {externalUrl ? (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-primary-light hover:text-primary"
+            >
+              {externalUrl.replace(/^https?:\/\//, "")}
+              <ExternalLink size={11} />
+            </a>
+          ) : (
+            <span className="italic text-white/40">no URL submitted</span>
+          )}
+          {site.verticalId && <span>{prettyVertical(site.verticalId)}</span>}
+          {site.planId && <span className="uppercase tracking-wide">{site.planId}</span>}
+          <span>{new Date(site.createdAt).toLocaleDateString()}</span>
+        </p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {!site.qaApproved && (
+          <button
+            onClick={onApprove}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/90 px-3 py-1.5 text-[12.5px] font-medium text-white hover:bg-primary disabled:opacity-60"
+          >
+            {busy && <Loader2 size={12} className="animate-spin" />}
+            Approve
+          </button>
+        )}
+        {site.isActive && (
+          <button
+            onClick={onDeactivate}
+            disabled={busy}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12.5px] font-medium text-white/85 hover:bg-rose-500/10 hover:border-rose-400/40 hover:text-rose-200 disabled:opacity-60"
+          >
+            {busy && <Loader2 size={12} className="animate-spin" />}
+            <PowerOff size={12} />
+            Deactivate
+          </button>
+        )}
+      </div>
+    </li>
+  );
+}
+
+function StatusChip({ site }: { site: AdminSiteRow }) {
+  const label = site.isActive
+    ? "Live"
+    : site.qaApproved
+      ? "Approved"
+      : "Pending";
+  const tone = site.isActive
+    ? "bg-emerald-500/15 text-emerald-300"
+    : site.qaApproved
+      ? "bg-primary/15 text-primary-light"
+      : "bg-amber-500/15 text-amber-200";
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-[0.1em] ${tone}`}>
+      {label}
+    </span>
+  );
+}
+
+/** Pretty-print a vertical id — "food-and-beverage" → "Food & Beverage". */
+function prettyVertical(id: string): string {
+  return id
+    .split(/[-_]+/)
+    .map((s) => (s === "and" ? "&" : s.charAt(0).toUpperCase() + s.slice(1)))
+    .join(" ");
 }

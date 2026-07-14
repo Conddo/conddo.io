@@ -114,15 +114,22 @@ export type PlatformOverview = {
   tenantsByTier: Record<string, number>;
 };
 
-export type PendingSiteRow = {
+export type SiteFilter = "pending" | "approved" | "active" | "all";
+
+export type AdminSiteRow = {
   id: string;
   tenantId: string;
+  /** Business name — the headline label in the QA queue. */
+  tenantName: string;
+  tenantSlug: string | null;
+  verticalId: string | null;
+  planId: string | null;
   subdomain: string | null;
   customDomain: string | null;
   submittedUrl: string | null;
   siteType: string | null;
   hostingProvider: string | null;
-  active: boolean;
+  isActive: boolean;
   qaApproved: boolean;
   qaApprovedAt: string | null;
   createdAt: string;
@@ -130,7 +137,10 @@ export type PendingSiteRow = {
 
 export const adminApi = {
   overview: () => request<PlatformOverview>("/admin/platform/overview"),
-  pendingSites: () => request<PendingSiteRow[]>("/admin/sites?filter=pending"),
+  sites: (filter: SiteFilter = "pending") =>
+    request<AdminSiteRow[]>(`/admin/sites?filter=${filter}`),
   approveSite: (id: string) =>
-    request<PendingSiteRow>(`/admin/sites/${id}/approve`, { method: "POST" }),
+    request<AdminSiteRow>(`/admin/sites/${id}/approve`, { method: "POST" }),
+  deactivateSite: (id: string) =>
+    request<AdminSiteRow>(`/admin/sites/${id}/deactivate`, { method: "POST" }),
 };
