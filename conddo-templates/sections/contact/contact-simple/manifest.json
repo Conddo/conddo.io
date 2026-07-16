@@ -1,0 +1,22 @@
+{
+  "id": "contact-simple",
+  "category": "contact",
+  "vertical_fit": [
+    "retail",
+    "fashion",
+    "salon",
+    "food-beverage",
+    "professional-services",
+    "logistics",
+    "healthcare"
+  ],
+  "style_tags": ["simple", "clean"],
+  "variables": [
+    "businessName",
+    "address",
+    "phone",
+    "email",
+    "mapLink"
+  ],
+  "description": "Simple contact section with address, phone, email and optional map link. Works for all verticals."
+}

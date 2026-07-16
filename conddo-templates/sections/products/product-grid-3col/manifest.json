@@ -1,0 +1,11 @@
+{
+  "id": "product-grid-3col",
+  "category": "products",
+  "vertical_fit": ["retail", "fashion", "pharmacy"],
+  "style_tags": ["grid", "product-forward", "clean"],
+  "variables": [
+    "heading",
+    "products"
+  ],
+  "description": "Three-column product grid. Each product row is a triple of name|price|imageUrl separated by pipes. Best for retail and fashion catalogues where the image sells the item."
+}

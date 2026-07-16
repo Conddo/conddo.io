@@ -1,0 +1,15 @@
+{
+  "id": "hero-split-image",
+  "category": "hero",
+  "vertical_fit": ["fashion", "salon", "retail", "professional-services"],
+  "style_tags": ["split", "modern", "image-forward"],
+  "variables": [
+    "businessName",
+    "tagline",
+    "subtext",
+    "ctaText",
+    "ctaLink",
+    "heroImage"
+  ],
+  "description": "Left text, right image layout. Warm and human. Best for fashion, salons, and lifestyle brands."
+}

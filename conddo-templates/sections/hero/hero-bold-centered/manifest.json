@@ -1,0 +1,21 @@
+{
+  "id": "hero-bold-centered",
+  "category": "hero",
+  "vertical_fit": [
+    "retail",
+    "fashion",
+    "food-beverage",
+    "salon",
+    "professional-services"
+  ],
+  "style_tags": ["bold", "modern", "centered"],
+  "variables": [
+    "businessName",
+    "tagline",
+    "subtext",
+    "ctaText",
+    "ctaLink",
+    "heroImage"
+  ],
+  "description": "Full-width centered hero with bold headline, supporting subtext, and a single CTA button. Best for retail and fashion businesses."
+}

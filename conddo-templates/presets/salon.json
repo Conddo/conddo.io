@@ -1,0 +1,13 @@
+{
+  "vertical": "salon",
+  "default_sections": [
+    "hero-split-image",
+    "services-cards",
+    "gallery-grid",
+    "booking-simple",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["warm-earth", "clean-minimal"],
+  "required_sections": ["hero-split-image", "booking-simple", "contact-simple"]
+}

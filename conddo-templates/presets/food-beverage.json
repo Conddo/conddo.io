@@ -1,0 +1,12 @@
+{
+  "vertical": "food-beverage",
+  "default_sections": [
+    "hero-bold-centered",
+    "services-list",
+    "gallery-grid",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["warm-earth"],
+  "required_sections": ["hero-bold-centered", "contact-simple"]
+}

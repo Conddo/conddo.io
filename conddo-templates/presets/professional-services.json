@@ -1,0 +1,11 @@
+{
+  "vertical": "professional-services",
+  "default_sections": [
+    "hero-minimal",
+    "services-cards",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["clean-minimal"],
+  "required_sections": ["hero-minimal", "services-cards", "contact-simple"]
+}

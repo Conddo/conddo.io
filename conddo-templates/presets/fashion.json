@@ -1,0 +1,12 @@
+{
+  "vertical": "fashion",
+  "default_sections": [
+    "hero-split-image",
+    "product-grid-3col",
+    "gallery-grid",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["warm-earth", "bold-modern"],
+  "required_sections": ["hero-split-image", "contact-simple"]
+}

@@ -1,0 +1,11 @@
+{
+  "vertical": "logistics",
+  "default_sections": [
+    "hero-minimal",
+    "services-list",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["clean-minimal", "bold-modern"],
+  "required_sections": ["hero-minimal", "contact-simple"]
+}

@@ -1,0 +1,11 @@
+{
+  "vertical": "retail",
+  "default_sections": [
+    "hero-bold-centered",
+    "product-grid-3col",
+    "testimonials-cards",
+    "contact-simple"
+  ],
+  "recommended_themes": ["bold-modern", "clean-minimal"],
+  "required_sections": ["hero-bold-centered", "contact-simple"]
+}

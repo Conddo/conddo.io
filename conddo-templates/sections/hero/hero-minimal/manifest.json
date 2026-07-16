@@ -1,0 +1,14 @@
+{
+  "id": "hero-minimal",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "logistics", "healthcare"],
+  "style_tags": ["minimal", "clean", "professional"],
+  "variables": [
+    "businessName",
+    "tagline",
+    "subtext",
+    "ctaText",
+    "ctaLink"
+  ],
+  "description": "Clean, text-only hero on a light background. Best for professional services, logistics, and healthcare."
+}
