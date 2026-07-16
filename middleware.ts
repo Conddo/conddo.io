@@ -58,6 +58,12 @@ export function middleware(request: NextRequest) {
   // paths on the apex domain (e.g. Vercel preview) still work — this rewrite
   // is subdomain-scoped.
   if (host === "studio.getconddo.com") {
+    // If the client already hit /admin/* (Link components in StudioNav use
+    // absolute /admin/… hrefs so localhost + Vercel previews keep working),
+    // don't double-prefix — that produces /admin/admin/tenants which 404s.
+    if (path === "/admin" || path.startsWith("/admin/")) {
+      return NextResponse.next();
+    }
     const rewritten = url.clone();
     rewritten.pathname = path === "/" ? "/admin" : `/admin${path}`;
     return NextResponse.rewrite(rewritten);
