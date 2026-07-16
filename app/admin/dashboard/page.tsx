@@ -3,8 +3,6 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
   Loader2,
-  LogOut,
-  RefreshCcw,
   ShieldCheck,
   AlertCircle,
   Users,
@@ -14,6 +12,7 @@ import {
   ExternalLink,
   PowerOff,
 } from "lucide-react";
+import { StudioNav } from "@/components/admin/StudioNav";
 import {
   adminApi,
   clearAdminToken,
@@ -171,68 +170,40 @@ function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
   useEffect(() => { loadSites(siteFilter); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [siteFilter]);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-6">
-      <TopBar onRefresh={loadAll} onSignOut={onSignOut} />
-      {loading && !overview && (
-        <div className="mt-16 flex items-center justify-center text-white/50">
-          <Loader2 size={18} className="mr-2 animate-spin" /> Loading platform snapshot…
-        </div>
-      )}
-      {error && (
-        <div className="mt-6 flex items-start gap-3 rounded-xl border border-rose-400/25 bg-rose-500/[0.06] p-4 text-rose-200">
-          <AlertCircle size={16} className="mt-0.5" />
-          <div>
-            <p className="font-medium">Couldn&apos;t load dashboard</p>
-            <p className="mt-0.5 text-[13px] text-rose-200/80">{error}</p>
+    <div>
+      <StudioNav onRefresh={loadAll} onSignOut={onSignOut} />
+      <div className="mx-auto max-w-6xl px-6 py-6">
+        {loading && !overview && (
+          <div className="mt-16 flex items-center justify-center text-white/50">
+            <Loader2 size={18} className="mr-2 animate-spin" /> Loading platform snapshot…
           </div>
-        </div>
-      )}
-      {overview && (
-        <>
-          <MetricsRow overview={overview} />
-          <BreakdownRow overview={overview} />
-        </>
-      )}
-      <SitesPanel
-        sites={sites ?? []}
-        filter={siteFilter}
-        onFilterChange={setSiteFilter}
-        onMutated={() => loadSites(siteFilter)}
-      />
+        )}
+        {error && (
+          <div className="mt-6 flex items-start gap-3 rounded-xl border border-rose-400/25 bg-rose-500/[0.06] p-4 text-rose-200">
+            <AlertCircle size={16} className="mt-0.5" />
+            <div>
+              <p className="font-medium">Couldn&apos;t load dashboard</p>
+              <p className="mt-0.5 text-[13px] text-rose-200/80">{error}</p>
+            </div>
+          </div>
+        )}
+        {overview && (
+          <>
+            <MetricsRow overview={overview} />
+            <BreakdownRow overview={overview} />
+          </>
+        )}
+        <SitesPanel
+          sites={sites ?? []}
+          filter={siteFilter}
+          onFilterChange={setSiteFilter}
+          onMutated={() => loadSites(siteFilter)}
+        />
+      </div>
     </div>
   );
 }
 
-function TopBar({ onRefresh, onSignOut }: { onRefresh: () => void; onSignOut: () => void }) {
-  return (
-    <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-      <div className="flex items-center gap-3">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary-light">
-          <ShieldCheck size={17} />
-        </span>
-        <div>
-          <h1 className="text-[15px] font-semibold text-white">Conddo Studio</h1>
-          <p className="text-[11px] text-white/45">Platform administration</p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onRefresh}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12.5px] text-white/80 hover:bg-white/[0.06]"
-          aria-label="Refresh"
-        >
-          <RefreshCcw size={13} /> Refresh
-        </button>
-        <button
-          onClick={onSignOut}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12.5px] text-white/80 hover:bg-white/[0.06]"
-        >
-          <LogOut size={13} /> Sign out
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function MetricsRow({ overview }: { overview: PlatformOverview }) {
   return (

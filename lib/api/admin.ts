@@ -135,6 +135,67 @@ export type AdminSiteRow = {
   createdAt: string;
 };
 
+export type TenantRow = {
+  id: string;
+  slug: string;
+  name: string;
+  verticalId: string | null;
+  planId: string | null;
+  status: string;
+  createdAt: string;
+  ownerEmail: string | null;
+  ownerFullName: string | null;
+  usersCount: number;
+};
+
+export type TenantDetail = {
+  summary: TenantRow;
+  owner: {
+    id: string;
+    email: string;
+    fullName: string | null;
+    phone: string | null;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+    lastLoginAt: string | null;
+  } | null;
+  usersCount: number;
+  ordersCount: number;
+  sites: Array<{
+    id: string;
+    subdomain: string | null;
+    customDomain: string | null;
+    qaApproved: boolean;
+    active: boolean;
+    createdAt: string;
+  }>;
+  credits: {
+    tier: string;
+    monthlyQuota: number;
+    creditsUsed: number;
+    topupCredits: number;
+    reservedCredits: number;
+    available: number;
+  } | null;
+};
+
+export type CreateTenantInput = {
+  businessName: string;
+  verticalId: string;
+  planId: string;
+  ownerEmail: string;
+  ownerFullName: string;
+};
+
+export type CreatedTenant = {
+  tenantId: string;
+  slug: string;
+  name: string;
+  verticalId: string | null;
+  planId: string | null;
+  inviteUrl: string;
+};
+
 export const adminApi = {
   overview: () => request<PlatformOverview>("/admin/platform/overview"),
   sites: (filter: SiteFilter = "pending") =>
@@ -143,4 +204,17 @@ export const adminApi = {
     request<AdminSiteRow>(`/admin/sites/${id}/approve`, { method: "POST" }),
   deactivateSite: (id: string) =>
     request<AdminSiteRow>(`/admin/sites/${id}/deactivate`, { method: "POST" }),
+
+  // ----- tenants -----
+  tenants: () => request<TenantRow[]>("/admin/tenants"),
+  tenant: (id: string) => request<TenantDetail>(`/admin/tenants/${id}`),
+  createTenant: (body: CreateTenantInput) =>
+    request<CreatedTenant>("/admin/tenants", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  resetTenantPassword: (id: string) =>
+    request<{ sent: boolean }>(`/admin/tenants/${id}/reset-password`, { method: "POST" }),
+  deactivateTenant: (id: string) =>
+    request<TenantRow>(`/admin/tenants/${id}/deactivate`, { method: "POST" }),
 };
