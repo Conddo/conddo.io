@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Link from "next/link";
 import {
   Loader2,
   ShieldCheck,
@@ -11,6 +12,8 @@ import {
   Sparkles,
   ExternalLink,
   PowerOff,
+  TriangleAlert,
+  ArrowRight,
 } from "lucide-react";
 import { StudioNav } from "@/components/admin/StudioNav";
 import {
@@ -21,6 +24,7 @@ import {
   type PlatformOverview,
   type AdminSiteRow,
   type SiteFilter,
+  type AttentionRow,
   AdminApiError,
 } from "@/lib/api/admin";
 
@@ -136,6 +140,7 @@ function SignInCard({ onSignedIn }: { onSignedIn: () => void }) {
 function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
   const [overview, setOverview] = useState<PlatformOverview | null>(null);
   const [sites, setSites] = useState<AdminSiteRow[] | null>(null);
+  const [attention, setAttention] = useState<AttentionRow[] | null>(null);
   const [siteFilter, setSiteFilter] = useState<SiteFilter>("pending");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -158,10 +163,21 @@ function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
     }
   }
 
+  async function loadAttention() {
+    try {
+      setAttention(await adminApi.tenantsNeedingAttention());
+    } catch {
+      // Silent — the panel just doesn't render. Nothing worse than a
+      // "your dashboard is broken" banner when the panel itself is
+      // supplementary info.
+      setAttention([]);
+    }
+  }
+
   async function loadAll() {
     setLoading(true);
     setError(null);
-    await Promise.all([loadOverview(), loadSites(siteFilter)]);
+    await Promise.all([loadOverview(), loadSites(siteFilter), loadAttention()]);
     setLoading(false);
   }
 
@@ -192,6 +208,9 @@ function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
             <MetricsRow overview={overview} />
             <BreakdownRow overview={overview} />
           </>
+        )}
+        {attention && attention.length > 0 && (
+          <AttentionPanel rows={attention} />
         )}
         <SitesPanel
           sites={sites ?? []}
@@ -490,4 +509,83 @@ function prettyVertical(id: string): string {
     .split(/[-_]+/)
     .map((s) => (s === "and" ? "&" : s.charAt(0).toUpperCase() + s.slice(1)))
     .join(" ");
+}
+
+/* ------------------------------------------------------------------ */
+/* Needs-attention panel                                                */
+/* ------------------------------------------------------------------ */
+
+const REASON_LABEL: Record<string, string> = {
+  NO_SITE: "No site provisioned",
+  NO_CREDITS: "No credit account",
+  OWNER_UNVERIFIED: "Owner email not verified",
+};
+
+function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
+  return (
+    <section className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-500/[0.04] overflow-hidden">
+      <header className="flex items-center justify-between border-b border-amber-400/20 px-5 py-3.5">
+        <div className="flex items-center gap-2">
+          <TriangleAlert size={15} className="text-amber-300" />
+          <h2 className="text-[14px] font-medium text-white">
+            Needs attention
+            <span className="ml-2 font-mono text-[11.5px] font-normal text-amber-200/85">
+              {rows.length}
+            </span>
+          </h2>
+        </div>
+        <p className="text-[11.5px] text-amber-200/70">
+          Tenants that ended up in a bad state during signup
+        </p>
+      </header>
+      <ul className="divide-y divide-amber-400/10">
+        {rows.map((row) => (
+          <AttentionRowLi key={row.id} row={row} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function AttentionRowLi({ row }: { row: AttentionRow }) {
+  return (
+    <li>
+      <Link
+        href={`/admin/tenants/${row.id}`}
+        className="flex flex-wrap items-center gap-4 px-5 py-3.5 transition-colors hover:bg-amber-500/[0.05]"
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-2">
+            <p className="truncate text-[14px] font-medium text-white">
+              {row.name}
+            </p>
+            <span className="font-mono text-[11px] text-white/45">@{row.slug}</span>
+          </div>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-white/50">
+            {row.ownerEmail ? (
+              <span>{row.ownerEmail}</span>
+            ) : (
+              <span className="italic text-white/40">no owner</span>
+            )}
+            {row.verticalId && <span>{prettyVertical(row.verticalId)}</span>}
+            {row.planId && (
+              <span className="uppercase tracking-wide">{row.planId}</span>
+            )}
+            <span>{new Date(row.createdAt).toLocaleDateString()}</span>
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {row.reasons.map((r) => (
+              <span
+                key={r}
+                className="inline-flex items-center rounded-full bg-amber-500/[0.15] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.05em] text-amber-200"
+              >
+                {REASON_LABEL[r] ?? r}
+              </span>
+            ))}
+          </div>
+        </div>
+        <ArrowRight size={13} className="text-amber-200/60" />
+      </Link>
+    </li>
+  );
 }

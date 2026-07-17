@@ -194,6 +194,25 @@ export type CreatedTenant = {
   verticalId: string | null;
   planId: string | null;
   inviteUrl: string;
+  ownerEmail: string | null;
+  /** True when the invite email delivery attempt succeeded on the BE.
+   *  False means the tenant is provisioned but the admin should copy
+   *  the inviteUrl manually. */
+  emailSent: boolean;
+};
+
+/** One row of the Needs-Attention panel. Reasons are string codes so the
+ *  FE degrades gracefully when the BE adds new ones (unknown codes render
+ *  as their raw slug rather than crashing). */
+export type AttentionRow = {
+  id: string;
+  slug: string;
+  name: string;
+  verticalId: string | null;
+  planId: string | null;
+  ownerEmail: string | null;
+  reasons: string[]; // "NO_SITE" | "NO_CREDITS" | "OWNER_UNVERIFIED" | ...
+  createdAt: string;
 };
 
 export const adminApi = {
@@ -207,6 +226,8 @@ export const adminApi = {
 
   // ----- tenants -----
   tenants: () => request<TenantRow[]>("/admin/tenants"),
+  tenantsNeedingAttention: () =>
+    request<AttentionRow[]>("/admin/tenants/attention"),
   tenant: (id: string) => request<TenantDetail>(`/admin/tenants/${id}`),
   createTenant: (body: CreateTenantInput) =>
     request<CreatedTenant>("/admin/tenants", {

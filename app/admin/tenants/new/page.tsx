@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import {
   Loader2,
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   Check,
   Copy,
+  Mail,
 } from "lucide-react";
 import {
   adminApi,
@@ -210,6 +212,7 @@ function SuccessCard({ tenant }: { tenant: CreatedTenant }) {
       /* clipboard unavailable — user can select manually */
     }
   }
+  const emailAddress = tenant.ownerEmail;
   return (
     <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/[0.05] p-6">
       <div className="flex items-center gap-3">
@@ -225,9 +228,45 @@ function SuccessCard({ tenant }: { tenant: CreatedTenant }) {
         </div>
       </div>
 
-      <div className="mt-6">
+      {/* Email delivery status — the primary "did it work" answer. */}
+      <div
+        className={`mt-5 flex items-start gap-3 rounded-xl border p-3.5 text-[13px] ${
+          tenant.emailSent
+            ? "border-primary/30 bg-primary/[0.08] text-white"
+            : "border-amber-400/25 bg-amber-500/[0.08] text-amber-100"
+        }`}
+      >
+        {tenant.emailSent ? (
+          <Mail size={16} className="mt-0.5 shrink-0 text-primary-light" />
+        ) : (
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-300" />
+        )}
+        <div className="min-w-0">
+          {tenant.emailSent ? (
+            <p>
+              Invite email sent
+              {emailAddress ? (
+                <>
+                  {" to "}
+                  <span className="font-medium">{emailAddress}</span>.
+                </>
+              ) : (
+                "."
+              )}{" "}
+              The owner can set their password from the link.
+            </p>
+          ) : (
+            <p>
+              Tenant is provisioned, but the invite email did not send. Copy
+              the URL below and share it with the owner directly.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5">
         <p className="text-[12px] font-medium uppercase tracking-wide text-white/60">
-          Invite URL — send to the owner
+          Invite URL — fallback if the email doesn&apos;t arrive
         </p>
         <div className="mt-2 flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 p-2.5">
           <code className="flex-1 truncate font-mono text-[12px] text-white/85">
