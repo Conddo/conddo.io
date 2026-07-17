@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   Loader2,
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   Mail,
   PowerOff,
@@ -14,6 +15,8 @@ import {
   ShoppingCart,
   Globe,
   Sparkles,
+  Trash2,
+  RotateCcw,
 } from "lucide-react";
 import {
   adminApi,
@@ -59,11 +62,13 @@ export default function TenantDetailPage() {
 }
 
 function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
+  const router = useRouter();
   const [detail, setDetail] = useState<TenantDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [action, setAction] = useState<"reset" | "deactivate" | null>(null);
+  const [action, setAction] = useState<"reset" | "deactivate" | "delete" | "restore" | null>(null);
   const [flash, setFlash] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -114,6 +119,41 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
       setFlash({
         tone: "err",
         msg: err instanceof AdminApiError ? err.message : "Deactivate failed",
+      });
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function softDelete(confirmSlug: string) {
+    if (action) return;
+    setAction("delete");
+    setFlash(null);
+    try {
+      await adminApi.softDeleteTenant(id, confirmSlug);
+      // Bounce out — the deleted tenant is now hidden from the list.
+      router.push("/admin/tenants");
+    } catch (err) {
+      setFlash({
+        tone: "err",
+        msg: err instanceof AdminApiError ? err.message : "Delete failed",
+      });
+      setAction(null);
+    }
+  }
+
+  async function restore() {
+    if (action) return;
+    setAction("restore");
+    setFlash(null);
+    try {
+      await adminApi.restoreTenant(id);
+      setFlash({ tone: "ok", msg: "Tenant restored." });
+      await load();
+    } catch (err) {
+      setFlash({
+        tone: "err",
+        msg: err instanceof AdminApiError ? err.message : "Restore failed",
       });
     } finally {
       setAction(null);
@@ -177,9 +217,30 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
             </div>
 
             <SitesCard sites={detail.sites} />
+
+            <DangerZone
+              tenantName={detail.summary.name}
+              tenantSlug={detail.summary.slug}
+              deleted={detail.summary.deletedAt != null}
+              onDeleteClick={() => setDeleteOpen(true)}
+              onRestore={restore}
+              action={action}
+            />
           </>
         )}
       </div>
+
+      {deleteOpen && detail && (
+        <DeleteConfirmModal
+          tenantName={detail.summary.name}
+          tenantSlug={detail.summary.slug}
+          onCancel={() => setDeleteOpen(false)}
+          onConfirm={async (typedSlug) => {
+            setDeleteOpen(false);
+            await softDelete(typedSlug);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -193,7 +254,7 @@ function Header({
   row: TenantDetail["summary"];
   onReset: () => void;
   onDeactivate: () => void;
-  action: "reset" | "deactivate" | null;
+  action: "reset" | "deactivate" | "delete" | "restore" | null;
 }) {
   const isActive = row.status === "ACTIVE";
   return (
@@ -366,5 +427,167 @@ function StatusPill({ active, qa }: { active: boolean; qa: boolean }) {
       {active && <Check size={10} />}
       {label}
     </span>
+  );
+}
+
+/* ------------------------------------------------------------------- */
+/* Danger zone + delete confirmation                                     */
+/* ------------------------------------------------------------------- */
+
+function DangerZone({
+  tenantName,
+  tenantSlug,
+  deleted,
+  onDeleteClick,
+  onRestore,
+  action,
+}: {
+  tenantName: string;
+  tenantSlug: string;
+  deleted: boolean;
+  onDeleteClick: () => void;
+  onRestore: () => void;
+  action: "reset" | "deactivate" | "delete" | "restore" | null;
+}) {
+  return (
+    <section className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-500/[0.04] p-5">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-rose-200/80">
+        Danger zone
+      </p>
+      {deleted ? (
+        <>
+          <p className="mt-2 text-[14px] text-white">
+            <span className="font-medium">{tenantName}</span> is currently
+            deleted. Data is intact and the tenant can be restored.
+          </p>
+          <button
+            onClick={onRestore}
+            disabled={action !== null}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/25 bg-emerald-500/[0.06] px-3 py-1.5 text-[12.5px] font-medium text-emerald-200 hover:bg-emerald-500/[0.10] disabled:opacity-60"
+          >
+            {action === "restore" ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <RotateCcw size={12} />
+            )}
+            Restore tenant
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="mt-2 text-[14px] leading-relaxed text-white/80">
+            Delete <span className="font-medium text-white">{tenantName}</span>{" "}
+            (<span className="font-mono text-white/60">@{tenantSlug}</span>) from
+            the platform. This is a soft delete — the tenant is hidden from
+            all admin lists, sign-in is refused, and their site goes offline.
+            Data is preserved; a platform admin can restore later.
+          </p>
+          <button
+            onClick={onDeleteClick}
+            disabled={action !== null}
+            className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-rose-400/30 bg-rose-500/[0.10] px-3 py-1.5 text-[12.5px] font-medium text-rose-200 hover:bg-rose-500/[0.16] disabled:opacity-60"
+          >
+            {action === "delete" ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : (
+              <Trash2 size={12} />
+            )}
+            Delete tenant
+          </button>
+        </>
+      )}
+    </section>
+  );
+}
+
+function DeleteConfirmModal({
+  tenantName,
+  tenantSlug,
+  onCancel,
+  onConfirm,
+}: {
+  tenantName: string;
+  tenantSlug: string;
+  onCancel: () => void;
+  onConfirm: (typedSlug: string) => void | Promise<void>;
+}) {
+  const [typed, setTyped] = useState("");
+  const matches = typed.trim() === tenantSlug;
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!matches) return;
+    void onConfirm(typed.trim());
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirm tenant deletion"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      onClick={onCancel}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl border border-rose-400/25 bg-[#111114] p-6 shadow-2xl"
+      >
+        <div className="flex items-start gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/20 text-rose-300">
+            <AlertTriangle size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[16px] font-semibold text-white">
+              Delete {tenantName}?
+            </h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-white/65">
+              This tenant will be hidden from admin lists, their users
+              will be locked out, and the public site at{" "}
+              <span className="font-mono text-white/80">
+                {tenantSlug}.getconddo.com
+              </span>{" "}
+              will go offline. Data is preserved and a platform admin can
+              restore it.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-5">
+          <label className="block">
+            <span className="mb-1.5 block text-[12px] font-medium text-white/70">
+              Type <span className="font-mono text-white">{tenantSlug}</span> to confirm
+            </span>
+            <input
+              type="text"
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              autoFocus
+              autoComplete="off"
+              autoCapitalize="none"
+              placeholder={tenantSlug}
+              className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-[13.5px] text-white outline-none placeholder:text-white/25 focus:border-rose-400/50"
+            />
+          </label>
+
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-[13px] text-white/75 hover:bg-white/[0.06]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!matches}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 px-3.5 py-2 text-[13px] font-medium text-white hover:bg-rose-500/90 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Trash2 size={13} />
+              Delete tenant
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

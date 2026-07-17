@@ -165,6 +165,8 @@ export type TenantRow = {
   planId: string | null;
   status: string;
   createdAt: string;
+  /** V71 — non-null when the tenant has been soft-deleted. */
+  deletedAt: string | null;
   ownerEmail: string | null;
   ownerFullName: string | null;
   usersCount: number;
@@ -283,4 +285,11 @@ export const adminApi = {
     request<{ sent: boolean }>(`/admin/tenants/${id}/reset-password`, { method: "POST" }),
   deactivateTenant: (id: string) =>
     request<TenantRow>(`/admin/tenants/${id}/deactivate`, { method: "POST" }),
+  softDeleteTenant: (id: string, confirmSlug: string) =>
+    request<TenantRow>(`/admin/tenants/${id}`, {
+      method: "DELETE",
+      body: JSON.stringify({ confirmSlug }),
+    }),
+  restoreTenant: (id: string) =>
+    request<TenantRow>(`/admin/tenants/${id}/restore`, { method: "POST" }),
 };
