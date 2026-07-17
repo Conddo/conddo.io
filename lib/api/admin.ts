@@ -116,6 +116,28 @@ export type PlatformOverview = {
 
 export type SiteFilter = "pending" | "approved" | "active" | "all";
 
+export type RequestKind = "FEATURE" | "COMPLAINT" | "BUG" | "QUESTION";
+export type RequestStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "DISMISSED";
+export type RequestStatusFilter = RequestStatus | "ALL";
+export type RequestPriority = "LOW" | "NORMAL" | "HIGH";
+
+export type AdminRequestRow = {
+  id: string;
+  tenantId: string;
+  tenantSlug: string | null;
+  tenantName: string;
+  kind: RequestKind;
+  title: string;
+  body: string;
+  status: RequestStatus;
+  priority: RequestPriority;
+  adminResponse: string | null;
+  respondedBy: string | null;
+  respondedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AdminSiteRow = {
   id: string;
   tenantId: string;
@@ -229,6 +251,29 @@ export const adminApi = {
   tenantsNeedingAttention: () =>
     request<AttentionRow[]>("/admin/tenants/attention"),
   tenant: (id: string) => request<TenantDetail>(`/admin/tenants/${id}`),
+
+  // ----- support requests -----
+  requests: (status?: RequestStatusFilter) =>
+    request<AdminRequestRow[]>(
+      `/admin/requests${status ? `?status=${status}` : ""}`,
+    ),
+  request: (id: string) => request<AdminRequestRow>(`/admin/requests/${id}`),
+  requestCounts: () => request<Record<string, number>>("/admin/requests/counts"),
+  respondToRequest: (id: string, response: string) =>
+    request<AdminRequestRow>(`/admin/requests/${id}/respond`, {
+      method: "POST",
+      body: JSON.stringify({ response }),
+    }),
+  changeRequestStatus: (id: string, status: RequestStatus) =>
+    request<AdminRequestRow>(`/admin/requests/${id}/status`, {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+  changeRequestPriority: (id: string, priority: RequestPriority) =>
+    request<AdminRequestRow>(`/admin/requests/${id}/priority`, {
+      method: "POST",
+      body: JSON.stringify({ priority }),
+    }),
   createTenant: (body: CreateTenantInput) =>
     request<CreatedTenant>("/admin/tenants", {
       method: "POST",

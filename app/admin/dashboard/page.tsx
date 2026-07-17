@@ -212,6 +212,9 @@ function PlatformDashboard({ onSignOut }: { onSignOut: () => void }) {
         {attention && attention.length > 0 && (
           <AttentionPanel rows={attention} />
         )}
+
+        <RequestsSummary />
+
         <SitesPanel
           sites={sites ?? []}
           filter={siteFilter}
@@ -544,6 +547,40 @@ function AttentionPanel({ rows }: { rows: AttentionRow[] }) {
         ))}
       </ul>
     </section>
+  );
+}
+
+function RequestsSummary() {
+  const [counts, setCounts] = useState<Record<string, number> | null>(null);
+  useEffect(() => {
+    adminApi
+      .requestCounts()
+      .then(setCounts)
+      .catch(() => setCounts(null));
+  }, []);
+  if (!counts) return null;
+  const open = counts.OPEN ?? 0;
+  const inProgress = counts.IN_PROGRESS ?? 0;
+  const resolved = counts.RESOLVED ?? 0;
+  const total = open + inProgress + resolved + (counts.DISMISSED ?? 0);
+  if (total === 0) return null;
+  return (
+    <Link
+      href="/admin/requests"
+      className="mt-6 flex items-center justify-between rounded-2xl border border-white/[0.06] bg-[#111114] px-5 py-4 transition-colors hover:border-white/[0.10]"
+    >
+      <div>
+        <p className="text-[12px] font-medium uppercase tracking-wide text-white/60">
+          Support requests
+        </p>
+        <p className="mt-1 flex items-baseline gap-4 text-[14px] text-white">
+          <span className="text-amber-200">{open} open</span>
+          <span className="text-primary-light">{inProgress} in progress</span>
+          <span className="text-white/50">{resolved} resolved</span>
+        </p>
+      </div>
+      <ArrowRight size={14} className="text-white/50" />
+    </Link>
   );
 }
 
