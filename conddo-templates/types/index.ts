@@ -53,6 +53,18 @@ export interface SectionManifest {
   /** Human-readable description used by the AI for semantic search
    *  (embedded via Jina AI in the provisioning pipeline). */
   description: string;
+  /** Origin + licensing when the section was adapted from a third-party
+   *  source (Magic-generated, ported from a reference repo, …). Optional
+   *  for hand-authored components with `type: "hand-authored"`. */
+  source?: SectionSource;
+}
+
+export interface SectionSource {
+  type: "hand-authored" | "21st-magic" | "adapted";
+  /** Upstream URL when {@code type !== "hand-authored"}. */
+  url: string | null;
+  /** SPDX identifier (MIT / Apache-2.0 / …) when {@code type !== "hand-authored"}. */
+  license: string;
 }
 
 /** Per-vertical default configuration — the AI Provisioning Service picks
