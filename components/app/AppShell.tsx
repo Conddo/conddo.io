@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, Bell, LogOut, Menu, Search, X } from "lucide-react";
+import { ArrowLeft, Bell, LogOut, Menu, MessageSquare, Search, X } from "lucide-react";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useAppNav } from "@/hooks/useAppNav";
 import { useActiveModulePaths, isPathAllowed } from "@/hooks/useModuleAccess";
@@ -96,6 +96,24 @@ function SidebarBody({
           );
         })}
       </nav>
+
+      {/* Support / feature-request nudge — visible on every screen so
+          tenants can ask for what they don't see. Falls right above the
+          user panel so it reads as "help" not "primary nav". */}
+      <div className="px-3 pb-3">
+        <Link
+          href="/settings/support"
+          onClick={onNavigate}
+          className="group flex items-center gap-2 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-[12.5px] text-white/60 transition-colors hover:border-primary/25 hover:bg-primary/[0.05] hover:text-white"
+        >
+          <MessageSquare
+            size={14}
+            className="text-white/45 group-hover:text-primary-light"
+            strokeWidth={1.85}
+          />
+          Missing something? Ask us.
+        </Link>
+      </div>
 
       {/* User panel at the bottom. */}
       <div className="border-t border-white/[0.06] px-4 py-4">
