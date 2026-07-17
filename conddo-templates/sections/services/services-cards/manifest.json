@@ -1,0 +1,8 @@
+{
+  "id": "services-cards",
+  "category": "services",
+  "vertical_fit": ["salon", "professional-services", "healthcare"],
+  "style_tags": ["cards", "grid", "professional"],
+  "variables": ["heading", "services"],
+  "description": "Grid of service cards. Each service is a title|price|description triple. Best for salons, consultants, and any business where the tenant sells discrete services rather than physical products."
+}

@@ -1,0 +1,8 @@
+{
+  "id": "gallery-grid",
+  "category": "gallery",
+  "vertical_fit": ["fashion", "salon", "food-beverage", "retail"],
+  "style_tags": ["grid", "image-first", "masonry-lite"],
+  "variables": ["heading", "images"],
+  "description": "Responsive image grid. Each entry is a full image URL; captions optional via url|caption. Best for lookbooks (fashion), plated dishes (food), before/after (salon)."
+}

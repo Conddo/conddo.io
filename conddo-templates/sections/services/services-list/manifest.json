@@ -1,0 +1,8 @@
+{
+  "id": "services-list",
+  "category": "services",
+  "vertical_fit": ["food-beverage", "logistics", "professional-services"],
+  "style_tags": ["list", "menu-style", "clean"],
+  "variables": ["heading", "services"],
+  "description": "Menu-style list layout with each service on its own row. Same pipe-delimited title|price|description contract as services-cards, but reads as a printed menu (great for restaurants) or a shipping-rate list (great for logistics)."
+}

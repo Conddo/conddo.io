@@ -1,0 +1,8 @@
+{
+  "id": "booking-simple",
+  "category": "booking",
+  "vertical_fit": ["salon", "healthcare", "professional-services"],
+  "style_tags": ["cta", "simple", "conversion"],
+  "variables": ["heading", "subtext", "ctaText", "bookingLink"],
+  "description": "Big CTA card that drives visitors to the tenant's booking page. Best for salons and appointment-based businesses. The bookingLink typically points at the tenant's self-book URL on Conddo."
+}

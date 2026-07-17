@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Check, Loader2, Mail } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, Mail, Palette } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useOnboarding } from "@/lib/onboarding-store";
 import { registerComplete } from "@/lib/api/account";
@@ -61,6 +61,11 @@ export default function ReadyStep() {
     router.push("/dashboard");
   };
 
+  const goToBrand = () => {
+    reset();
+    router.push("/settings/brand");
+  };
+
   const retry = () => {
     setError(null);
     setStatus("creating");
@@ -117,7 +122,30 @@ export default function ReadyStep() {
         </div>
       </div>
 
-      <Button onClick={goToDashboard} variant="primary" size="lg" className="mt-6 w-full">
+      {/* Brand-setup nudge — the site renderer already reads Settings →
+          Brand live, so setting logo + colours now means the tenant's
+          first visitor sees a properly branded site. Optional; the
+          primary CTA still goes straight to the dashboard for owners
+          who just want to explore first. */}
+      <button
+        onClick={goToBrand}
+        className="mt-6 flex w-full items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.10]"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary-light">
+          <Palette size={17} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[14px] font-medium text-white">
+            Set your logo &amp; brand colours
+          </span>
+          <span className="block text-[12.5px] text-white/60">
+            Takes 30 seconds. Your site updates instantly.
+          </span>
+        </span>
+        <ArrowRight size={15} className="shrink-0 text-white/50" />
+      </button>
+
+      <Button onClick={goToDashboard} variant="primary" size="lg" className="mt-3 w-full">
         Go to my dashboard
       </Button>
     </div>

@@ -1,0 +1,8 @@
+{
+  "id": "product-list",
+  "category": "products",
+  "vertical_fit": ["pharmacy", "retail", "food-beverage"],
+  "style_tags": ["list", "text-forward", "dense"],
+  "variables": ["heading", "products"],
+  "description": "Text-forward product list — one row per product with title/price/description. Better than the grid when the tenant sells many SKUs and image quality is inconsistent (typical of pharmacy or restock catalogues)."
+}

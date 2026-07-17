@@ -3,10 +3,15 @@
 
 export type ManagedSiteTheme = {
   primaryColor?: string;
+  /** V68 addition — merged in from tenants.secondary_color by the BE. */
+  secondaryColor?: string;
   accentColor?: string;
   backgroundColor?: string;
   textColor?: string;
   fontFamily?: string;
+  /** V68 addition — matches TenantBrand["fontPairing"] values. Sites can
+   *  translate to a CSS font stack the same way WebsiteRenderer does. */
+  fontPairing?: "inter" | "playfair" | "poppins" | "lato";
 };
 
 export type ManagedSite = {
@@ -16,6 +21,8 @@ export type ManagedSite = {
   customDomain: string | null;
   sections: Record<string, unknown> | null;
   theme: ManagedSiteTheme | null;
+  /** V68 addition — tenant logo, merged live from Settings → Brand. */
+  logoUrl: string | null;
   publishedAt: string | null;
 };
 

@@ -3,6 +3,12 @@ import { HeroBoldCentered } from "@/conddo-templates/sections/hero/hero-bold-cen
 import { HeroSplitImage } from "@/conddo-templates/sections/hero/hero-split-image/component";
 import { HeroMinimal } from "@/conddo-templates/sections/hero/hero-minimal/component";
 import { ProductGrid3Col } from "@/conddo-templates/sections/products/product-grid-3col/component";
+import { ProductList } from "@/conddo-templates/sections/products/product-list/component";
+import { ServicesCards } from "@/conddo-templates/sections/services/services-cards/component";
+import { ServicesList } from "@/conddo-templates/sections/services/services-list/component";
+import { TestimonialsCards } from "@/conddo-templates/sections/testimonials/testimonials-cards/component";
+import { GalleryGrid } from "@/conddo-templates/sections/gallery/gallery-grid/component";
+import { BookingSimple } from "@/conddo-templates/sections/booking/booking-simple/component";
 import { ContactSimple } from "@/conddo-templates/sections/contact/contact-simple/component";
 
 /**
@@ -67,10 +73,13 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "hero-split-image": HeroSplitImage,
   "hero-minimal": HeroMinimal,
   "product-grid-3col": ProductGrid3Col,
+  "product-list": ProductList,
+  "services-cards": ServicesCards,
+  "services-list": ServicesList,
+  "testimonials-cards": TestimonialsCards,
+  "gallery-grid": GalleryGrid,
+  "booking-simple": BookingSimple,
   "contact-simple": ContactSimple,
-  // TODO: services-cards, testimonials-cards, gallery-grid, booking-simple,
-  // services-list, product-list — land these as component + manifest in
-  // conddo-templates/sections/ then add the SECTION_MAP row here.
 };
 
 /** Font-pairing id → CSS font stack. Kept centralised so components never
