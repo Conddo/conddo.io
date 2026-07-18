@@ -29,6 +29,7 @@ import {
   type TenantDetail,
 } from "@/lib/api/admin";
 import { StudioNav } from "@/components/admin/StudioNav";
+import { WebsiteBuilderPanel } from "@/components/admin/WebsiteBuilderPanel";
 
 /** studio.getconddo.com/tenants/[id] — full per-tenant snapshot + admin
  *  actions (trigger password reset, deactivate). Shows owner identity,
@@ -255,6 +256,7 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
 
             <MaintenancePanel tenantId={id} />
             <ModulesPanel tenantId={id} />
+            <WebsiteBuilderPanel tenantId={id} tenantName={detail.summary.name} />
 
             <DangerZone
               tenantName={detail.summary.name}

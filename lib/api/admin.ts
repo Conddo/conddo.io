@@ -318,6 +318,39 @@ export const adminApi = {
       method: "POST",
       body: JSON.stringify({ enabled }),
     }),
+
+  // ----- brand + managed-site (ghostwrite path) -----
+  setTenantBrand: (
+    id: string,
+    body: { logoUrl?: string | null; primaryColor?: string; secondaryColor?: string },
+  ) =>
+    request<{ logoUrl: string | null; primaryColor: string; secondaryColor: string }>(
+      `/admin/tenants/${id}/brand`,
+      { method: "PATCH", body: JSON.stringify(body) },
+    ),
+  setTenantManagedSite: (
+    id: string,
+    body: { sections: Record<string, unknown>; theme: Record<string, unknown> },
+  ) =>
+    request<ManagedSiteDto>(`/admin/tenants/${id}/managed-site`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+  publishTenantManagedSite: (id: string) =>
+    request<ManagedSiteDto>(`/admin/tenants/${id}/managed-site/publish`, {
+      method: "POST",
+    }),
+};
+
+/** Wire shape returned by the managed-site endpoints. */
+export type ManagedSiteDto = {
+  id: string;
+  subdomain: string | null;
+  qaApproved: boolean;
+  active: boolean;
+  publishedAt: string | null;
+  draftSections: Record<string, unknown> | null;
+  draftTheme: Record<string, unknown> | null;
 };
 
 export type AdminModuleRow = {
