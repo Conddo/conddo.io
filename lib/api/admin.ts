@@ -283,6 +283,11 @@ export const adminApi = {
     }),
   resetTenantPassword: (id: string) =>
     request<{ sent: boolean }>(`/admin/tenants/${id}/reset-password`, { method: "POST" }),
+  /** Set a fresh password on the tenant owner directly. Returns the plaintext
+   *  once — copy it, then it's unrecoverable. Also revokes every live
+   *  refresh token for the tenant. */
+  setTenantPassword: (id: string) =>
+    request<{ password: string }>(`/admin/tenants/${id}/set-password`, { method: "POST" }),
   deactivateTenant: (id: string) =>
     request<TenantRow>(`/admin/tenants/${id}/deactivate`, { method: "POST" }),
   softDeleteTenant: (id: string, confirmSlug: string) =>

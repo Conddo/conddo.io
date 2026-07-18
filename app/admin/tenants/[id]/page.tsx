@@ -17,6 +17,8 @@ import {
   Sparkles,
   Trash2,
   RotateCcw,
+  KeyRound,
+  Copy,
 } from "lucide-react";
 import {
   adminApi,
@@ -67,9 +69,12 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
   const [detail, setDetail] = useState<TenantDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [action, setAction] = useState<"reset" | "deactivate" | "delete" | "restore" | null>(null);
+  const [action, setAction] = useState<"reset" | "setPassword" | "deactivate" | "delete" | "restore" | null>(null);
   const [flash, setFlash] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  /** One-shot reveal of an admin-issued password. Cleared when the admin
+   *  dismisses the modal — no second look, no back button. */
+  const [revealedPassword, setRevealedPassword] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -101,6 +106,29 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
       setFlash({
         tone: "err",
         msg: err instanceof AdminApiError ? err.message : "Reset failed",
+      });
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function setPassword() {
+    if (action) return;
+    if (
+      !window.confirm(
+        "Generate a new password for this tenant's owner? Their live sessions will be terminated. The password is shown ONCE — copy it before dismissing.",
+      )
+    )
+      return;
+    setAction("setPassword");
+    setFlash(null);
+    try {
+      const res = await adminApi.setTenantPassword(id);
+      setRevealedPassword(res.password);
+    } catch (err) {
+      setFlash({
+        tone: "err",
+        msg: err instanceof AdminApiError ? err.message : "Set password failed",
       });
     } finally {
       setAction(null);
@@ -188,7 +216,13 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
         )}
         {detail && (
           <>
-            <Header row={detail.summary} onReset={triggerReset} onDeactivate={deactivate} action={action} />
+            <Header
+              row={detail.summary}
+              onReset={triggerReset}
+              onSetPassword={setPassword}
+              onDeactivate={deactivate}
+              action={action}
+            />
             {flash && (
               <div
                 className={`mt-4 rounded-xl border p-3 text-[13px] ${
@@ -234,6 +268,14 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
         )}
       </div>
 
+      {revealedPassword && detail && (
+        <RevealedPasswordModal
+          password={revealedPassword}
+          ownerEmail={detail.owner?.email ?? null}
+          onDismiss={() => setRevealedPassword(null)}
+        />
+      )}
+
       {deleteOpen && detail && (
         <DeleteConfirmModal
           tenantName={detail.summary.name}
@@ -252,13 +294,15 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
 function Header({
   row,
   onReset,
+  onSetPassword,
   onDeactivate,
   action,
 }: {
   row: TenantDetail["summary"];
   onReset: () => void;
+  onSetPassword: () => void;
   onDeactivate: () => void;
-  action: "reset" | "deactivate" | "delete" | "restore" | null;
+  action: "reset" | "setPassword" | "deactivate" | "delete" | "restore" | null;
 }) {
   const isActive = row.status === "ACTIVE";
   return (
@@ -286,7 +330,16 @@ function Header({
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary/90 px-3 py-1.5 text-[12.5px] font-medium text-white hover:bg-primary disabled:opacity-60"
         >
           {action === "reset" ? <Loader2 size={12} className="animate-spin" /> : <Mail size={12} />}
-          Send password reset
+          Send reset email
+        </button>
+        <button
+          onClick={onSetPassword}
+          disabled={action !== null}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12.5px] font-medium text-white/90 hover:bg-white/[0.08] disabled:opacity-60"
+          title="Generate a new password and reveal it once"
+        >
+          {action === "setPassword" ? <Loader2 size={12} className="animate-spin" /> : <KeyRound size={12} />}
+          Set new password
         </button>
         {isActive && (
           <button
@@ -451,7 +504,7 @@ function DangerZone({
   deleted: boolean;
   onDeleteClick: () => void;
   onRestore: () => void;
-  action: "reset" | "deactivate" | "delete" | "restore" | null;
+  action: "reset" | "setPassword" | "deactivate" | "delete" | "restore" | null;
 }) {
   return (
     <section className="mt-6 rounded-2xl border border-rose-400/20 bg-rose-500/[0.04] p-5">
@@ -766,6 +819,73 @@ function ModulesPanel({ tenantId }: { tenantId: string }) {
           })}
         </ul>
       )}
+    </div>
+  );
+}
+
+// ----- One-shot password reveal ------------------------------------------
+
+function RevealedPasswordModal({
+  password,
+  ownerEmail,
+  onDismiss,
+}: {
+  password: string;
+  ownerEmail: string | null;
+  onDismiss: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard blocked — admin can still read + type it */
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-md rounded-2xl border border-emerald-400/20 bg-cinema-elev p-5">
+        <div className="flex items-center gap-2 text-[13px] font-semibold text-emerald-200">
+          <KeyRound size={14} /> New password issued
+        </div>
+        <p className="mt-2 text-[13px] text-white/70">
+          Share this with{" "}
+          <span className="text-white">{ownerEmail ?? "the owner"}</span> via a
+          secure channel. Their live sessions have been terminated.
+        </p>
+
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-white/12 bg-black/40 p-3">
+          <code className="flex-1 select-all break-all font-mono text-[15px] tracking-wide text-white">
+            {password}
+          </code>
+          <button
+            onClick={copy}
+            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-white/12 bg-white/[0.05] px-2 py-1 text-[12px] text-white/85 hover:bg-white/[0.10]"
+            aria-label="Copy password"
+          >
+            {copied ? <Check size={12} className="text-emerald-300" /> : <Copy size={12} />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+
+        <p className="mt-3 text-[12px] text-rose-200/90">
+          This is the only time you&apos;ll see this password. Once you close this
+          dialog it&apos;s unrecoverable — you&apos;ll have to generate another.
+        </p>
+
+        <div className="mt-5 flex justify-end">
+          <button
+            onClick={onDismiss}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary/90 px-3.5 py-2 text-[13px] font-medium text-white hover:bg-primary"
+          >
+            I&apos;ve copied it — close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
