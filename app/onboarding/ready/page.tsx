@@ -2,10 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowRight, Check, Mail, Palette } from "lucide-react";
+import { AlertCircle, Check, Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useOnboarding } from "@/lib/onboarding-store";
 import { registerComplete } from "@/lib/api/account";
+import { brandApi } from "@/lib/api/brand";
+import { mediaApi } from "@/lib/api/media";
 import { hrefFor } from "@/lib/onboarding-steps";
 
 // Step 6 — success screen. The /auth/register/complete call happens HERE
@@ -14,8 +16,19 @@ import { hrefFor } from "@/lib/onboarding-steps";
 // fails, the user can retry without losing state.
 export default function ReadyStep() {
   const router = useRouter();
-  const { registrationId, businessName, email, vertical, modules, fullName, websiteVibe, reset } =
-    useOnboarding();
+  const {
+    registrationId,
+    businessName,
+    email,
+    vertical,
+    fullName,
+    websiteVibe,
+    logoFile,
+    primaryColor,
+    secondaryColor,
+    planId,
+    reset,
+  } = useOnboarding();
   const [status, setStatus] = useState<"creating" | "ready" | "error">("creating");
   const [error, setError] = useState<string | null>(null);
   const startedRef = useRef(false);
@@ -31,26 +44,48 @@ export default function ReadyStep() {
 
     (async () => {
       try {
+        // Provisions the tenant + owner user + sites row + credit account
+        // + fires TenantActivatedEvent. Sets our access token as a side
+        // effect so subsequent /brand + /media calls are authenticated.
         await registerComplete({
           registrationId,
           businessName: businessName.trim() || "My business",
           businessType: vertical ?? null,
-          // Plan is picked post-onboarding when the owner hits a billing
-          // gate. Free-tier during trial.
-          planId: null,
-          // Feeds the BE-side WebsiteGenerationService that seeds the
-          // managed site's draft. Blank = generator uses vertical defaults.
+          planId: planId ?? null,
           websiteVibe: websiteVibe?.trim() || null,
         });
+
+        // Best-effort brand apply. Failures here don't roll back the
+        // tenant — the owner can redo it from Settings → Brand. We batch
+        // logo upload + colour patch so the site's first render already
+        // carries their brand.
+        let logoUrl: string | null = null;
+        if (logoFile) {
+          try {
+            const res = await mediaApi.upload(logoFile, "logo");
+            if (res.ok) logoUrl = res.data.url;
+          } catch {
+            /* swallow — brand save still runs with colours only */
+          }
+        }
+        try {
+          await brandApi.patch({
+            logoUrl,
+            primaryColor,
+            secondaryColor,
+          });
+        } catch {
+          /* swallow — owner can retry from Settings → Brand */
+        }
+
         setStatus("ready");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Couldn't finish setup. Please try again.");
         setStatus("error");
       }
     })();
-  }, [registrationId, businessName, vertical, websiteVibe, router]);
+  }, [registrationId, businessName, vertical, websiteVibe, planId, logoFile, primaryColor, secondaryColor, router]);
 
-  const enabledCount = modules.filter((m) => m.enabled).length;
   const firstName = fullName.trim().split(/\s+/)[0];
   const greeting = firstName ? `You're all set, ${firstName}.` : "You're all set.";
 
@@ -59,11 +94,6 @@ export default function ReadyStep() {
     // the same browser deserves a clean slate.
     reset();
     router.push("/dashboard");
-  };
-
-  const goToBrand = () => {
-    reset();
-    router.push("/settings/brand");
   };
 
   const retry = () => {
@@ -105,7 +135,7 @@ export default function ReadyStep() {
         {greeting}
       </h1>
       <p className="mt-2 text-[15px] text-white/65">
-        <span className="font-medium text-white">{businessName.trim() || "Your business"}</span> is ready. {enabledCount} tools active.
+        <span className="font-medium text-white">{businessName.trim() || "Your business"}</span> is ready.
       </p>
 
       <div className="mt-6 rounded-xl border border-white/[0.08] bg-cinema-elev p-4 text-left">
@@ -122,30 +152,7 @@ export default function ReadyStep() {
         </div>
       </div>
 
-      {/* Brand-setup nudge — the site renderer already reads Settings →
-          Brand live, so setting logo + colours now means the tenant's
-          first visitor sees a properly branded site. Optional; the
-          primary CTA still goes straight to the dashboard for owners
-          who just want to explore first. */}
-      <button
-        onClick={goToBrand}
-        className="mt-6 flex w-full items-center gap-3 rounded-xl border border-primary/25 bg-primary/[0.06] p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.10]"
-      >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary-light">
-          <Palette size={17} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[14px] font-medium text-white">
-            Set your logo &amp; brand colours
-          </span>
-          <span className="block text-[12.5px] text-white/60">
-            Takes 30 seconds. Your site updates instantly.
-          </span>
-        </span>
-        <ArrowRight size={15} className="shrink-0 text-white/50" />
-      </button>
-
-      <Button onClick={goToDashboard} variant="primary" size="lg" className="mt-3 w-full">
+      <Button onClick={goToDashboard} variant="primary" size="lg" className="mt-6 w-full">
         Go to my dashboard
       </Button>
     </div>

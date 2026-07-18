@@ -1,10 +1,16 @@
 import { create } from "zustand";
+import type { BillingCycle, PlanId } from "./api/subscriptions";
 
-// Onboarding wizard state, shared across the six step pages. Mirrors the
-// Onboarding v2 flow: account → description → processing → review → vibe →
-// ready. Fields fill in progressively; there is no OTP because email
-// verification is deferred until after the tenant is created (banner in
-// the dashboard).
+// Onboarding wizard state, shared across the step pages. v3 flow:
+// account → vertical → brand → vibe → plan → ready. Fields fill in
+// progressively; the AI classifier fields (`modules`, `verticalConfidence`)
+// are kept in-place for the review-screen fallback path but the v3 flow
+// no longer renders review, so they stay zero-initialised.
+//
+// `logoFile` is a live File object — deliberately not persisted; if the
+// tab is closed mid-onboarding the tenant re-picks the file on return.
+// The upload only fires from the Ready step, after the tenant JWT is
+// minted by /auth/register/complete.
 
 export type ModuleSuggestion = {
   id: string;
@@ -34,8 +40,21 @@ export type OnboardingData = {
   verticalConfidence: number;
   modules: ModuleSuggestion[];
 
-  // Step 5 — optional website style prompt.
+  // Step 3 — brand. logoFile is a live File until the tenant is created,
+  // then Ready uploads it and stores the resulting URL back into logoUrl.
+  logoFile: File | null;
+  logoPreviewUrl: string | null; // object URL for the preview <img>
+  logoUrl: string | null;         // set after upload succeeds
+  primaryColor: string;           // hex — defaults reflect the marketing brand
+  secondaryColor: string;
+
+  // Step 4 — optional website style prompt.
   websiteVibe: string;
+
+  // Step 5 — plan selection. Free-tier + 14-day trial applies when planId
+  // is 'free' or null; anything paid kicks off Paystack checkout after Ready.
+  planId: PlanId | null;
+  planCycle: BillingCycle;
 };
 
 type OnboardingStore = OnboardingData & {
@@ -57,7 +76,14 @@ const initial: OnboardingData = {
   vertical: null,
   verticalConfidence: 0,
   modules: [],
+  logoFile: null,
+  logoPreviewUrl: null,
+  logoUrl: null,
+  primaryColor: "#7C5CBF",
+  secondaryColor: "#141414",
   websiteVibe: "",
+  planId: null,
+  planCycle: "monthly",
 };
 
 export const useOnboarding = create<OnboardingStore>((set) => ({

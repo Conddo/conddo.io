@@ -1,15 +1,17 @@
-// The guided signup flow. Per the Onboarding v2 spec:
-//   1. Account       — email + password (no OTP)
-//   2. Description   — one big textarea, free-text
-//   3. Processing    — AI classification runs, cycling copy
-//   4. Review        — AI proposes modules; owner confirms
-//   5. Website vibe  — optional style prompt (Skip for now)
-//   6. Ready         — success + banner about verifying email later
+// The guided signup flow (v3 — picker-first, deterministic):
+//   1. Account         — email + password (no OTP)
+//   2. Vertical        — pick a business type + optional description refine
+//   3. Brand           — logo + primary/secondary colours
+//   4. Website vibe    — optional style prompt (Skip)
+//   5. Plan            — pick a subscription tier (trial applies until charge)
+//   6. Ready           — provisions tenant, uploads logo, patches brand
 //
-// The FLOW list drives OnboardingChrome's progress dots. "processing" has
-// no back button and no visible progress advance — it lives between
-// steps 2 and 4 but reuses step 2's progress index so the dots feel
-// stable.
+// v2 had a Processing + Review pair between description and vibe — the
+// AI classifier needed both a "hide the latency" screen and a chance for
+// the owner to correct the module set. The keyword classifier is instant
+// and picks straight from the vertical's YAML, so those two screens are
+// gone. Their page directories are left in the tree unlinked; safe to
+// delete later.
 
 export type OnboardingRoute = {
   slug: string;
@@ -37,29 +39,29 @@ export const FLOW: OnboardingRoute[] = [
     subtitle: "Pick the closest match. You can refine with a description if you want a more customized setup.",
   },
   {
-    slug: "processing",
-    progressIndex: 2,
-    title: "",
-    subtitle: "",
-    hideBack: true,
-  },
-  {
-    slug: "review",
+    slug: "brand",
     progressIndex: 3,
-    title: "Here's what we've set up for you",
-    subtitle: "Review the tools we've selected. Add or remove any before you continue.",
+    title: "Add your brand",
+    subtitle: "Upload your logo and pick your colours. You can change these later.",
   },
   {
     slug: "website-vibe",
     progressIndex: 4,
-    title: "One more thing",
-    subtitle: "Describe the vibe you want for your website. This step is optional.",
+    title: "Website vibe",
+    subtitle: "Describe how you want your site to feel. Optional — skip if unsure.",
+  },
+  {
+    slug: "plan",
+    progressIndex: 5,
+    title: "Pick a plan",
+    subtitle: "You get 14 days free. Change or cancel any time.",
   },
   {
     slug: "ready",
     progressIndex: 5,
     title: "You're all set",
     subtitle: "",
+    hideBack: true,
   },
 ];
 
