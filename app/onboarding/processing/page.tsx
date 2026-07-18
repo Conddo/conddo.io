@@ -7,7 +7,7 @@ import { hrefFor, nextStep } from "@/lib/onboarding-steps";
 import { classifyBusiness, type ClassifiedModule } from "@/lib/api/account";
 
 const PHRASES = [
-  "Reading your business description…",
+  "Setting up your workspace…",
   "Selecting the right tools…",
   "Configuring your platform…",
 ];
@@ -20,7 +20,7 @@ const SLUG = "processing";
 // modules so the flow never dead-ends (per the spec's design principles).
 export default function ProcessingStep() {
   const router = useRouter();
-  const { registrationId, description, modules, update, reachStep } = useOnboarding();
+  const { registrationId, description, vertical, modules, update, reachStep } = useOnboarding();
   const [phraseIndex, setPhraseIndex] = useState(0);
   const startedRef = useRef(false);
 
@@ -46,7 +46,9 @@ export default function ProcessingStep() {
       return;
     }
 
-    if (!registrationId || !description) {
+    // Picker-first flow: a vertical alone is enough. Description is only
+    // required when neither has been captured yet.
+    if (!registrationId || (!description && !vertical)) {
       router.replace(hrefFor("business-description"));
       return;
     }
@@ -55,7 +57,8 @@ export default function ProcessingStep() {
       try {
         const result = await classifyBusiness({
           registrationId,
-          description,
+          description: description ?? "",
+          verticalHint: vertical ?? undefined,
         });
         const toModule = (m: ClassifiedModule, enabled: boolean): ModuleSuggestion => ({
           id: m.id,
@@ -102,7 +105,7 @@ export default function ProcessingStep() {
         }, 1500);
       }
     })();
-  }, [registrationId, description, modules.length, router, update, reachStep]);
+  }, [registrationId, description, vertical, modules.length, router, update, reachStep]);
 
   return (
     <div className="w-full max-w-md text-center">

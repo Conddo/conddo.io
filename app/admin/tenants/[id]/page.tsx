@@ -23,6 +23,7 @@ import {
   AdminApiError,
   clearAdminToken,
   getAdminToken,
+  type AdminModuleRow,
   type TenantDetail,
 } from "@/lib/api/admin";
 import { StudioNav } from "@/components/admin/StudioNav";
@@ -217,6 +218,9 @@ function Body({ id, onSignOut }: { id: string; onSignOut: () => void }) {
             </div>
 
             <SitesCard sites={detail.sites} />
+
+            <MaintenancePanel tenantId={id} />
+            <ModulesPanel tenantId={id} />
 
             <DangerZone
               tenantName={detail.summary.name}
@@ -588,6 +592,180 @@ function DeleteConfirmModal({
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+// ----- Maintenance: reset sessions + purge seed --------------------------
+
+function MaintenancePanel({ tenantId }: { tenantId: string }) {
+  const [busy, setBusy] = useState<"reset" | "purge" | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function reset() {
+    setBusy("reset");
+    setErr(null);
+    setMsg(null);
+    try {
+      const r = await adminApi.resetTenantSessions(tenantId);
+      setMsg(
+        r.refreshTokensDeleted === 0
+          ? "No active sessions to reset."
+          : `Invalidated ${r.refreshTokensDeleted} refresh token${r.refreshTokensDeleted === 1 ? "" : "s"}. Users will re-login on next request.`,
+      );
+    } catch (e) {
+      setErr(e instanceof AdminApiError ? e.message : "Reset failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function purge() {
+    if (
+      !window.confirm(
+        "Delete seed products whose SKUs don't match this tenant's current vertical, and clear any module overrides. Real tenant data (products with non-seed SKUs) is not touched. Continue?",
+      )
+    )
+      return;
+    setBusy("purge");
+    setErr(null);
+    setMsg(null);
+    try {
+      const r = await adminApi.purgeTenantSeed(tenantId);
+      setMsg(
+        `Deleted ${r.productsDeleted} seed product${r.productsDeleted === 1 ? "" : "s"} + cleared ${r.overridesCleared} module override${r.overridesCleared === 1 ? "" : "s"}.`,
+      );
+    } catch (e) {
+      setErr(e instanceof AdminApiError ? e.message : "Purge failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+      <div className="text-[13px] font-semibold text-white">Session &amp; seed</div>
+      <p className="mt-1 text-[12px] text-white/50">
+        Use after changing this tenant&apos;s vertical: reset sessions so they get a fresh JWT
+        against the new modules, and purge leftover demo rows from the previous vertical.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          onClick={reset}
+          disabled={busy !== null}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-white/[0.08] disabled:opacity-50"
+        >
+          {busy === "reset" ? <Loader2 size={12} className="animate-spin" /> : <RotateCcw size={12} />}
+          Reset sessions
+        </button>
+        <button
+          onClick={purge}
+          disabled={busy !== null}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-white hover:bg-white/[0.08] disabled:opacity-50"
+        >
+          {busy === "purge" ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+          Purge seed data
+        </button>
+      </div>
+      {msg && <div className="mt-3 text-[12px] text-emerald-300">{msg}</div>}
+      {err && <div className="mt-3 text-[12px] text-rose-300">{err}</div>}
+    </div>
+  );
+}
+
+// ----- Modules: admin add/remove per tenant ------------------------------
+
+function ModulesPanel({ tenantId }: { tenantId: string }) {
+  const [rows, setRows] = useState<AdminModuleRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [pending, setPending] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    let alive = true;
+    adminApi
+      .tenantModules(tenantId)
+      .then((r) => {
+        if (alive) setRows(r);
+      })
+      .catch((e) => {
+        if (alive) setErr(e instanceof AdminApiError ? e.message : "Load failed");
+      });
+    return () => {
+      alive = false;
+    };
+  }, [tenantId]);
+
+  async function toggle(moduleId: string, next: boolean) {
+    setPending((p) => new Set(p).add(moduleId));
+    try {
+      const updated = await adminApi.setTenantModule(tenantId, moduleId, next);
+      setRows((prev) =>
+        prev ? prev.map((r) => (r.id === moduleId ? updated : r)) : prev,
+      );
+    } catch (e) {
+      setErr(e instanceof AdminApiError ? e.message : "Update failed");
+    } finally {
+      setPending((p) => {
+        const n = new Set(p);
+        n.delete(moduleId);
+        return n;
+      });
+    }
+  }
+
+  return (
+    <div className="mt-6 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+      <div className="flex items-baseline justify-between">
+        <div className="text-[13px] font-semibold text-white">Modules</div>
+        <div className="text-[11px] text-white/40">
+          Vertical default = auto; toggling writes an override.
+        </div>
+      </div>
+
+      {err && <div className="mt-2 text-[12px] text-rose-300">{err}</div>}
+
+      {!rows && !err && (
+        <div className="mt-3 flex items-center gap-2 text-[12px] text-white/40">
+          <Loader2 size={12} className="animate-spin" /> Loading modules…
+        </div>
+      )}
+
+      {rows && (
+        <ul className="mt-3 divide-y divide-white/6">
+          {rows.map((r) => {
+            const isPending = pending.has(r.id);
+            return (
+              <li key={r.id} className="flex items-center justify-between gap-3 py-2">
+                <div className="min-w-0">
+                  <div className="truncate font-mono text-[12px] text-white">{r.id}</div>
+                  <div className="text-[11px] text-white/40">
+                    {r.source === "tenant_choice" ? "override" : "vertical default"}
+                    {r.inVerticalDefault ? " · in preset" : " · outside preset"}
+                  </div>
+                </div>
+                <button
+                  onClick={() => toggle(r.id, !r.enabled)}
+                  disabled={isPending}
+                  className={
+                    "inline-flex h-6 w-11 items-center rounded-full transition disabled:opacity-50 " +
+                    (r.enabled ? "bg-emerald-500/70" : "bg-white/12")
+                  }
+                  aria-pressed={r.enabled}
+                  aria-label={r.enabled ? `Disable ${r.id}` : `Enable ${r.id}`}
+                >
+                  <span
+                    className={
+                      "h-5 w-5 rounded-full bg-white transition " +
+                      (r.enabled ? "translate-x-[22px]" : "translate-x-[2px]")
+                    }
+                  />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

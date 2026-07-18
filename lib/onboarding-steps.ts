@@ -33,8 +33,8 @@ export const FLOW: OnboardingRoute[] = [
   {
     slug: "business-description",
     progressIndex: 2,
-    title: "Tell us about your business",
-    subtitle: "What do you sell or do, and where are you based?",
+    title: "What kind of business?",
+    subtitle: "Pick the closest match. You can refine with a description if you want a more customized setup.",
   },
   {
     slug: "processing",

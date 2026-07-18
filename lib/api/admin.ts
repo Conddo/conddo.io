@@ -292,4 +292,35 @@ export const adminApi = {
     }),
   restoreTenant: (id: string) =>
     request<TenantRow>(`/admin/tenants/${id}/restore`, { method: "POST" }),
+
+  // ----- session + seed maintenance -----
+  resetTenantSessions: (id: string) =>
+    request<{ refreshTokensDeleted: number }>(
+      `/admin/tenants/${id}/reset-sessions`,
+      { method: "POST" },
+    ),
+  purgeTenantSeed: (id: string) =>
+    request<{ productsDeleted: number; overridesCleared: number }>(
+      `/admin/tenants/${id}/purge-seed`,
+      { method: "POST" },
+    ),
+
+  // ----- modules -----
+  tenantModules: (id: string) =>
+    request<AdminModuleRow[]>(`/admin/tenants/${id}/modules`),
+  setTenantModule: (id: string, moduleId: string, enabled: boolean) =>
+    request<AdminModuleRow>(`/admin/tenants/${id}/modules/${moduleId}`, {
+      method: "POST",
+      body: JSON.stringify({ enabled }),
+    }),
+};
+
+export type AdminModuleRow = {
+  id: string;
+  enabled: boolean;
+  inVerticalDefault: boolean;
+  /** "vertical_default" — comes from the vertical/plan preset; toggling
+   *  writes an override. "tenant_choice" — a tenant_module_overrides row
+   *  already exists and is the source of truth. */
+  source: "vertical_default" | "tenant_choice";
 };
