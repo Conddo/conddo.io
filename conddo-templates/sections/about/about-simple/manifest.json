@@ -1,0 +1,16 @@
+{
+  "id": "about-simple",
+  "category": "about",
+  "vertical_fit": [
+    "professional-services",
+    "salon",
+    "healthcare",
+    "food-beverage",
+    "retail",
+    "fashion",
+    "logistics"
+  ],
+  "style_tags": ["clean", "story", "brand-first"],
+  "variables": ["eyebrow", "heading", "body"],
+  "description": "Story-first About section — three-line eyebrow / heading / body block on a soft neutral background. Uses brand secondary as the heading colour, brand primary as the eyebrow accent. Works for every vertical whose story is central to their sale (services, wellness, hospitality)."
+}

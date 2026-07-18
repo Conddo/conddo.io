@@ -2,6 +2,7 @@ import type { WebsiteConfig, TenantBrand, SectionProps } from "@/conddo-template
 import { HeroBoldCentered } from "@/conddo-templates/sections/hero/hero-bold-centered/component";
 import { HeroSplitImage } from "@/conddo-templates/sections/hero/hero-split-image/component";
 import { HeroMinimal } from "@/conddo-templates/sections/hero/hero-minimal/component";
+import { AboutSimple } from "@/conddo-templates/sections/about/about-simple/component";
 import { ProductGrid3Col } from "@/conddo-templates/sections/products/product-grid-3col/component";
 import { ProductList } from "@/conddo-templates/sections/products/product-list/component";
 import { ServicesCards } from "@/conddo-templates/sections/services/services-cards/component";
@@ -72,6 +73,7 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "hero-bold-centered": HeroBoldCentered,
   "hero-split-image": HeroSplitImage,
   "hero-minimal": HeroMinimal,
+  "about-simple": AboutSimple,
   "product-grid-3col": ProductGrid3Col,
   "product-list": ProductList,
   "services-cards": ServicesCards,
