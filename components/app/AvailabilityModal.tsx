@@ -78,15 +78,15 @@ export function AvailabilityModal({
           {DAY_KEYS.map((k) => {
             const d = hours[k];
             return (
-              <div key={k} className="flex flex-wrap items-center gap-3 rounded-lg border border-white/[0.06] px-3 py-2.5">
+              <div key={k} className="flex flex-wrap items-center gap-3 rounded-lg border border-neutral-border px-3 py-2.5">
                 <label className="flex w-28 items-center gap-2">
                   <input
                     type="checkbox"
                     checked={d.open}
                     onChange={(e) => setDay(k, { open: e.target.checked })}
-                    className="h-4 w-4 rounded border-white/[0.06] text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-neutral-border text-primary focus:ring-primary"
                   />
-                  <span className="text-[14px] font-medium text-white">{DOW[k]}</span>
+                  <span className="text-[14px] font-medium text-ink">{DOW[k]}</span>
                 </label>
                 {d.open ? (
                   <div className="flex items-center gap-2">
@@ -94,18 +94,18 @@ export function AvailabilityModal({
                       type="time"
                       value={d.start}
                       onChange={(e) => setDay(k, { start: e.target.value })}
-                      className="rounded-md border border-white/[0.06] bg-cinema-elev px-2 py-1.5 text-[13px] text-white focus:border-primary-light focus:outline-none"
+                      className="rounded-md border border-neutral-border bg-white px-2 py-1.5 text-[13px] text-ink focus:border-primary focus:outline-none"
                     />
-                    <span className="text-white/45">–</span>
+                    <span className="text-content-muted">–</span>
                     <input
                       type="time"
                       value={d.end}
                       onChange={(e) => setDay(k, { end: e.target.value })}
-                      className="rounded-md border border-white/[0.06] bg-cinema-elev px-2 py-1.5 text-[13px] text-white focus:border-primary-light focus:outline-none"
+                      className="rounded-md border border-neutral-border bg-white px-2 py-1.5 text-[13px] text-ink focus:border-primary focus:outline-none"
                     />
                   </div>
                 ) : (
-                  <span className="text-[13px] text-white/45">Closed</span>
+                  <span className="text-[13px] text-content-muted">Closed</span>
                 )}
               </div>
             );

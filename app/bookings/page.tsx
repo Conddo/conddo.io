@@ -88,12 +88,18 @@ export default function BookingsPage() {
   const availabilityQ = useApiQuery(bookingsApi.availability);
   const { data: performance } = useApiQuery(bookingsApi.performance);
   const { data: me } = useApiQuery(meQuery);
+  // Fetch the canonical share URL from the BE — it reads conddo.base-domain
+  // and returns the tenant-subdomain shape. Falls back to the local helper
+  // only during the first render before this resolves.
+  const { data: linkRow } = useApiQuery(bookingsApi.link);
 
   const evs = events.data ?? [];
   const upcomingList = upcoming.data ?? [];
   const availability = availabilityQ.data;
   const hours = availability?.workingHours;
-  const bookingLink = tenantBookingUrl(me?.tenant?.subdomain);
+  const bookingLink =
+    (linkRow?.url && linkRow.url.replace(/^https?:\/\//, "")) ||
+    tenantBookingUrl(me?.tenant?.subdomain);
 
   function refetchAll() {
     events.refetch();

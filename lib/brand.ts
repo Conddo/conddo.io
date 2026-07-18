@@ -26,10 +26,9 @@
  *  constants, not in the brand name itself. */
 export const BRAND_NAME = "Conddo";
 
-/** The root domain the tenant-facing app lives at. Today: conddo.io.
- *  Tomorrow: getconddo.com. */
+/** The root domain the tenant-facing app lives at. Prod: getconddo.com. */
 export const APP_DOMAIN =
-  process.env.NEXT_PUBLIC_APP_DOMAIN?.trim() || "conddo.io";
+  process.env.NEXT_PUBLIC_APP_DOMAIN?.trim() || "getconddo.com";
 
 /** The email domain we send + receive from. Usually the same as
  *  APP_DOMAIN; left as a separate var so they can diverge during the
@@ -67,14 +66,22 @@ export const tenantWorkspaceUrl = (slug?: string | null) =>
 export const tenantWorkspaceHttpsUrl = (slug?: string | null) =>
   `https://${tenantWorkspaceUrl(slug)}`;
 
-/** `conddo.io/book/<slug>` — public booking link. Without protocol so it
- *  fits cleanly inside a font-mono URL-display chip. */
-export const tenantBookingUrl = (slug?: string | null) =>
-  `${APP_DOMAIN}/book/${slug && slug.trim() ? slug.trim() : "…"}`;
+/** `<slug>.getconddo.com/book/<slug>` — public booking link on the tenant's
+ *  own subdomain so the site renderer applies their brand. Without protocol
+ *  so it fits cleanly inside a font-mono URL-display chip.
+ *
+ *  Prefer using the BE-returned {@code url} from {@code /bookings/link}
+ *  when available — this helper is the fallback for pre-fetch renders. */
+export const tenantBookingUrl = (slug?: string | null) => {
+  const s = slug && slug.trim() ? slug.trim() : "your-business";
+  return `${s}.${APP_DOMAIN}/book/${s}`;
+};
 
-/** `conddo.io/pay/<slug>` — public payment link. */
-export const tenantPayUrl = (slug?: string | null) =>
-  `${APP_DOMAIN}/pay/${slug && slug.trim() ? slug.trim() : "…"}`;
+/** `<slug>.getconddo.com/pay/<slug>` — public payment link, tenant subdomain. */
+export const tenantPayUrl = (slug?: string | null) => {
+  const s = slug && slug.trim() ? slug.trim() : "your-business";
+  return `${s}.${APP_DOMAIN}/pay/${s}`;
+};
 
 /** Support inbox — the catch-all for "talk to a human" CTAs. */
 export const supportEmail = () => `hello@${EMAIL_DOMAIN}`;
