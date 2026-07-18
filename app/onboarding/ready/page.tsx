@@ -63,7 +63,7 @@ export default function ReadyStep() {
         if (logoFile) {
           try {
             const res = await mediaApi.upload(logoFile, "logo");
-            if (res.ok) logoUrl = res.data.url;
+            logoUrl = res.data.url;
           } catch {
             /* swallow — brand save still runs with colours only */
           }
