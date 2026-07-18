@@ -788,24 +788,50 @@ function ModulesPanel({ tenantId }: { tenantId: string }) {
         <ul className="mt-3 divide-y divide-white/6">
           {rows.map((r) => {
             const isPending = pending.has(r.id);
+            // Locked = the tenant's plan doesn't cover this module. The BE
+            // refuses enable requests for these (403 PLAN_UPGRADE_REQUIRED);
+            // rendering it disabled here saves the round-trip and makes the
+            // upgrade-path obvious.
+            const locked = !r.inPlan;
             return (
-              <li key={r.id} className="flex items-center justify-between gap-3 py-2">
+              <li
+                key={r.id}
+                className={
+                  "flex items-center justify-between gap-3 py-2 " +
+                  (locked ? "opacity-60" : "")
+                }
+              >
                 <div className="min-w-0">
-                  <div className="truncate font-mono text-[12px] text-white">{r.id}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="truncate font-mono text-[12px] text-white">{r.id}</div>
+                    {locked && (
+                      <span className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-amber-200">
+                        upgrade
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[11px] text-white/40">
                     {r.source === "tenant_choice" ? "override" : "vertical default"}
                     {r.inVerticalDefault ? " · in preset" : " · outside preset"}
+                    {locked && " · above current plan"}
                   </div>
                 </div>
                 <button
-                  onClick={() => toggle(r.id, !r.enabled)}
-                  disabled={isPending}
+                  onClick={() => !locked && toggle(r.id, !r.enabled)}
+                  disabled={isPending || locked}
                   className={
-                    "inline-flex h-6 w-11 items-center rounded-full transition disabled:opacity-50 " +
+                    "inline-flex h-6 w-11 items-center rounded-full transition disabled:cursor-not-allowed disabled:opacity-50 " +
                     (r.enabled ? "bg-emerald-500/70" : "bg-white/12")
                   }
                   aria-pressed={r.enabled}
-                  aria-label={r.enabled ? `Disable ${r.id}` : `Enable ${r.id}`}
+                  aria-label={
+                    locked
+                      ? `${r.id} requires a higher plan`
+                      : r.enabled
+                        ? `Disable ${r.id}`
+                        : `Enable ${r.id}`
+                  }
+                  title={locked ? "Requires a higher plan" : undefined}
                 >
                   <span
                     className={

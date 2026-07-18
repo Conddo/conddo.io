@@ -324,6 +324,10 @@ export type AdminModuleRow = {
   id: string;
   enabled: boolean;
   inVerticalDefault: boolean;
+  /** Whether the module is included in this tenant's plan tier. When false,
+   *  the toggle is a no-op (BE refuses enable) and the row renders locked
+   *  with an "Upgrade required" hint. */
+  inPlan: boolean;
   /** "vertical_default" — comes from the vertical/plan preset; toggling
    *  writes an override. "tenant_choice" — a tenant_module_overrides row
    *  already exists and is the source of truth. */
