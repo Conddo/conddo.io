@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Plus,
   Share2,
@@ -115,6 +116,12 @@ export default function BookingsPage() {
       subtitle="Manage your consultation schedule and client meetings."
       actions={
         <>
+          <Link
+            href="/bookings/services"
+            className="hidden items-center gap-1.5 rounded-md border border-white/12 bg-white/[0.03] px-3 py-1.5 text-[13px] text-white/85 hover:bg-white/[0.08] sm:inline-flex"
+          >
+            Services
+          </Link>
           <Button variant="secondary" size="md" className="hidden sm:inline-flex" onClick={copyLink}>
             <Share2 size={16} />
             Share link
