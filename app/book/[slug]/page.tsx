@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { CalendarDays, Clock, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { publicBookingApi } from "@/lib/api/public-booking";
 import { ApiError, isNotConfigured, isServerError } from "@/lib/api/client";
@@ -27,6 +26,7 @@ export default function PublicBookingPage({ params }: { params: { slug: string }
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [service, setService] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -38,6 +38,8 @@ export default function PublicBookingPage({ params }: { params: { slug: string }
   const hours = data?.workingHours;
   const booked = data?.booked ?? [];
   const unavailable = error && !isNotConfigured(error) && !isServerError(error);
+  const brandLogo = data?.logoUrl ?? null;
+  const brandPrimary = data?.primaryColor ?? "#7C5CBF";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,6 +54,7 @@ export default function PublicBookingPage({ params }: { params: { slug: string }
       const { data: result } = await publicBookingApi.book(slug, {
         customerName: name.trim(),
         customerPhone: phone.trim() || undefined,
+        customerEmail: email.trim() || undefined,
         service: service.trim() || undefined,
         start: start.toISOString(),
       });
@@ -66,8 +69,25 @@ export default function PublicBookingPage({ params }: { params: { slug: string }
   return (
     <main className="flex min-h-screen items-center justify-center bg-cinema-base px-4 py-10">
       <div className="w-full max-w-md">
-        <div className="mb-8 flex justify-center">
-          <Image src="/conddo_logo.png" alt={BRAND_NAME} width={1800} height={480} priority className="h-7 w-auto opacity-80" />
+        <div className="mb-8 flex flex-col items-center">
+          {brandLogo ? (
+            <Image
+              src={brandLogo}
+              alt={business}
+              width={200}
+              height={64}
+              className="h-14 w-auto object-contain"
+              unoptimized
+            />
+          ) : (
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-2xl text-[20px] font-semibold text-white"
+              style={{ background: brandPrimary }}
+            >
+              {business.slice(0, 1).toUpperCase()}
+            </div>
+          )}
+          <p className="mt-3 text-[13px] font-medium text-white/70">{business}</p>
         </div>
 
         <div className="rounded-2xl border border-white/[0.06] bg-cinema-elev p-7 sm:p-8">
@@ -144,19 +164,30 @@ export default function PublicBookingPage({ params }: { params: { slug: string }
                   <label className={labelCls}>Your name</label>
                   <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Amaka Obi" required />
                 </div>
-                <div>
-                  <label className={labelCls}>Phone</label>
-                  <input className={inputCls} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0801 234 5678" />
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className={labelCls}>Phone</label>
+                    <input className={inputCls} type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="0801 234 5678" />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Email</label>
+                    <input className={inputCls} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                  </div>
                 </div>
                 <div>
                   <label className={labelCls}>What for? (optional)</label>
                   <input className={inputCls} value={service} onChange={(e) => setService(e.target.value)} placeholder="e.g. Consultation" />
                 </div>
 
-                <Button variant="primary" size="lg" className="w-full" disabled={submitting}>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  style={{ background: brandPrimary }}
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-lg font-medium text-white transition hover:opacity-90 disabled:opacity-60"
+                >
                   {submitting ? <Loader2 size={18} className="animate-spin" /> : <CalendarDays size={18} />}
                   {submitting ? "Requesting…" : "Request booking"}
-                </Button>
+                </button>
               </form>
 
               {booked.length > 0 && (
