@@ -66,21 +66,22 @@ export const tenantWorkspaceUrl = (slug?: string | null) =>
 export const tenantWorkspaceHttpsUrl = (slug?: string | null) =>
   `https://${tenantWorkspaceUrl(slug)}`;
 
-/** `<slug>.getconddo.com/book/<slug>` — public booking link on the tenant's
- *  own subdomain so the site renderer applies their brand. Without protocol
- *  so it fits cleanly inside a font-mono URL-display chip.
+/** `app.getconddo.com/book/<slug>` — public booking link on the app subdomain
+ *  (Vercel-served). Wildcard tenant subdomains would route through the EC2
+ *  tenant-site Caddy which has no /book route, so we keep booking on `app.`.
+ *  Without protocol so it fits cleanly inside a font-mono URL-display chip.
  *
  *  Prefer using the BE-returned {@code url} from {@code /bookings/link}
- *  when available — this helper is the fallback for pre-fetch renders. */
+ *  when available — this helper is the pre-fetch fallback. */
 export const tenantBookingUrl = (slug?: string | null) => {
-  const s = slug && slug.trim() ? slug.trim() : "your-business";
-  return `${s}.${APP_DOMAIN}/book/${s}`;
+  const s = slug && slug.trim() ? slug.trim() : "…";
+  return `app.${APP_DOMAIN}/book/${s}`;
 };
 
-/** `<slug>.getconddo.com/pay/<slug>` — public payment link, tenant subdomain. */
+/** `app.getconddo.com/pay/<slug>` — public payment link, app subdomain. */
 export const tenantPayUrl = (slug?: string | null) => {
-  const s = slug && slug.trim() ? slug.trim() : "your-business";
-  return `${s}.${APP_DOMAIN}/pay/${s}`;
+  const s = slug && slug.trim() ? slug.trim() : "…";
+  return `app.${APP_DOMAIN}/pay/${s}`;
 };
 
 /** Support inbox — the catch-all for "talk to a human" CTAs. */
