@@ -19,6 +19,7 @@ import { TestimonialsCards } from "@/conddo-templates/sections/testimonials/test
 import { TestimonialCentered } from "@/conddo-templates/sections/testimonials/testimonial-centered/component";
 import { GalleryGrid } from "@/conddo-templates/sections/gallery/gallery-grid/component";
 import { BookingSimple } from "@/conddo-templates/sections/booking/booking-simple/component";
+import { BookingForm } from "@/conddo-templates/sections/booking/booking-form/component";
 import { ContactSimple } from "@/conddo-templates/sections/contact/contact-simple/component";
 import { ProofStrip } from "@/conddo-templates/sections/trust/proof-strip/component";
 import { CtaBand } from "@/conddo-templates/sections/cta/cta-band/component";
@@ -123,6 +124,7 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "testimonial-centered": TestimonialCentered,
   "gallery-grid": GalleryGrid,
   "booking-simple": BookingSimple,
+  "booking-form": BookingForm,
   "contact-simple": ContactSimple,
   "proof-strip": ProofStrip,
   "cta-band": CtaBand,

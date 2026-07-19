@@ -707,6 +707,19 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             },
           },
           {
+            id: "contact-booking",
+            componentId: "booking-form",
+            variables: {
+              heading: "Book a Strategy Call",
+              subtext:
+                "Pick a slot and share your details — every booking here lands in our team's dashboard, and you get a confirmation email.",
+              slug: "flagscale-pr",
+              successHeadline: "You're on the calendar",
+              successBody:
+                "We'll get back to you within one business day to confirm.",
+            },
+          },
+          {
             id: "contact-form",
             componentId: "contact-two-col",
             variables: {

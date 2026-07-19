@@ -1,0 +1,14 @@
+{
+  "id": "booking-form",
+  "category": "booking",
+  "vertical_fit": ["professional-services", "salon", "healthcare", "food-beverage"],
+  "style_tags": ["booking", "form", "connected", "live-availability"],
+  "variables": [
+    "heading",
+    "subtext",
+    "slug",
+    "successHeadline",
+    "successBody"
+  ],
+  "description": "Live embedded booking form. Fetches the tenant's service menu + 14-day slot availability from /api/v1/public/book/{slug} and POSTs new bookings to the same endpoint, so anything a customer submits here lands in the tenant's /bookings dashboard exactly like a booking placed on the standalone /book/{slug} page. Requires `slug` (the tenant's booking-link slug, usually the tenant subdomain slug)."
+}
