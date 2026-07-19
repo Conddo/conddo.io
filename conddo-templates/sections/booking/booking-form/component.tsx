@@ -37,11 +37,13 @@ type PublicAvailability = {
 
 type ApiEnvelope<T> = { success?: boolean; data?: T; error?: { message?: string } };
 
-const API_BASE =
-  (typeof process !== "undefined" &&
-    (process as { env?: Record<string, string | undefined> }).env
-      ?.NEXT_PUBLIC_API_URL) ||
-  "";
+// Next.js inlines NEXT_PUBLIC_* env vars into the client bundle at build
+// time via a literal-substitution pass. Wrapping the read in a runtime
+// typeof-guard defeats that pass, which is exactly why the tenant site's
+// booking form was fetching from a broken same-origin path
+// (flagscale-pr.getconddo.com/api/…) instead of the API host. Reading the
+// var straight lets the substitution happen and API_BASE gets baked in.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export function BookingForm({ variables, brand }: SectionProps) {
   const heading = String(variables.heading ?? "Book a call");
@@ -101,7 +103,18 @@ export function BookingForm({ variables, brand }: SectionProps) {
           }
         }
       } catch (e) {
-        if (alive) setAvailError("Network hiccup loading availability.");
+        if (alive) {
+          const msg = e instanceof Error ? e.message : "";
+          // Surface the underlying reason when we have one — helps diagnose
+          // CORS / DNS / mixed-content failures rather than blaming the
+          // user's network. Falls back to a friendly line when the browser
+          // gave us nothing to work with.
+          setAvailError(
+            msg
+              ? `Couldn't load availability: ${msg}`
+              : "Couldn't load availability. Please try again in a moment.",
+          );
+        }
       } finally {
         if (alive) setLoadingAvail(false);
       }

@@ -130,7 +130,18 @@ export function NavHeader({
                 <img
                   src={brand.logoUrl}
                   alt={businessName}
-                  style={{ height: 28, width: "auto", objectFit: "contain" }}
+                  // Wordmark logos (mark + text) compress hard at small
+                  // heights. 44px keeps the mark crisp on the standard
+                  // 64px nav bar without blowing the header out of ratio.
+                  // maxWidth stops very wide wordmarks from pushing the
+                  // nav links off-screen on narrower viewports.
+                  style={{
+                    height: 44,
+                    width: "auto",
+                    maxWidth: 180,
+                    objectFit: "contain",
+                    display: "block",
+                  }}
                 />
               ) : (
                 <span

@@ -41,7 +41,13 @@ export function FooterBrand({ variables, brand }: SectionProps) {
               <img
                 src={brand.logoUrl}
                 alt={businessName}
-                style={{ height: 34, width: "auto", objectFit: "contain" }}
+                style={{
+                  height: 52,
+                  width: "auto",
+                  maxWidth: 220,
+                  objectFit: "contain",
+                  display: "block",
+                }}
               />
             ) : (
               <span
