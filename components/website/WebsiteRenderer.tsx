@@ -24,6 +24,15 @@ import { ProofStrip } from "@/conddo-templates/sections/trust/proof-strip/compon
 import { CtaBand } from "@/conddo-templates/sections/cta/cta-band/component";
 import { FooterBrand } from "@/conddo-templates/sections/footer/footer-brand/component";
 import { NavHeader } from "@/conddo-templates/sections/nav/nav-header/component";
+import { ValuesStrip } from "@/conddo-templates/sections/about/values-strip/component";
+import { VisionMissionPair } from "@/conddo-templates/sections/about/vision-mission-pair/component";
+import { TeamGrid } from "@/conddo-templates/sections/about/team-grid/component";
+import { ServicesAnchorNav } from "@/conddo-templates/sections/services/services-anchor-nav/component";
+import { ServiceBlocksAlternating } from "@/conddo-templates/sections/services/service-blocks-alternating/component";
+import { ProcessRings } from "@/conddo-templates/sections/services/process-rings/component";
+import { PortfolioFilterGrid } from "@/conddo-templates/sections/gallery/portfolio-filter-grid/component";
+import { ContactTwoCol } from "@/conddo-templates/sections/contact/contact-two-col/component";
+import { FaqAccordion } from "@/conddo-templates/sections/contact/faq-accordion/component";
 
 /**
  * The one component that renders a tenant's website. Takes the tenant's
@@ -118,6 +127,15 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "proof-strip": ProofStrip,
   "cta-band": CtaBand,
   "footer-brand": FooterBrand,
+  "values-strip": ValuesStrip,
+  "vision-mission-pair": VisionMissionPair,
+  "team-grid": TeamGrid,
+  "services-anchor-nav": ServicesAnchorNav,
+  "service-blocks-alternating": ServiceBlocksAlternating,
+  "process-rings": ProcessRings,
+  "portfolio-filter-grid": PortfolioFilterGrid,
+  "contact-two-col": ContactTwoCol,
+  "faq-accordion": FaqAccordion,
 };
 
 /** Best-effort recovery of a business name from any hero-style section. */

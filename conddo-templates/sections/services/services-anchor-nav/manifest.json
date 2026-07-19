@@ -1,0 +1,8 @@
+{
+  "id": "services-anchor-nav",
+  "category": "services",
+  "vertical_fit": ["professional-services", "salon", "healthcare"],
+  "style_tags": ["sticky", "nav", "anchor", "jump-links"],
+  "variables": ["items"],
+  "description": "Sticky horizontal jump nav that follows the scroll near the top of the Services page. Each item is 'label|#anchor-id' — items scroll to matching id targets on the same page. Small-caps labels, gold underline on hover."
+}

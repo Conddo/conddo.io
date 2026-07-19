@@ -368,6 +368,7 @@ const MULTIPAGE_STARTER_JSON = JSON.stringify(
 const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
   {
     pages: [
+      // --------- HOME ---------
       {
         id: "home",
         path: "/",
@@ -378,7 +379,8 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "hero-editorial",
             variables: {
               eyebrow: "Pan-African Public Relations",
-              headline: "Your Brand Has a Story. We Make Sure the Right People Hear It.",
+              headline:
+                "Your Brand Has a Story. We Make Sure the Right People Hear It.",
               accentPhrase: "the Right People Hear It.",
               subtext:
                 "Flagscale PR helps African SMEs turn visibility into revenue, real media coverage, and lasting corporate partnerships.",
@@ -392,7 +394,8 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             id: "home-proof",
             componentId: "proof-strip",
             variables: {
-              label: "Trusted by growing businesses across Anglophone and Francophone Africa",
+              label:
+                "Trusted by growing businesses across Anglophone and Francophone Africa",
               stats: [
                 "40+|Campaigns run",
                 "12+|Industries served",
@@ -408,7 +411,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
               eyebrow: "What we do",
               heading: "PR solutions built for African businesses.",
               subheading:
-                "Four pillars we lean into. Everything else — events, influencers, brand systems — lives under them.",
+                "Four pillars we lean into. Everything else lives under them.",
               pillars: [
                 "Media Relations|Getting your business covered by the outlets that matter.",
                 "Brand Building|Positioning that makes you stand out and stay memorable.",
@@ -424,7 +427,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "testimonial-centered",
             variables: {
               quote:
-                "Flagscale reframed how we tell our story — and the coverage followed. They understood the business before they wrote a single word.",
+                "Flagscale reframed how we tell our story and the coverage followed. They understood the business before they wrote a single word.",
               attribution: "Amaka Obi",
               role: "Founder, Lagos-based SME",
             },
@@ -433,8 +436,9 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             id: "home-cta",
             componentId: "cta-band",
             variables: {
-              headline: "Ready to get your business the visibility it deserves?",
-              subtext: "Book a call and let's see if we're a fit.",
+              headline:
+                "Ready to get your business the visibility it deserves?",
+              subtext: "Book a call and let us see if we are a fit.",
               ctaText: "Book a Strategy Call",
               ctaLink: "/contact",
             },
@@ -444,8 +448,10 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "footer-brand",
             variables: {
               businessName: "Flagscale PR",
-              tagline: "Building lasting relationships — people, passion, professionalism.",
-              supportingLine: "Empowering African brands with expert PR to shine and thrive.",
+              tagline:
+                "Building lasting relationships — people, passion, professionalism.",
+              supportingLine:
+                "Empowering African brands with expert PR to shine and thrive.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [
@@ -453,14 +459,12 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "Instagram|https://instagram.com/flagscalepr",
                 "Twitter/X|https://twitter.com/flagscalepr",
               ],
-              legalLinks: [
-                "Privacy|/privacy",
-                "Terms|/terms",
-              ],
+              legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
           },
         ],
       },
+      // --------- ABOUT ---------
       {
         id: "about",
         path: "/about",
@@ -472,10 +476,50 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             variables: {
               eyebrow: "Who we are",
               heading: "People. Passion. Professionalism.",
-              body: "Flagscale PR was built on a simple belief: every African business has a story worth telling well.\n\nWe work with small and medium sized businesses across Africa to craft messaging that actually lands with the people it's meant for. That means media relations that get real coverage, content that builds trust, and communication strategies that hold up under pressure — not just polished words that look good in a deck.",
+              body:
+                "Flagscale PR was built on a simple belief: every African business has a story worth telling well.\n\nWe work with small and medium sized businesses across Africa to craft messaging that actually lands with the people it is meant for. That means media relations that get real coverage, content that builds trust, and communication strategies that hold up under pressure — not just polished words that look good in a deck.",
               pullQuote:
                 "We take the time to understand your business before we ever write a word.",
-              imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&auto=format&fit=crop",
+              imageUrl:
+                "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&auto=format&fit=crop",
+            },
+          },
+          {
+            id: "about-vision-mission",
+            componentId: "vision-mission-pair",
+            variables: {
+              visionLabel: "Our Vision",
+              visionBody:
+                "Data-driven, tailored communication for African SMEs building toward a stronger, more connected African economy.",
+              missionLabel: "Our Mission",
+              missionBody:
+                "We help SMEs across Africa communicate clearly with the people who matter most and reach their business goals, using both traditional and new media.",
+            },
+          },
+          {
+            id: "about-values",
+            componentId: "values-strip",
+            variables: {
+              heading: "What we hold ourselves to.",
+              values: [
+                "Clarity|We say what we mean, and help you do the same.",
+                "Craft|Every strategy starts with real research, not templates.",
+                "Trust|We build relationships that last past one campaign.",
+                "Reach|We work across language and market lines, not just one country.",
+              ],
+            },
+          },
+          {
+            id: "about-team",
+            componentId: "team-grid",
+            variables: {
+              eyebrow: "The team",
+              heading: "The people behind Flagscale PR.",
+              members: [
+                "Coming soon||",
+                "Coming soon||",
+                "Coming soon||",
+              ],
             },
           },
           {
@@ -492,7 +536,8 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "footer-brand",
             variables: {
               businessName: "Flagscale PR",
-              tagline: "Building lasting relationships — people, passion, professionalism.",
+              tagline:
+                "Building lasting relationships — people, passion, professionalism.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [
@@ -503,6 +548,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
           },
         ],
       },
+      // --------- SERVICES ---------
       {
         id: "services",
         path: "/services",
@@ -519,19 +565,47 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             },
           },
           {
-            id: "services-full",
-            componentId: "services-cards",
+            id: "services-nav",
+            componentId: "services-anchor-nav",
             variables: {
-              heading: "The full service list",
-              services: [
-                "Media Relations|On request|Real relationships with journalists and outlets, so your business gets covered — not overlooked.",
-                "Content Creation|On request|Stories, articles, and brand content that sound like you and resonate with your audience.",
-                "Social Media Management|On request|Consistent, on-brand presence across the platforms your customers actually use.",
-                "Crisis Management|On request|When things go wrong, we help you respond fast, protect your reputation, and stay in control.",
-                "Event Management|On request|From planning to execution, we handle the details so your event runs the way it should.",
-                "Influencer Marketing|On request|Connecting your brand with voices your audience already trusts.",
-                "Brand Building|On request|Positioning that helps you stand out in a crowded market and stay memorable.",
-                "Corporate Communications|On request|Clear, consistent messaging for stakeholders, partners, and investors.",
+              items: [
+                "Media Relations|#media-relations",
+                "Content|#content-creation",
+                "Social|#social-media",
+                "Crisis|#crisis-management",
+                "Events|#event-management",
+                "Influencer|#influencer-marketing",
+                "Brand|#brand-building",
+                "Corporate|#corporate-comms",
+              ],
+            },
+          },
+          {
+            id: "services-blocks",
+            componentId: "service-blocks-alternating",
+            variables: {
+              blocks: [
+                "media-relations|Media Relations|We build real relationships with journalists and media outlets so your business gets covered, not overlooked.|Press outreach;Media kits;Interview placements",
+                "content-creation|Content Creation|Stories, articles, and brand content that sound like you and resonate with your audience.|Brand articles;Thought leadership;Press releases",
+                "social-media|Social Media Management|Consistent, on-brand presence across the platforms your customers actually use.|Content calendars;Community management;Platform strategy",
+                "crisis-management|Crisis Management|When things go wrong, we help you respond fast, protect your reputation, and stay in control of the narrative.|Response plans;Holding statements;Stakeholder comms",
+                "event-management|Event Management|From planning to execution, we handle the details so your event runs the way it should.|Launch events;Press conferences;Media days",
+                "influencer-marketing|Influencer Marketing|Connecting your brand with voices your audience already trusts.|Influencer sourcing;Campaign briefs;Performance tracking",
+                "brand-building|Brand Building|Positioning that helps you stand out in a crowded market and stay memorable.|Messaging frameworks;Brand voice guides;Positioning statements",
+                "corporate-comms|Corporate Communications|Clear, consistent messaging for stakeholders, partners, and investors.|Investor updates;Internal comms;Partnership announcements",
+              ],
+            },
+          },
+          {
+            id: "services-process",
+            componentId: "process-rings",
+            variables: {
+              heading: "How we work",
+              steps: [
+                "Discovery|We learn your business, your audience, and your goals.",
+                "Strategy|We build a plan tailored to your market and objectives.",
+                "Execution|We put the plan into motion across the right channels.",
+                "Measurement|We track results and refine as we go.",
               ],
             },
           },
@@ -559,6 +633,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
           },
         ],
       },
+      // --------- PORTFOLIO ---------
       {
         id: "portfolio",
         path: "/portfolio",
@@ -569,23 +644,25 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "hero-editorial",
             variables: {
               eyebrow: "Our work",
-              headline: "Businesses We've Helped Grow",
+              headline: "Businesses We Have Helped Grow",
               subtext:
-                "A selection of campaigns and stories we've shaped. Case studies coming soon.",
+                "A selection of campaigns and stories we have shaped. Case studies coming soon.",
             },
           },
           {
-            id: "portfolio-gallery",
-            componentId: "gallery-grid",
+            id: "portfolio-grid",
+            componentId: "portfolio-filter-grid",
             variables: {
-              heading: "A few stories we've helped tell",
-              images: [
-                "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop|Client campaign highlight",
-                "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1000&auto=format&fit=crop|Behind the scenes",
-                "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1000&auto=format&fit=crop|Team workshop",
-                "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1000&auto=format&fit=crop|Event planning",
-                "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=1000&auto=format&fit=crop|Strategy session",
-                "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1000&auto=format&fit=crop|Media day",
+              eyebrow: "Case studies",
+              heading: "A few stories we have helped tell.",
+              filters: ["Media Relations", "Brand Building", "Events", "Crisis"],
+              items: [
+                "Media Relations|https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop|Client A|Secured coverage across five national outlets in launch week.|#",
+                "Brand Building|https://images.unsplash.com/photo-1552664730-d307ca884978?w=1000&auto=format&fit=crop|Client B|Repositioned a regional brand as a Pan-African player.|#",
+                "Events|https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1000&auto=format&fit=crop|Client C|Sold-out launch event with press pickup in four cities.|#",
+                "Crisis|https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1000&auto=format&fit=crop|Client D|Reputation recovery inside 72 hours.|#",
+                "Brand Building|https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=1000&auto=format&fit=crop|Client E|Brand voice and guidelines for a scaling SME.|#",
+                "Media Relations|https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1000&auto=format&fit=crop|Client F|First-time coverage in tier-one business press.|#",
               ],
             },
           },
@@ -613,6 +690,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
           },
         ],
       },
+      // --------- CONTACT ---------
       {
         id: "contact",
         path: "/contact",
@@ -622,20 +700,45 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             id: "contact-hero",
             componentId: "hero-editorial",
             variables: {
-              eyebrow: "Let's talk",
+              eyebrow: "Let us talk",
               headline: "Let's Build Your Brand's Story",
               subtext:
-                "Ready to get your business the visibility it deserves? Reach out and let's talk.",
+                "Ready to get your business the visibility it deserves? Reach out and let us talk.",
             },
           },
           {
-            id: "contact-details",
-            componentId: "contact-simple",
+            id: "contact-form",
+            componentId: "contact-two-col",
             variables: {
               businessName: "Flagscale PR",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
-              address: "",
+              responseTime:
+                "We respond to all inquiries within one to two business days.",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
+              ],
+              helpOptions: [
+                "Media Relations",
+                "Brand Building",
+                "Crisis Management",
+                "Events",
+                "Something else",
+              ],
+            },
+          },
+          {
+            id: "contact-faq",
+            componentId: "faq-accordion",
+            variables: {
+              heading: "Before you reach out",
+              items: [
+                "How quickly will I hear back?|We respond to all inquiries within one to two business days.",
+                "Do you work with businesses outside Nigeria?|Yes. We work across Anglophone and Francophone Africa.",
+                "Do you offer one-off projects or only ongoing retainers?|Both. We will recommend the right fit once we understand your goals.",
+              ],
             },
           },
           {
@@ -643,8 +746,10 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "footer-brand",
             variables: {
               businessName: "Flagscale PR",
-              tagline: "Building lasting relationships — people, passion, professionalism.",
-              supportingLine: "Empowering African brands with expert PR to shine and thrive.",
+              tagline:
+                "Building lasting relationships — people, passion, professionalism.",
+              supportingLine:
+                "Empowering African brands with expert PR to shine and thrive.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [

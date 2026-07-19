@@ -1,0 +1,8 @@
+{
+  "id": "service-blocks-alternating",
+  "category": "services",
+  "vertical_fit": ["professional-services", "salon", "healthcare", "real-estate"],
+  "style_tags": ["services", "alternating", "editorial", "deliverables"],
+  "variables": ["blocks"],
+  "description": "Full-width alternating service blocks. Each block is 'anchorId|title|description|deliverable1;deliverable2;deliverable3'. Alternates ring-motif side (left / right) so the page doesn't feel like a repeated stack. Each block gets a scroll-target id so anchor nav lands on it."
+}

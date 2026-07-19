@@ -1,0 +1,8 @@
+{
+  "id": "team-grid",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare"],
+  "style_tags": ["team", "grid", "photo-cards"],
+  "variables": ["eyebrow", "heading", "subheading", "members"],
+  "description": "Photo grid of team members. Each member is 'name|role|photoUrl'. Cards are square-ish (4:5) portraits with name + role beneath. On mobile the grid falls to 2 columns."
+}

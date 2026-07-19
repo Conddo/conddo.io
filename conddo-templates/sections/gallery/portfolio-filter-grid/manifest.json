@@ -1,0 +1,8 @@
+{
+  "id": "portfolio-filter-grid",
+  "category": "gallery",
+  "vertical_fit": ["professional-services", "salon", "fashion", "real-estate"],
+  "style_tags": ["portfolio", "filter", "masonry", "case-studies"],
+  "variables": ["eyebrow", "heading", "filters", "items"],
+  "description": "Filterable case-study grid. Each item is 'category|imageUrl|clientName|resultLine|href'. Filter tabs pulled from 'filters' (an array of tag names) plus an implicit 'All'. Grid varies card sizes slightly to feel less rigid; on mobile falls to a single column."
+}

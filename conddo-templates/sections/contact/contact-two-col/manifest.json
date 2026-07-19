@@ -1,0 +1,16 @@
+{
+  "id": "contact-two-col",
+  "category": "contact",
+  "vertical_fit": ["professional-services", "salon", "healthcare", "food-beverage", "real-estate"],
+  "style_tags": ["contact", "two-column", "form", "charcoal-card"],
+  "variables": [
+    "businessName",
+    "phone",
+    "email",
+    "responseTime",
+    "socialLinks",
+    "formActionUrl",
+    "helpOptions"
+  ],
+  "description": "Two-column contact block. Left: a compact contact form (name, business, email, phone, help-option select). Right: brand-secondary card with direct contact details and social links. On mobile the columns stack. formActionUrl is optional — when set, the form posts there; when unset it's mailto-linked to the email."
+}

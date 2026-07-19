@@ -1,0 +1,8 @@
+{
+  "id": "process-rings",
+  "category": "services",
+  "vertical_fit": ["professional-services", "salon", "healthcare", "real-estate"],
+  "style_tags": ["process", "steps", "ring-motif", "ripple"],
+  "variables": ["heading", "steps"],
+  "description": "3 or 4-step process visualisation. Each step is 'title|description'. The ring motif expands step by step, echoing the signal-radiating-outward metaphor: step 1 has one ring, step 2 has two, etc. Small-caps step counter above each title."
+}
