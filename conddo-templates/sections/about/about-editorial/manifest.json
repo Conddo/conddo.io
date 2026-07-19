@@ -1,0 +1,8 @@
+{
+  "id": "about-editorial",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare"],
+  "style_tags": ["about", "story", "editorial", "pull-quote"],
+  "variables": ["eyebrow", "heading", "body", "pullQuote", "imageUrl"],
+  "description": "Warmer, editorial About section — two columns on desktop with an optional image on the left and the story copy on the right. A pull-quote is set larger, in the brand primary, and stands out from the body text. Falls to a single column on mobile."
+}

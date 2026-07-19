@@ -1,0 +1,17 @@
+{
+  "id": "hero-editorial",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare"],
+  "style_tags": ["editorial", "warm", "off-white", "ring-motif", "trust"],
+  "variables": [
+    "eyebrow",
+    "headline",
+    "accentPhrase",
+    "subtext",
+    "primaryCtaText",
+    "primaryCtaLink",
+    "secondaryCtaText",
+    "secondaryCtaLink"
+  ],
+  "description": "Editorial-tone hero on off-white with charcoal typography and a gold-accented key phrase inside the headline. Dual CTAs (solid primary + outlined secondary). Signature concentric-ring watermark to the right, echoing the Flagscale wordmark's radiating-signal motif. Best for services businesses whose story matters more than a product shot."
+}

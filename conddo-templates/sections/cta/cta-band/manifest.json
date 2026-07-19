@@ -1,0 +1,8 @@
+{
+  "id": "cta-band",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare", "food-beverage", "retail", "fashion"],
+  "style_tags": ["cta", "closing", "gold-band", "conversion"],
+  "variables": ["headline", "subtext", "ctaText", "ctaLink"],
+  "description": "Full-width closing band on the brand primary. Charcoal headline, charcoal text on a white pill button. Meant to sit near the bottom of a page as the last chance to convert."
+}

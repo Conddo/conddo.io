@@ -1,0 +1,8 @@
+{
+  "id": "services-pillars",
+  "category": "services",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare"],
+  "style_tags": ["pillars", "cards", "ring-accent", "editorial"],
+  "variables": ["eyebrow", "heading", "subheading", "pillars", "linkText", "linkHref"],
+  "description": "Homepage service pillars — a 3 or 4-card grid where each card represents a top-level category (not the full service list). Each pillar is 'title|description'. Cards on white with soft shadow, ring accent, generous padding. Optional trailing link (e.g. 'Explore all services →') for the deeper list."
+}

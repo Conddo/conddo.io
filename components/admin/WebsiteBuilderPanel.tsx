@@ -375,36 +375,87 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
         sections: [
           {
             id: "home-hero",
-            componentId: "hero-bold-centered",
+            componentId: "hero-editorial",
             variables: {
-              businessName: "Flagscale PR",
-              tagline: "Your Brand Has a Story. We Make Sure the Right People Hear It.",
+              eyebrow: "Pan-African Public Relations",
+              headline: "Your Brand Has a Story. We Make Sure the Right People Hear It.",
+              accentPhrase: "the Right People Hear It.",
               subtext:
                 "Flagscale PR helps African SMEs turn visibility into revenue, real media coverage, and lasting corporate partnerships.",
+              primaryCtaText: "Book a Strategy Call",
+              primaryCtaLink: "/contact",
+              secondaryCtaText: "See Our Work",
+              secondaryCtaLink: "/portfolio",
+            },
+          },
+          {
+            id: "home-proof",
+            componentId: "proof-strip",
+            variables: {
+              label: "Trusted by growing businesses across Anglophone and Francophone Africa",
+              stats: [
+                "40+|Campaigns run",
+                "12+|Industries served",
+                "20+|Combined years",
+                "2|Regions covered",
+              ],
+            },
+          },
+          {
+            id: "home-pillars",
+            componentId: "services-pillars",
+            variables: {
+              eyebrow: "What we do",
+              heading: "PR solutions built for African businesses.",
+              subheading:
+                "Four pillars we lean into. Everything else — events, influencers, brand systems — lives under them.",
+              pillars: [
+                "Media Relations|Getting your business covered by the outlets that matter.",
+                "Brand Building|Positioning that makes you stand out and stay memorable.",
+                "Content & Social|Stories and content that sound like you and reach your audience.",
+                "Crisis & Reputation|Steady, fast response when your reputation is on the line.",
+              ],
+              linkText: "Explore all services",
+              linkHref: "/services",
+            },
+          },
+          {
+            id: "home-testimonial",
+            componentId: "testimonial-centered",
+            variables: {
+              quote:
+                "Flagscale reframed how we tell our story — and the coverage followed. They understood the business before they wrote a single word.",
+              attribution: "Amaka Obi",
+              role: "Founder, Lagos-based SME",
+            },
+          },
+          {
+            id: "home-cta",
+            componentId: "cta-band",
+            variables: {
+              headline: "Ready to get your business the visibility it deserves?",
+              subtext: "Book a call and let's see if we're a fit.",
               ctaText: "Book a Strategy Call",
               ctaLink: "/contact",
             },
           },
           {
-            id: "home-services-teaser",
-            componentId: "services-cards",
+            id: "home-footer",
+            componentId: "footer-brand",
             variables: {
-              heading: "PR Solutions Built for African Businesses",
-              services: [
-                "Media Relations|On request|Real relationships with journalists and outlets, so your business gets covered — not overlooked.",
-                "Content Creation|On request|Stories, articles, and brand content that sound like you and resonate with your audience.",
-                "Brand Building|On request|Positioning that helps you stand out in a crowded market and stay memorable.",
+              businessName: "Flagscale PR",
+              tagline: "Building lasting relationships — people, passion, professionalism.",
+              supportingLine: "Empowering African brands with expert PR to shine and thrive.",
+              phone: "+234 905 794 4830",
+              email: "contact@flagscalepr.com",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
               ],
-            },
-          },
-          {
-            id: "home-testimonials",
-            componentId: "testimonials-cards",
-            variables: {
-              heading: "What Our Clients Say",
-              testimonials: [
-                "Flagscale reframed how we tell our story — and the coverage followed.|A partner, growing Nigerian SME",
-                "They actually understood our business before they wrote a single word.|Founder, Lagos-based agency",
+              legalLinks: [
+                "Privacy|/privacy",
+                "Terms|/terms",
               ],
             },
           },
@@ -417,11 +468,37 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
         sections: [
           {
             id: "about-body",
-            componentId: "about-simple",
+            componentId: "about-editorial",
             variables: {
-              eyebrow: "People. Passion. Professionalism.",
-              heading: "Every African business has a story worth telling well.",
-              body: "We work with small and medium sized businesses across Africa to craft messaging that actually lands with the people it's meant for. That means media relations that get real coverage, content that builds trust, and communication strategies that hold up under pressure — not just polished words that look good in a deck.\n\nWe take the time to understand your business before we ever write a word: your values, your goals, your audience. A PR strategy that doesn't start there is just noise.\n\nOur mission: help SMEs across Africa communicate clearly with the people who matter most and reach their business goals, using both traditional and new media.",
+              eyebrow: "Who we are",
+              heading: "People. Passion. Professionalism.",
+              body: "Flagscale PR was built on a simple belief: every African business has a story worth telling well.\n\nWe work with small and medium sized businesses across Africa to craft messaging that actually lands with the people it's meant for. That means media relations that get real coverage, content that builds trust, and communication strategies that hold up under pressure — not just polished words that look good in a deck.",
+              pullQuote:
+                "We take the time to understand your business before we ever write a word.",
+              imageUrl: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&auto=format&fit=crop",
+            },
+          },
+          {
+            id: "about-cta",
+            componentId: "cta-band",
+            variables: {
+              headline: "Want to work with a team that gets your market?",
+              ctaText: "Get in Touch",
+              ctaLink: "/contact",
+            },
+          },
+          {
+            id: "about-footer",
+            componentId: "footer-brand",
+            variables: {
+              businessName: "Flagscale PR",
+              tagline: "Building lasting relationships — people, passion, professionalism.",
+              phone: "+234 905 794 4830",
+              email: "contact@flagscalepr.com",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
+              ],
             },
           },
         ],
@@ -432,10 +509,20 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
         label: "Services",
         sections: [
           {
-            id: "services-all",
+            id: "services-hero",
+            componentId: "hero-editorial",
+            variables: {
+              eyebrow: "What we do",
+              headline: "PR Solutions Built for African Businesses",
+              subtext:
+                "Every service starts with the same question: who are you actually trying to reach, and what do they need to hear from you?",
+            },
+          },
+          {
+            id: "services-full",
             componentId: "services-cards",
             variables: {
-              heading: "PR Solutions Built for African Businesses",
+              heading: "The full service list",
               services: [
                 "Media Relations|On request|Real relationships with journalists and outlets, so your business gets covered — not overlooked.",
                 "Content Creation|On request|Stories, articles, and brand content that sound like you and resonate with your audience.",
@@ -448,6 +535,28 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
               ],
             },
           },
+          {
+            id: "services-cta",
+            componentId: "cta-band",
+            variables: {
+              headline: "Not sure which service you need?",
+              ctaText: "Talk to Us About Your PR Needs",
+              ctaLink: "/contact",
+            },
+          },
+          {
+            id: "services-footer",
+            componentId: "footer-brand",
+            variables: {
+              businessName: "Flagscale PR",
+              phone: "+234 905 794 4830",
+              email: "contact@flagscalepr.com",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
+              ],
+            },
+          },
         ],
       },
       {
@@ -456,14 +565,49 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
         label: "Portfolio",
         sections: [
           {
+            id: "portfolio-hero",
+            componentId: "hero-editorial",
+            variables: {
+              eyebrow: "Our work",
+              headline: "Businesses We've Helped Grow",
+              subtext:
+                "A selection of campaigns and stories we've shaped. Case studies coming soon.",
+            },
+          },
+          {
             id: "portfolio-gallery",
             componentId: "gallery-grid",
             variables: {
-              heading: "Businesses We've Helped Grow",
+              heading: "A few stories we've helped tell",
               images: [
-                "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800|Client campaign highlight",
-                "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800|Behind the scenes",
-                "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800|Team workshop",
+                "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop|Client campaign highlight",
+                "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1000&auto=format&fit=crop|Behind the scenes",
+                "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1000&auto=format&fit=crop|Team workshop",
+                "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1000&auto=format&fit=crop|Event planning",
+                "https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=1000&auto=format&fit=crop|Strategy session",
+                "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1000&auto=format&fit=crop|Media day",
+              ],
+            },
+          },
+          {
+            id: "portfolio-cta",
+            componentId: "cta-band",
+            variables: {
+              headline: "Want results like these for your business?",
+              ctaText: "Start Your Project",
+              ctaLink: "/contact",
+            },
+          },
+          {
+            id: "portfolio-footer",
+            componentId: "footer-brand",
+            variables: {
+              businessName: "Flagscale PR",
+              phone: "+234 905 794 4830",
+              email: "contact@flagscalepr.com",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
               ],
             },
           },
@@ -475,13 +619,40 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
         label: "Contact",
         sections: [
           {
-            id: "contact-body",
+            id: "contact-hero",
+            componentId: "hero-editorial",
+            variables: {
+              eyebrow: "Let's talk",
+              headline: "Let's Build Your Brand's Story",
+              subtext:
+                "Ready to get your business the visibility it deserves? Reach out and let's talk.",
+            },
+          },
+          {
+            id: "contact-details",
             componentId: "contact-simple",
             variables: {
               businessName: "Flagscale PR",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               address: "",
+            },
+          },
+          {
+            id: "contact-footer",
+            componentId: "footer-brand",
+            variables: {
+              businessName: "Flagscale PR",
+              tagline: "Building lasting relationships — people, passion, professionalism.",
+              supportingLine: "Empowering African brands with expert PR to shine and thrive.",
+              phone: "+234 905 794 4830",
+              email: "contact@flagscalepr.com",
+              socialLinks: [
+                "LinkedIn|https://linkedin.com/company/flagscale-pr",
+                "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
+              ],
+              legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
           },
         ],

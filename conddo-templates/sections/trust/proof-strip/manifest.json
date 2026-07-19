@@ -1,0 +1,8 @@
+{
+  "id": "proof-strip",
+  "category": "hero",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare", "food-beverage", "retail"],
+  "style_tags": ["proof", "trust", "stats", "understated"],
+  "variables": ["label", "stats"],
+  "description": "Understated horizontal band that sits directly under a hero. Renders a short trust label plus 3-4 stat callouts (each 'headline|caption'). Uses small-caps labels + no borders — reads as calm proof, not a marketing chest-thump."
+}

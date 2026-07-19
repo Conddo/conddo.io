@@ -1,0 +1,15 @@
+{
+  "id": "footer-brand",
+  "category": "contact",
+  "vertical_fit": ["professional-services", "real-estate", "salon", "healthcare", "food-beverage", "retail", "fashion", "logistics"],
+  "style_tags": ["footer", "charcoal", "brand-forward"],
+  "variables": [
+    "tagline",
+    "supportingLine",
+    "phone",
+    "email",
+    "socialLinks",
+    "legalLinks"
+  ],
+  "description": "Charcoal footer with the tenant's wordmark (logo + business name) plus contact + social + legal links. Social links and legal links are 'label|url' arrays. Sits at the bottom of every multi-page site; single-page sites can also drop it in as their contact block."
+}

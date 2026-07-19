@@ -7,15 +7,22 @@ import type {
 import { HeroBoldCentered } from "@/conddo-templates/sections/hero/hero-bold-centered/component";
 import { HeroSplitImage } from "@/conddo-templates/sections/hero/hero-split-image/component";
 import { HeroMinimal } from "@/conddo-templates/sections/hero/hero-minimal/component";
+import { HeroEditorial } from "@/conddo-templates/sections/hero/hero-editorial/component";
 import { AboutSimple } from "@/conddo-templates/sections/about/about-simple/component";
+import { AboutEditorial } from "@/conddo-templates/sections/about/about-editorial/component";
 import { ProductGrid3Col } from "@/conddo-templates/sections/products/product-grid-3col/component";
 import { ProductList } from "@/conddo-templates/sections/products/product-list/component";
 import { ServicesCards } from "@/conddo-templates/sections/services/services-cards/component";
 import { ServicesList } from "@/conddo-templates/sections/services/services-list/component";
+import { ServicesPillars } from "@/conddo-templates/sections/services/services-pillars/component";
 import { TestimonialsCards } from "@/conddo-templates/sections/testimonials/testimonials-cards/component";
+import { TestimonialCentered } from "@/conddo-templates/sections/testimonials/testimonial-centered/component";
 import { GalleryGrid } from "@/conddo-templates/sections/gallery/gallery-grid/component";
 import { BookingSimple } from "@/conddo-templates/sections/booking/booking-simple/component";
 import { ContactSimple } from "@/conddo-templates/sections/contact/contact-simple/component";
+import { ProofStrip } from "@/conddo-templates/sections/trust/proof-strip/component";
+import { CtaBand } from "@/conddo-templates/sections/cta/cta-band/component";
+import { FooterBrand } from "@/conddo-templates/sections/footer/footer-brand/component";
 import { NavHeader } from "@/conddo-templates/sections/nav/nav-header/component";
 
 /**
@@ -95,15 +102,22 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "hero-bold-centered": HeroBoldCentered,
   "hero-split-image": HeroSplitImage,
   "hero-minimal": HeroMinimal,
+  "hero-editorial": HeroEditorial,
   "about-simple": AboutSimple,
+  "about-editorial": AboutEditorial,
   "product-grid-3col": ProductGrid3Col,
   "product-list": ProductList,
   "services-cards": ServicesCards,
   "services-list": ServicesList,
+  "services-pillars": ServicesPillars,
   "testimonials-cards": TestimonialsCards,
+  "testimonial-centered": TestimonialCentered,
   "gallery-grid": GalleryGrid,
   "booking-simple": BookingSimple,
   "contact-simple": ContactSimple,
+  "proof-strip": ProofStrip,
+  "cta-band": CtaBand,
+  "footer-brand": FooterBrand,
 };
 
 /** Best-effort recovery of a business name from any hero-style section. */
