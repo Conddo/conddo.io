@@ -151,7 +151,14 @@ export function NavHeader({
                   {(businessName || "?").slice(0, 1).toUpperCase()}
                 </span>
               )}
-              <span style={{ whiteSpace: "nowrap" }}>{businessName}</span>
+              {/* Only render the business name as text when we're drawing
+               *  the letter-mark fallback. Real logos already contain the
+               *  wordmark; rendering it a second time next to the mark
+               *  reads as duplicated ("F Flagscale PR" beside a full
+               *  wordmark image). */}
+              {!brand.logoUrl && (
+                <span style={{ whiteSpace: "nowrap" }}>{businessName}</span>
+              )}
             </a>
 
             {/* Desktop inline list */}

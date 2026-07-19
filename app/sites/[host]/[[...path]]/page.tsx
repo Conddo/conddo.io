@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { WebsiteRenderer } from "@/components/website/WebsiteRenderer";
 import { fetchManagedSite } from "@/lib/api/managed-site";
 import type {
@@ -52,9 +52,51 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { host } = await params;
   const site = await fetchManagedSite(host);
   if (!site) return { title: "Site not found" };
+
+  // Override every Conddo-identity meta so a tenant's site never leaks the
+  // platform brand into the mobile browser chrome / home-screen shortcut.
+  // The parent app/layout.tsx sets title/applicationName/appleWebApp.title
+  // to "Conddo" — those values propagate to every route unless we replace
+  // them here.
+  const businessName = site.businessName;
   return {
-    title: site.businessName,
-    description: `Welcome to ${site.businessName}.`,
+    title: businessName,
+    description: `${businessName} — book online, learn about our work, and get in touch.`,
+    applicationName: businessName,
+    appleWebApp: {
+      capable: true,
+      title: businessName,
+      statusBarStyle: "default",
+    },
+    icons: site.logoUrl
+      ? {
+          icon: site.logoUrl,
+          apple: site.logoUrl,
+        }
+      : undefined,
+    openGraph: {
+      title: businessName,
+      siteName: businessName,
+      description: `${businessName}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: businessName,
+    },
+  };
+}
+
+/** Per-tenant theme-color so the mobile browser address bar tints with the
+ *  tenant's brand primary, not the platform default violet. Also drives the
+ *  installed-PWA titlebar color on Android. */
+export async function generateViewport({ params }: Props): Promise<Viewport> {
+  const { host } = await params;
+  const site = await fetchManagedSite(host);
+  return {
+    themeColor: site?.theme?.primaryColor ?? "#FFFFFF",
+    width: "device-width",
+    initialScale: 1,
+    viewportFit: "cover",
   };
 }
 

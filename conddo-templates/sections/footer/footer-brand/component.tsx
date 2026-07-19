@@ -61,16 +61,22 @@ export function FooterBrand({ variables, brand }: SectionProps) {
                 {(businessName || "?").slice(0, 1).toUpperCase()}
               </span>
             )}
-            <span
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: "#FFFFFF",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              {businessName}
-            </span>
+            {/* Same rule as the nav-header: skip the text wordmark when a
+             *  real logo is provided (the image already carries it). Keep
+             *  the text when we're using the letter-mark fallback so the
+             *  footer isn't just a coloured square. */}
+            {!brand.logoUrl && (
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                {businessName}
+              </span>
+            )}
           </div>
           {tagline && (
             <p

@@ -458,6 +458,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "LinkedIn|https://linkedin.com/company/flagscale-pr",
                 "Instagram|https://instagram.com/flagscalepr",
                 "Twitter/X|https://twitter.com/flagscalepr",
+                "Facebook|https://facebook.com/flagscalepr",
               ],
               legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
@@ -480,8 +481,11 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "Flagscale PR was built on a simple belief: every African business has a story worth telling well.\n\nWe work with small and medium sized businesses across Africa to craft messaging that actually lands with the people it is meant for. That means media relations that get real coverage, content that builds trust, and communication strategies that hold up under pressure — not just polished words that look good in a deck.",
               pullQuote:
                 "We take the time to understand your business before we ever write a word.",
+              // Warmer, more on-brand context image than the previous generic
+              // corporate shot. Placeholder until Flagscale delivers real
+              // photography of their team / clients.
               imageUrl:
-                "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1000&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=1000&auto=format&fit=crop",
             },
           },
           {
@@ -509,19 +513,9 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
               ],
             },
           },
-          {
-            id: "about-team",
-            componentId: "team-grid",
-            variables: {
-              eyebrow: "The team",
-              heading: "The people behind Flagscale PR.",
-              members: [
-                "Coming soon||",
-                "Coming soon||",
-                "Coming soon||",
-              ],
-            },
-          },
+          // Team section intentionally omitted until we have real people to
+          // introduce — the previous 'Coming soon' placeholders read as an
+          // unfinished site, worse than no team block at all.
           {
             id: "about-cta",
             componentId: "cta-band",
@@ -538,12 +532,17 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
               businessName: "Flagscale PR",
               tagline:
                 "Building lasting relationships — people, passion, professionalism.",
+              supportingLine:
+                "Empowering African brands with expert PR to shine and thrive.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [
                 "LinkedIn|https://linkedin.com/company/flagscale-pr",
                 "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
+                "Facebook|https://facebook.com/flagscalepr",
               ],
+              legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
           },
         ],
@@ -623,12 +622,19 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "footer-brand",
             variables: {
               businessName: "Flagscale PR",
+              tagline:
+                "Building lasting relationships — people, passion, professionalism.",
+              supportingLine:
+                "Empowering African brands with expert PR to shine and thrive.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [
                 "LinkedIn|https://linkedin.com/company/flagscale-pr",
                 "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
+                "Facebook|https://facebook.com/flagscalepr",
               ],
+              legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
           },
         ],
@@ -649,21 +655,21 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "A selection of campaigns and stories we have shaped. Case studies coming soon.",
             },
           },
+          // Live case studies are the highest-leverage gap. Placeholder cards
+          // ('Client A / Client B') actively hurt trust — a PR agency's
+          // portfolio page with no real proof reads as a red flag. Replace
+          // with an honest 'coming soon' about-editorial block until we
+          // have real case-study content + client permission to publish.
           {
-            id: "portfolio-grid",
-            componentId: "portfolio-filter-grid",
+            id: "portfolio-holding",
+            componentId: "about-editorial",
             variables: {
-              eyebrow: "Case studies",
-              heading: "A few stories we have helped tell.",
-              filters: ["Media Relations", "Brand Building", "Events", "Crisis"],
-              items: [
-                "Media Relations|https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop|Client A|Secured coverage across five national outlets in launch week.|#",
-                "Brand Building|https://images.unsplash.com/photo-1552664730-d307ca884978?w=1000&auto=format&fit=crop|Client B|Repositioned a regional brand as a Pan-African player.|#",
-                "Events|https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1000&auto=format&fit=crop|Client C|Sold-out launch event with press pickup in four cities.|#",
-                "Crisis|https://images.unsplash.com/photo-1556761175-b413da4baf72?w=1000&auto=format&fit=crop|Client D|Reputation recovery inside 72 hours.|#",
-                "Brand Building|https://images.unsplash.com/photo-1573164574572-cb89e39749b4?w=1000&auto=format&fit=crop|Client E|Brand voice and guidelines for a scaling SME.|#",
-                "Media Relations|https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1000&auto=format&fit=crop|Client F|First-time coverage in tier-one business press.|#",
-              ],
+              eyebrow: "Case studies coming soon",
+              heading: "We're finishing our first public case studies.",
+              body:
+                "Our work spans media relations, brand building, event execution, and crisis response across Anglophone and Francophone Africa. We're building out the case studies for the campaigns we're proudest of — with client permission and real numbers, not stock photos.\n\nWant to hear about the work in the meantime? Reach out and we'll walk you through relevant examples on a call.",
+              pullQuote:
+                "Real numbers, real permission, no stock photos.",
             },
           },
           {
@@ -680,12 +686,19 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
             componentId: "footer-brand",
             variables: {
               businessName: "Flagscale PR",
+              tagline:
+                "Building lasting relationships — people, passion, professionalism.",
+              supportingLine:
+                "Empowering African brands with expert PR to shine and thrive.",
               phone: "+234 905 794 4830",
               email: "contact@flagscalepr.com",
               socialLinks: [
                 "LinkedIn|https://linkedin.com/company/flagscale-pr",
                 "Instagram|https://instagram.com/flagscalepr",
+                "Twitter/X|https://twitter.com/flagscalepr",
+                "Facebook|https://facebook.com/flagscalepr",
               ],
+              legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
           },
         ],
@@ -769,6 +782,7 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "LinkedIn|https://linkedin.com/company/flagscale-pr",
                 "Instagram|https://instagram.com/flagscalepr",
                 "Twitter/X|https://twitter.com/flagscalepr",
+                "Facebook|https://facebook.com/flagscalepr",
               ],
               legalLinks: ["Privacy|/privacy", "Terms|/terms"],
             },
