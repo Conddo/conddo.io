@@ -1,0 +1,17 @@
+{
+  "id": "nav-header",
+  "category": "hero",
+  "vertical_fit": [
+    "professional-services",
+    "salon",
+    "healthcare",
+    "food-beverage",
+    "retail",
+    "fashion",
+    "logistics",
+    "real-estate"
+  ],
+  "style_tags": ["nav", "header", "multipage"],
+  "variables": ["businessName", "pages"],
+  "description": "Sticky top nav for multi-page sites. Shows the logo (or business initial as lettermark), business name, and one link per page. Rendered automatically by WebsiteRenderer when the site config has more than one page — tenants don't add it manually."
+}

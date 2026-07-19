@@ -81,9 +81,27 @@ export interface VerticalPreset {
 }
 
 /** Website configuration — the payload that drives the WebsiteRenderer.
- *  Persisted per-tenant in `tenant_sites.sections` (JSONB). */
+ *  Persisted per-tenant in `tenant_sites.sections` (JSONB).
+ *
+ *  Two shapes are supported for backward compat:
+ *   - Legacy single-page: {@code sections} at the root. Renders every
+ *     section on the tenant's root URL, no nav bar.
+ *   - Multi-page (v3+): {@code pages} + optional {@code nav}. Each page
+ *     has its own {@code path} + section list. The renderer picks the
+ *     page whose path matches the incoming URL and draws a nav bar at
+ *     the top when there is more than one page.
+ *
+ *  When both are present, {@code pages} wins — {@code sections} is
+ *  treated as a fallback for readers that don't understand pages. */
 export interface WebsiteConfig {
-  sections: WebsiteSection[];
+  sections?: WebsiteSection[];
+  pages?: WebsitePage[];
+  /** Nav bar controls — how the header renders. Optional; defaults to
+   *  {@code showLogo=true, style="light"}. */
+  nav?: {
+    showLogo?: boolean;
+    style?: "light" | "dark";
+  };
 }
 
 export interface WebsiteSection {
@@ -92,4 +110,21 @@ export interface WebsiteSection {
   /** Foreign key into the SECTION_MAP in WebsiteRenderer. */
   componentId: string;
   variables: Record<string, string | string[]>;
+}
+
+/** One page in a multi-page site. {@code path} is URL-relative
+ *  ({@code "/"}, {@code "/services"}, {@code "/about"} …). {@code label}
+ *  is what appears in the nav bar. */
+export interface WebsitePage {
+  /** Stable id for reorder + React key. */
+  id: string;
+  /** URL path relative to the tenant subdomain root. Must start with
+   *  {@code "/"}. The home page is {@code "/"}. */
+  path: string;
+  /** Nav-bar label. */
+  label: string;
+  /** Whether the page appears in the nav bar. {@code false} = orphan
+   *  page reachable only via direct link (e.g. thank-you pages). */
+  showInNav?: boolean;
+  sections: WebsiteSection[];
 }

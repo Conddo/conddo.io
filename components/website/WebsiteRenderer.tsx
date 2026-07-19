@@ -1,4 +1,9 @@
-import type { WebsiteConfig, TenantBrand, SectionProps } from "@/conddo-templates/types";
+import type {
+  WebsiteConfig,
+  TenantBrand,
+  SectionProps,
+  WebsiteSection,
+} from "@/conddo-templates/types";
 import { HeroBoldCentered } from "@/conddo-templates/sections/hero/hero-bold-centered/component";
 import { HeroSplitImage } from "@/conddo-templates/sections/hero/hero-split-image/component";
 import { HeroMinimal } from "@/conddo-templates/sections/hero/hero-minimal/component";
@@ -11,36 +16,48 @@ import { TestimonialsCards } from "@/conddo-templates/sections/testimonials/test
 import { GalleryGrid } from "@/conddo-templates/sections/gallery/gallery-grid/component";
 import { BookingSimple } from "@/conddo-templates/sections/booking/booking-simple/component";
 import { ContactSimple } from "@/conddo-templates/sections/contact/contact-simple/component";
+import { NavHeader } from "@/conddo-templates/sections/nav/nav-header/component";
 
 /**
  * The one component that renders a tenant's website. Takes the tenant's
- * {@link WebsiteConfig} + {@link TenantBrand} and dispatches each section
- * by {@code componentId} through {@link SECTION_MAP}.
+ * {@link WebsiteConfig} + {@link TenantBrand} + the current URL path and
+ * dispatches each section by {@code componentId} through {@link SECTION_MAP}.
  *
- * <p>Used in two places:
- * <ul>
- *   <li><b>Live preview</b> in Settings → Brand — same component so the
- *       tenant sees the exact page a visitor would.</li>
- *   <li><b>Published site</b> at {@code app/sites/[host]/page.tsx}, which
- *       fetches the config + brand server-side and passes them in.</li>
- * </ul>
- *
- * <p>Unknown {@code componentId} values render nothing (log-and-skip). This
- * matters because presets in {@code conddo-templates/presets/} may reference
- * sections that aren't in the SECTION_MAP yet (the library grows over time);
- * skipping them means a partially-shipped preset still renders the sections
- * we DO have, rather than crashing the whole page.
+ * <p>Multi-page: when {@code config.pages} exists and has more than one
+ * entry, a {@link NavHeader} is rendered at the top and the current page's
+ * sections are rendered below. Single-page (legacy) sites render
+ * {@code config.sections} directly with no nav.
  */
 export function WebsiteRenderer({
   config,
   brand,
+  businessName,
+  currentPath = "/",
 }: {
   config: WebsiteConfig;
   brand: TenantBrand;
+  /** Falls back to the first non-blank hero variable when omitted. */
+  businessName?: string;
+  /** Which page to render — the incoming URL path. Defaults to "/". */
+  currentPath?: string;
 }) {
+  const pages = config.pages ?? [];
+  const isMultiPage = pages.length > 1;
+  const currentSections: WebsiteSection[] = isMultiPage
+    ? (pages.find((p) => p.path === currentPath) ?? pages[0]).sections
+    : (pages[0]?.sections ?? config.sections ?? []);
+
   return (
     <div style={{ fontFamily: fontStackFor(brand.fontPairing) }}>
-      {config.sections.map((section) => {
+      {isMultiPage && (
+        <NavHeader
+          brand={brand}
+          businessName={businessName ?? deriveBusinessName(currentSections)}
+          pages={pages}
+          currentPath={currentPath}
+        />
+      )}
+      {currentSections.map((section) => {
         const SectionComponent = SECTION_MAP[section.componentId];
         if (!SectionComponent) {
           if (process.env.NODE_ENV !== "production") {
@@ -68,6 +85,11 @@ export function WebsiteRenderer({
  * Adding a new section requires: create the component under
  * {@code conddo-templates/sections/…}, drop its manifest, then add ONE line
  * here. That's the whole checklist.
+ *
+ * <p>Note: {@code nav-header} is deliberately NOT in the map because its
+ * props are structured ({@code pages: WebsitePage[]}) rather than the
+ * flat {@code variables} SectionProps contract. It's rendered directly
+ * by {@link WebsiteRenderer} when a multi-page config is present.
  */
 export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "hero-bold-centered": HeroBoldCentered,
@@ -83,6 +105,15 @@ export const SECTION_MAP: Record<string, React.ComponentType<SectionProps>> = {
   "booking-simple": BookingSimple,
   "contact-simple": ContactSimple,
 };
+
+/** Best-effort recovery of a business name from any hero-style section. */
+function deriveBusinessName(sections: WebsiteSection[]): string {
+  for (const s of sections) {
+    const n = s.variables?.businessName;
+    if (typeof n === "string" && n.trim()) return n;
+  }
+  return "Home";
+}
 
 /** Font-pairing id → CSS font stack. Kept centralised so components never
  *  hardcode font families — they just consume brand.fontPairing and this

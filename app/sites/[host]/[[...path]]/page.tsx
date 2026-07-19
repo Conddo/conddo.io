@@ -2,27 +2,51 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { WebsiteRenderer } from "@/components/website/WebsiteRenderer";
 import { fetchManagedSite } from "@/lib/api/managed-site";
-import type { TenantBrand, WebsiteConfig } from "@/conddo-templates/types";
+import type {
+  TenantBrand,
+  WebsiteConfig,
+  WebsitePage,
+} from "@/conddo-templates/types";
 
 /**
- * Managed tenant site route — {@code <slug>.getconddo.com/*} rewrites to
- * {@code /sites/[host]/*} (see {@code middleware.ts}). Fetches the
- * published site config + brand server-side and passes them to
- * {@link WebsiteRenderer}, which dispatches each section through
- * {@code SECTION_MAP} in {@code conddo-templates}.
+ * Catch-all managed site route — {@code <slug>.getconddo.com/*} rewrites
+ * to {@code /sites/[host]/[[...path]]/page.tsx} via middleware.
  *
- * <p>Legacy shape support: prior to the SECTION_MAP swap the BE stored
- * sections as a flat object ({@code {hero: {...}, services: [...]}} etc);
- * the new shape is an array ({@code {sections: [{componentId, variables}]}}).
- * When the fetched payload is in the legacy shape, {@code adaptSectionsShape}
- * projects it into the array form so an existing tenant's live site keeps
- * rendering after this deploy.
+ * <p>The optional catch-all matches root ({@code path === undefined}) and
+ * every deeper path so multi-page sites all live on the same route file.
+ *
+ * <p>Two payload shapes are supported:
+ * <ul>
+ *   <li><b>v2 legacy single-page</b> — {@code {sections: [...]}} at the
+ *       root. Rendered on every path (the tenant only has one page).</li>
+ *   <li><b>v3 multi-page</b> — {@code {pages: [{path, sections, …}]}}.
+ *       The renderer picks the page whose {@code path} matches the URL
+ *       and renders that page's sections.</li>
+ * </ul>
+ * A {@code page.path} that doesn't match yields a 404.
  */
 export const revalidate = 60;
 
 type Props = {
-  params: Promise<{ host: string }>;
+  params: Promise<{ host: string; path?: string[] }>;
 };
+
+function normalisePath(segments: string[] | undefined): string {
+  if (!segments || segments.length === 0) return "/";
+  return "/" + segments.map((s) => decodeURIComponent(s)).join("/");
+}
+
+function pickPage(
+  config: WebsiteConfig,
+  path: string,
+): WebsitePage | { sections: WebsiteConfig["sections"] } | null {
+  if (config.pages && config.pages.length > 0) {
+    return config.pages.find((p) => p.path === path) ?? null;
+  }
+  // Legacy single-page: any path resolves to the root sections. This
+  // preserves compat with tenants who published under the v2 shape.
+  return { sections: config.sections };
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { host } = await params;
@@ -35,11 +59,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ManagedSitePage({ params }: Props) {
-  const { host } = await params;
+  const { host, path } = await params;
   const site = await fetchManagedSite(host);
   if (!site) notFound();
 
-  const config: WebsiteConfig = { sections: adaptSectionsShape(site.sections) };
+  const config: WebsiteConfig = adaptConfig(site.sections);
+  const currentPath = normalisePath(path);
+  const currentPage = pickPage(config, currentPath);
+  if (!currentPage) notFound();
+
   const brand: TenantBrand = {
     logoUrl: site.logoUrl ?? null,
     primaryColor: site.theme?.primaryColor ?? "#7C5CBF",
@@ -47,27 +75,44 @@ export default async function ManagedSitePage({ params }: Props) {
     fontPairing: site.theme?.fontPairing ?? "inter",
   };
 
-  return <WebsiteRenderer config={config} brand={brand} />;
+  return (
+    <WebsiteRenderer
+      config={config}
+      brand={brand}
+      businessName={site.businessName}
+      currentPath={currentPath}
+    />
+  );
 }
 
 /**
- * Accept both the new array shape and the legacy flat-object shape.
- * Returns [] when the payload can't be interpreted — the caller renders
- * whatever else it can (the brand-only wrapper) rather than crashing.
+ * Accept every historical payload shape. Returns a WebsiteConfig that
+ * always has a defined {@code sections} or {@code pages} property.
+ *
+ * Shapes seen in the wild:
+ *  A. v3 multi-page: {@code {pages: [{path, sections, label}]}}
+ *  B. v2 single-page array: {@code {sections: [{componentId, variables}]}}
+ *  C. v1 flat named-key object: {@code {hero: {...}, services: [...], …}}
+ *
+ * Only A + B ship from our current admin panel; C is preserved so
+ * pre-swap tenants keep rendering.
  */
-function adaptSectionsShape(
+function adaptConfig(
   raw: Record<string, unknown> | null | undefined,
-): WebsiteConfig["sections"] {
-  if (!raw) return [];
+): WebsiteConfig {
+  if (!raw) return { sections: [] };
 
-  // v2 shape — { sections: [{id, componentId, variables}] }
+  if (Array.isArray((raw as { pages?: unknown }).pages)) {
+    return {
+      pages: (raw as { pages: WebsitePage[] }).pages,
+      nav: (raw as { nav?: WebsiteConfig["nav"] }).nav,
+    };
+  }
   if (Array.isArray((raw as { sections?: unknown }).sections)) {
-    return (raw as { sections: WebsiteConfig["sections"] }).sections;
+    return { sections: (raw as { sections: WebsiteConfig["sections"] }).sections };
   }
 
-  // Legacy shape — flat object with named keys. Map each known section to
-  // a v2 entry using its most natural component id. Skips any key we can't
-  // map so a partial payload still renders the pieces we understand.
+  // v1 flat — map named keys to a single-page section array.
   const out: WebsiteConfig["sections"] = [];
   const hero = readObject(raw.hero);
   if (hero) {
@@ -97,8 +142,6 @@ function adaptSectionsShape(
   }
   const services = raw.services;
   if (Array.isArray(services) && services.length > 0) {
-    // Legacy stored services as [{name, description}]; map to
-    // "name|price|description" strings the services-cards component reads.
     const list = services
       .map((s) => {
         const so = readObject(s) ?? {};
@@ -129,7 +172,7 @@ function adaptSectionsShape(
       },
     });
   }
-  return out;
+  return { sections: out };
 }
 
 function readObject(v: unknown): Record<string, unknown> | null {
