@@ -250,12 +250,14 @@ export function ContactTwoCol({ variables, brand }: SectionProps) {
 }
 
 const fieldStyle: React.CSSProperties = {
-  height: 46,
+  height: 48,
   padding: "0 14px",
   borderRadius: 12,
   border: "1px solid rgba(0,0,0,0.1)",
   background: "#FAF9F6",
-  fontSize: 15,
+  // 16px minimum on mobile so iOS Safari doesn't zoom the viewport when
+  // the input takes focus. Keeps the input touch target at 48px too.
+  fontSize: 16,
   color: "#3F3F42",
   fontFamily: "inherit",
 };

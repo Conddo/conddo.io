@@ -45,7 +45,7 @@ export function NavHeader({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 24,
+          gap: 16,
         }}
       >
         <a
@@ -59,6 +59,8 @@ export function NavHeader({
             fontWeight: 600,
             fontSize: 15,
             letterSpacing: "-0.01em",
+            flexShrink: 0,
+            minWidth: 0,
           }}
         >
           {brand.logoUrl ? (
@@ -87,23 +89,40 @@ export function NavHeader({
               {businessName.slice(0, 1).toUpperCase()}
             </span>
           )}
-          <span>{businessName}</span>
+          <span
+            className="nav-brand-name"
+            style={{ whiteSpace: "nowrap" }}
+          >
+            {businessName}
+          </span>
         </a>
+        <style>{`
+          @media (max-width: 480px) {
+            .nav-brand-name { display: none; }
+            .nav-header-list a { padding: 8px 10px !important; font-size: 13px !important; }
+          }
+          .nav-header-list::-webkit-scrollbar { display: none; }
+        `}</style>
 
         <ul
+          className="nav-header-list"
           style={{
             display: "flex",
             gap: 4,
             listStyle: "none",
             margin: 0,
             padding: 0,
-            flexWrap: "wrap",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            WebkitOverflowScrolling: "touch",
+            flexShrink: 1,
+            minWidth: 0,
           }}
         >
           {visible.map((p) => {
             const active = p.path === currentPath;
             return (
-              <li key={p.path}>
+              <li key={p.path} style={{ flexShrink: 0 }}>
                 <a
                   href={p.path}
                   style={{
@@ -115,6 +134,7 @@ export function NavHeader({
                     fontSize: 14,
                     borderBottom: `2px solid ${active ? brand.primaryColor : "transparent"}`,
                     transition: "color 120ms ease",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {p.label}

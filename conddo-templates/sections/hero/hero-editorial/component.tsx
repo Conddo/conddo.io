@@ -52,22 +52,29 @@ export function HeroEditorial({ variables, brand }: SectionProps) {
         overflow: "hidden",
       }}
     >
-      {/* Ring watermark — desktop-only, sits behind the copy. */}
+      {/* Ring watermark — sits behind the copy. On mobile it drops to a
+       *  smaller size + moves off-screen; on tablet+ it becomes the
+       *  ambient hero visual the brief calls for. */}
       <div
         aria-hidden
+        className="hero-editorial-watermark"
         style={{
           position: "absolute",
-          right: "-8%",
+          right: "-40%",
           top: "50%",
           transform: "translateY(-50%)",
           color: brand.primaryColor,
           pointerEvents: "none",
-          display: "block",
         }}
-        className="hidden md:block"
       >
-        <RingMotif size={720} count={14} strokeWidth={1.25} opacity={0.11} />
+        <RingMotif size={520} count={12} strokeWidth={1.25} opacity={0.09} />
       </div>
+      <style>{`
+        @media (min-width: 768px) {
+          .hero-editorial-watermark { right: -8% !important; }
+          .hero-editorial-watermark svg { width: 720px !important; height: 720px !important; }
+        }
+      `}</style>
 
       <div
         style={{

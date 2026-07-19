@@ -30,6 +30,15 @@ export function ServiceBlocksAlternating({ variables, brand }: SectionProps) {
 
   return (
     <section style={{ background: "#FAF9F6" }}>
+      <style>{`
+        .service-block-watermark.wm-right { right: -40%; }
+        .service-block-watermark.wm-left { left: -40%; }
+        @media (min-width: 768px) {
+          .service-block-watermark.wm-right { right: -8% !important; }
+          .service-block-watermark.wm-left { left: -8% !important; }
+          .service-block-watermark svg { width: 420px !important; height: 420px !important; }
+        }
+      `}</style>
       {blocks.map((b, i) => {
         const ringOnRight = i % 2 === 0;
         return (
@@ -45,16 +54,16 @@ export function ServiceBlocksAlternating({ variables, brand }: SectionProps) {
           >
             <div
               aria-hidden
+              className={`service-block-watermark ${ringOnRight ? "wm-right" : "wm-left"}`}
               style={{
                 position: "absolute",
-                [ringOnRight ? "right" : "left"]: "-8%",
                 top: "50%",
                 transform: "translateY(-50%)",
                 color: brand.primaryColor,
                 pointerEvents: "none",
               }}
             >
-              <RingMotif size={420} count={9} strokeWidth={1.25} opacity={0.09} />
+              <RingMotif size={280} count={9} strokeWidth={1.25} opacity={0.08} />
             </div>
 
             <div

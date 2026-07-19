@@ -38,6 +38,14 @@ export function ValuesStrip({ variables, brand }: SectionProps) {
             {heading}
           </h2>
         )}
+        <style>{`
+          /* When values wrap to a second row, the ring divider that would
+           * have sat between them looks orphaned. Hide dividers on narrow
+           * viewports and let the wrap take care of itself. */
+          @media (max-width: 640px) {
+            .values-strip-divider { display: none !important; }
+          }
+        `}</style>
         <div
           style={{
             display: "flex",
@@ -90,6 +98,7 @@ export function ValuesStrip({ variables, brand }: SectionProps) {
               </div>
               {i < values.length - 1 && (
                 <div
+                  className="values-strip-divider"
                   style={{
                     display: "flex",
                     alignItems: "center",

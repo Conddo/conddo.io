@@ -27,10 +27,10 @@ export function FooterBrand({ variables, brand }: SectionProps) {
         style={{
           maxWidth: 1200,
           margin: "0 auto",
-          padding: "64px 24px 32px",
+          padding: "56px 24px 28px",
           display: "grid",
           gap: 40,
-          gridTemplateColumns: "minmax(0, 1.4fr) minmax(0, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
         }}
         className="footer-grid"
       >

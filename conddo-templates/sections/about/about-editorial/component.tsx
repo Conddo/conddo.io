@@ -25,8 +25,11 @@ export function AboutEditorial({ variables, brand }: SectionProps) {
           maxWidth: 1200,
           margin: "0 auto",
           display: "grid",
-          gap: 56,
-          gridTemplateColumns: imageUrl ? "minmax(0, 1fr) minmax(0, 1.2fr)" : "1fr",
+          gap: 40,
+          gridTemplateColumns: imageUrl
+            ? "repeat(auto-fit, minmax(280px, 1fr))"
+            : "1fr",
+          alignItems: "center",
         }}
         className="about-editorial-grid"
       >

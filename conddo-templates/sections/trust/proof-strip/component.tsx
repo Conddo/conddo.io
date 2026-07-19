@@ -66,7 +66,9 @@ export function ProofStrip({ variables, brand }: SectionProps) {
               padding: 0,
               display: "grid",
               gap: 24,
-              gridTemplateColumns: `repeat(${Math.min(stats.length, 4)}, minmax(140px, 1fr))`,
+              // auto-fit lets the grid fall to 2 columns on phones, 4 on
+              // desktop without any explicit breakpoint.
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
               width: "100%",
               maxWidth: 900,
             }}
