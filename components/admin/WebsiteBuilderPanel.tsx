@@ -719,17 +719,20 @@ const FLAGSCALE_MULTIPAGE_JSON = JSON.stringify(
                 "Ready to get your business the visibility it deserves? Reach out and let us talk.",
             },
           },
+          // Booking CTA — links out to the standalone booking page at
+          // app.getconddo.com/book/{slug}. Simpler + more reliable than
+          // embedding the live availability fetch on every tenant page.
+          // Bookings placed on the standalone page still land in the
+          // tenant's /bookings dashboard via the same public endpoint.
           {
-            id: "contact-booking",
-            componentId: "booking-form",
+            id: "contact-booking-cta",
+            componentId: "cta-band",
             variables: {
-              heading: "Book a Strategy Call",
+              headline: "Prefer to pick a time yourself?",
               subtext:
-                "Pick a slot and share your details — every booking here lands in our team's dashboard, and you get a confirmation email.",
-              slug: "flagscale-pr",
-              successHeadline: "You're on the calendar",
-              successBody:
-                "We'll get back to you within one business day to confirm.",
+                "Grab a slot on our public booking page — takes 30 seconds and lands straight in our team's inbox.",
+              ctaText: "Book a Strategy Call",
+              ctaLink: "https://app.getconddo.com/book/flagscale-pr",
             },
           },
           {
