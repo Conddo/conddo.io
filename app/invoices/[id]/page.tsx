@@ -290,8 +290,7 @@ export default function InvoiceDetailPage() {
                 Actions
               </p>
               <div className="grid gap-2">
-                {(invoice.status === "draft" || invoice.status === "sent") &&
-                  invoice.status !== "paid" && (
+                {(invoice.status === "draft" || invoice.status === "sent") && (
                     <Button
                       onClick={emailToCustomer}
                       variant="primary"

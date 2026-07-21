@@ -26,9 +26,8 @@ const groups: { heading: string; links: { label: string; href: string }[] }[] = 
   {
     heading: "Legal",
     links: [
-      { label: "Privacy",  href: "/legal/privacy" },
-      { label: "Terms",    href: "/legal/terms" },
-      { label: "Security", href: "/legal/security" },
+      { label: "Privacy",  href: "/privacy" },
+      { label: "Terms",    href: "/terms" },
     ],
   },
 ];
