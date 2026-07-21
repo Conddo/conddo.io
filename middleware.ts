@@ -20,6 +20,13 @@ export function middleware(request: NextRequest) {
   // Skip Next internals + API proxying. `/sites/*` is our own rewrite target
   // and must pass through to render even when hit directly (useful for dev
   // previews of a tenant site without the DNS setup).
+  //
+  // /robots.txt and /sitemap.xml deliberately DO route through this
+  // middleware. On apex / app / studio hosts they hit the built-in
+  // Next.js robots.ts / sitemap.ts handlers unchanged. On tenant
+  // subdomains they get rewritten to /sites/[host]/robots.txt and
+  // /sites/[host]/sitemap.xml so each tenant gets its own crawlable
+  // manifest — the whole point of per-tenant SEO.
   if (
     path.startsWith("/_next") ||
     path.startsWith("/api") ||
@@ -30,8 +37,7 @@ export function middleware(request: NextRequest) {
     path.endsWith(".jpg") ||
     path.endsWith(".svg") ||
     path.endsWith(".ico") ||
-    path.endsWith(".webp") ||
-    path.endsWith(".txt")
+    path.endsWith(".webp")
   ) {
     return NextResponse.next();
   }

@@ -49,7 +49,7 @@ function pickPage(
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { host } = await params;
+  const { host, path } = await params;
   const site = await fetchManagedSite(host);
   if (!site) return { title: "Site not found" };
 
@@ -59,9 +59,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // to "Conddo" — those values propagate to every route unless we replace
   // them here.
   const businessName = site.businessName;
+  const currentPath = normalisePath(path);
+  const description = deriveDescription(site.sections, businessName);
+  const canonical = `https://${host}${currentPath}`;
+
   return {
     title: businessName,
-    description: `${businessName} — book online, learn about our work, and get in touch.`,
+    description,
     applicationName: businessName,
     appleWebApp: {
       capable: true,
@@ -74,16 +78,53 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           apple: site.logoUrl,
         }
       : undefined,
+    // Alternate/canonical tells Google which URL is the primary one when
+    // the same content is reachable via multiple paths / hosts.
+    alternates: { canonical },
     openGraph: {
       title: businessName,
       siteName: businessName,
-      description: `${businessName}`,
+      description,
+      url: canonical,
+      type: "website",
+      images: site.logoUrl ? [{ url: site.logoUrl, alt: businessName }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: businessName,
+      description,
+      images: site.logoUrl ? [site.logoUrl] : undefined,
     },
   };
+}
+
+/** Best-effort SEO description from the tenant's hero copy. Falls back to
+ *  a neutral one-liner when there's nothing hero-shaped to read. */
+function deriveDescription(
+  raw: Record<string, unknown> | null | undefined,
+  businessName: string,
+): string {
+  const fallback = `${businessName} — book online, learn about our work, and get in touch.`;
+  if (!raw) return fallback;
+  // v3 pages shape — pull from the first section on the first page.
+  const pages = (raw as { pages?: Array<{ sections?: Array<{ variables?: Record<string, unknown> }> }> }).pages;
+  if (Array.isArray(pages) && pages.length > 0) {
+    const firstSection = pages[0]?.sections?.[0];
+    const vars = firstSection?.variables;
+    const subtext = pickString(vars, "subtext") ?? pickString(vars, "subheadline") ?? pickString(vars, "tagline");
+    if (subtext) return truncate(subtext, 200);
+  }
+  return fallback;
+}
+
+function pickString(obj: unknown, key: string): string | undefined {
+  if (!obj || typeof obj !== "object") return undefined;
+  const v = (obj as Record<string, unknown>)[key];
+  return typeof v === "string" && v.trim() ? v.trim() : undefined;
+}
+
+function truncate(s: string, max: number): string {
+  return s.length <= max ? s : s.slice(0, max - 1).trimEnd() + "…";
 }
 
 /** Per-tenant theme-color so the mobile browser address bar tints with the
@@ -117,14 +158,69 @@ export default async function ManagedSitePage({ params }: Props) {
     fontPairing: site.theme?.fontPairing ?? "inter",
   };
 
+  // LocalBusiness JSON-LD — the schema Google reads to enrich search
+  // results with the tenant's name, logo, phone, and social profiles.
+  // Rendered inline via a <script type="application/ld+json"> which is
+  // the schema.org-recommended embedding pattern.
+  const contactBlock = findContactSection(site.sections);
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: site.businessName,
+    url: `https://${host}/`,
+    ...(site.logoUrl ? { logo: site.logoUrl, image: site.logoUrl } : {}),
+    ...(contactBlock?.email ? { email: contactBlock.email } : {}),
+    ...(contactBlock?.phone ? { telephone: contactBlock.phone } : {}),
+    ...(contactBlock?.address
+      ? {
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: contactBlock.address,
+          },
+        }
+      : {}),
+  };
+
   return (
-    <WebsiteRenderer
-      config={config}
-      brand={brand}
-      businessName={site.businessName}
-      currentPath={currentPath}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        // JSON-LD payload is safe to inline as long as it's serialised —
+        // it is not HTML and never runs. Next escapes </script> for us.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <WebsiteRenderer
+        config={config}
+        brand={brand}
+        businessName={site.businessName}
+        currentPath={currentPath}
+      />
+    </>
   );
+}
+
+/** Pull an email / phone / address out of a contact-style section so
+ *  the LocalBusiness JSON-LD can carry the tenant's real details. */
+function findContactSection(
+  raw: Record<string, unknown> | null | undefined,
+): { email?: string; phone?: string; address?: string } | null {
+  if (!raw) return null;
+  const pages = (raw as { pages?: Array<{ sections?: Array<{ componentId?: string; variables?: Record<string, unknown> }> }> }).pages;
+  if (Array.isArray(pages)) {
+    for (const p of pages) {
+      for (const s of p.sections ?? []) {
+        if (typeof s.componentId === "string" && s.componentId.startsWith("contact")) {
+          const v = s.variables ?? {};
+          return {
+            email: pickString(v, "email"),
+            phone: pickString(v, "phone"),
+            address: pickString(v, "address"),
+          };
+        }
+      }
+    }
+  }
+  return null;
 }
 
 /**
