@@ -16,6 +16,13 @@ const ALWAYS_ALLOWED = [
   "/notifications",
   // Roadmap + "Request Beta access" — every tenant, every vertical.
   "/features",
+  // Invoicing spliced in via PLATFORM_EXTRAS with no BE manifest entry.
+  // The /invoices page renders a PLAN_UPGRADE_REQUIRED nudge for tenants
+  // below Growth — but only if it can mount. Without this entry the
+  // AppShell plan-guard bounces every non-Growth tenant back to
+  // /dashboard the moment they click Invoices in the sidebar (which is
+  // exactly the pharmacy-tenant bug we saw in July 2026).
+  "/invoices",
   // EMR index + per-customer record pages. Pharmacy-only at the page level
   // (the page itself renders an empty state for non-pharmacy verticals), so
   // allowing the path for all is harmless — the page does the gating.
