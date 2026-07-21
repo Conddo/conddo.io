@@ -86,6 +86,7 @@ export const invoicesApi = {
   update: (id: string, body: UpsertInvoiceInput) =>
     api.put<InvoiceDetail>(`/invoices/${id}`, body),
   markSent: (id: string) => api.post<InvoiceRow>(`/invoices/${id}/send`),
+  emailToCustomer: (id: string) => api.post<InvoiceRow>(`/invoices/${id}/email`),
   markPaid: (id: string, method: "cash" | "transfer" | "other" = "cash") =>
     api.post<InvoiceRow>(`/invoices/${id}/mark-paid`, { method }),
   voidInvoice: (id: string) => api.del<InvoiceRow>(`/invoices/${id}`),

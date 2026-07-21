@@ -9,6 +9,7 @@ import {
   Check,
   Copy,
   Loader2,
+  Mail,
   Trash2,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
@@ -36,8 +37,9 @@ export default function InvoiceDetailPage() {
   const id = params.id;
   const [invoice, setInvoice] = useState<InvoiceDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [action, setAction] = useState<null | "send" | "paid" | "void">(null);
+  const [action, setAction] = useState<null | "send" | "email" | "paid" | "void">(null);
   const [copied, setCopied] = useState(false);
+  const [flash, setFlash] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
 
   const publicUrl = invoice ? `https://app.${APP_DOMAIN}/i/${invoice.publicToken}` : "";
 
@@ -61,6 +63,34 @@ export default function InvoiceDetailPage() {
     try {
       await invoicesApi.markSent(id);
       await load();
+    } finally {
+      setAction(null);
+    }
+  }
+
+  async function emailToCustomer() {
+    if (!invoice) return;
+    if (!invoice.customerEmail) {
+      setFlash({
+        tone: "err",
+        msg: "Customer email is empty. Edit the invoice, add an email, then try again.",
+      });
+      return;
+    }
+    setAction("email");
+    setFlash(null);
+    try {
+      await invoicesApi.emailToCustomer(id);
+      setFlash({
+        tone: "ok",
+        msg: `Emailed to ${invoice.customerEmail}. Status is now Sent.`,
+      });
+      await load();
+    } catch (err) {
+      setFlash({
+        tone: "err",
+        msg: err instanceof ApiError ? err.message : "Couldn't send the email.",
+      });
     } finally {
       setAction(null);
     }
@@ -110,6 +140,19 @@ export default function InvoiceDetailPage() {
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-400/25 bg-rose-500/[0.06] p-3 text-[13px] text-rose-200">
           <AlertCircle size={16} className="mt-0.5" /> {error}
+        </div>
+      )}
+
+      {flash && (
+        <div
+          className={
+            "mb-4 rounded-lg border p-3 text-[13px] " +
+            (flash.tone === "ok"
+              ? "border-emerald-400/25 bg-emerald-500/[0.06] text-emerald-200"
+              : "border-rose-400/25 bg-rose-500/[0.06] text-rose-200")
+          }
+        >
+          {flash.msg}
         </div>
       )}
 
@@ -247,16 +290,33 @@ export default function InvoiceDetailPage() {
                 Actions
               </p>
               <div className="grid gap-2">
+                {(invoice.status === "draft" || invoice.status === "sent") &&
+                  invoice.status !== "paid" && (
+                    <Button
+                      onClick={emailToCustomer}
+                      variant="primary"
+                      disabled={action !== null}
+                      className="w-full justify-center gap-1.5"
+                    >
+                      {action === "email" ? (
+                        <Loader2 size={13} className="animate-spin" />
+                      ) : (
+                        <Mail size={13} />
+                      )}
+                      {invoice.status === "sent" ? "Resend by email" : "Email to customer"}
+                    </Button>
+                  )}
                 {invoice.status === "draft" && (
-                  <Button
+                  <button
                     onClick={markSent}
-                    variant="primary"
                     disabled={action !== null}
-                    className="w-full justify-center"
+                    className="inline-flex w-full items-center justify-center rounded-md border border-white/12 bg-white/[0.03] px-3 py-2 text-[13px] text-white/85 hover:bg-white/[0.08] disabled:opacity-50"
                   >
-                    {action === "send" ? <Loader2 size={13} className="animate-spin" /> : null}
-                    Mark as sent
-                  </Button>
+                    {action === "send" ? (
+                      <Loader2 size={13} className="mr-1.5 animate-spin" />
+                    ) : null}
+                    Mark as sent (no email)
+                  </button>
                 )}
                 {invoice.status !== "paid" && invoice.status !== "void" && (
                   <Button

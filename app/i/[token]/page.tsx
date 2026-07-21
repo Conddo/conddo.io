@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { PrintButton } from "./PrintButton";
 
 /**
  * PUBLIC invoice / receipt view. Rendered in the tenant's brand
@@ -115,7 +116,38 @@ export default async function PublicInvoicePage({
         padding: "clamp(24px, 4vw, 56px) 16px",
       }}
     >
+      {/* Print-specific overrides — strip the page background + shadow
+       *  so the printed PDF isn't a beige page with a card floating in
+       *  it, and hide the print button + Conddo attribution row when
+       *  the customer is on the print dialog. Applies globally on this
+       *  page only because the whole route is server-rendered here. */}
+      <style>{`
+        @page { margin: 12mm; }
+        @media print {
+          body, main { background: #FFFFFF !important; }
+          .print-hide { display: none !important; }
+          .invoice-card {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            border: none !important;
+          }
+        }
+      `}</style>
+
+      {/* Action bar — print button, hidden when printing. */}
       <div
+        className="print-hide"
+        style={{
+          maxWidth: 780,
+          margin: "0 auto 16px",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <PrintButton secondaryColor={secondary} />
+      </div>
+      <div
+        className="invoice-card"
         style={{
           maxWidth: 780,
           margin: "0 auto",
@@ -297,7 +329,10 @@ export default async function PublicInvoicePage({
         )}
       </div>
 
-      <p style={{ maxWidth: 780, margin: "16px auto 0", fontSize: 11.5, color: "#8A8A8A", textAlign: "center" }}>
+      <p
+        className="print-hide"
+        style={{ maxWidth: 780, margin: "16px auto 0", fontSize: 11.5, color: "#8A8A8A", textAlign: "center" }}
+      >
         Sent via <strong style={{ color: "#4B4B50" }}>Conddo</strong> — the business platform for African SMEs.
       </p>
     </main>
