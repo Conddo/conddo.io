@@ -239,6 +239,27 @@ export type AttentionRow = {
   createdAt: string;
 };
 
+export type KycStatus = "pending" | "under_review" | "approved" | "rejected";
+
+export type AdminKycRow = {
+  tenantId: string;
+  bankCode: string | null;
+  bankName: string | null;
+  accountNumber: string | null;
+  accountName: string | null;
+  accountVerified: boolean;
+  kycStatus: KycStatus;
+  kycSubmittedAt: string | null;
+  kycReviewedAt: string | null;
+  kycReviewedBy: string | null;
+  kycRejectionReason: string | null;
+  cacDocumentUrl: string | null;
+  directorIdUrl: string | null;
+  utilityBillUrl: string | null;
+  businessAddress: string | null;
+  paymentsEnabled: boolean;
+};
+
 export const adminApi = {
   overview: () => request<PlatformOverview>("/admin/platform/overview"),
   sites: (filter: SiteFilter = "pending") =>
@@ -297,6 +318,17 @@ export const adminApi = {
     }),
   restoreTenant: (id: string) =>
     request<TenantRow>(`/admin/tenants/${id}/restore`, { method: "POST" }),
+
+  // ----- KYC / payment-account review -----
+  kycPending: () => request<AdminKycRow[]>("/admin/kyc/pending"),
+  kyc: (tenantId: string) => request<AdminKycRow>(`/admin/kyc/${tenantId}`),
+  approveKyc: (tenantId: string) =>
+    request<AdminKycRow>(`/admin/kyc/${tenantId}/approve`, { method: "POST" }),
+  rejectKyc: (tenantId: string, reason: string) =>
+    request<AdminKycRow>(`/admin/kyc/${tenantId}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    }),
 
   // ----- session + seed maintenance -----
   resetTenantSessions: (id: string) =>

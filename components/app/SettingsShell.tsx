@@ -9,12 +9,13 @@ import {
   LayoutGrid,
   MessageSquare,
   Palette,
+  ShieldCheck,
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 
-type SettingsKey = "profile" | "brand" | "billing" | "notifications" | "connections" | "modules" | "staff" | "support" | "api-keys" | "danger";
+type SettingsKey = "profile" | "brand" | "billing" | "payments" | "notifications" | "connections" | "modules" | "staff" | "support" | "api-keys" | "danger";
 
 // Settings entries are only listed once the backend endpoints behind them
 // exist. Connected Accounts / API Keys stay hidden until those modules ship
@@ -27,6 +28,7 @@ const NAV: { key: SettingsKey; label: string; icon: LucideIcon; href: string }[]
   { key: "brand", label: "Brand", icon: Palette, href: "/settings/brand" },
   { key: "modules", label: "Modules", icon: LayoutGrid, href: "/settings/modules" },
   { key: "billing", label: "Subscription and Billing", icon: CreditCard, href: "/settings/billing" },
+  { key: "payments", label: "Payments and Payouts", icon: ShieldCheck, href: "/settings/payments" },
   { key: "connections", label: "Connected Accounts", icon: Link2, href: "/settings/connections" },
   { key: "notifications", label: "Notifications", icon: Bell, href: "/settings/notifications" },
   { key: "staff", label: "Staff and Permissions", icon: IdCard, href: "/staff" },

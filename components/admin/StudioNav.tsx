@@ -31,6 +31,7 @@ export function StudioNav({
           <nav className="flex items-center gap-1">
             <NavTab href="/admin/dashboard" label="Overview" active={path === "/admin/dashboard" || path === "/admin"} />
             <NavTab href="/admin/tenants" label="Tenants" active={path?.startsWith("/admin/tenants") ?? false} />
+            <NavTab href="/admin/kyc" label="KYC" active={path?.startsWith("/admin/kyc") ?? false} />
             <NavTab href="/admin/requests" label="Requests" active={path?.startsWith("/admin/requests") ?? false} />
           </nav>
         </div>

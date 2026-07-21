@@ -12,6 +12,8 @@ import { useManifests } from "./useManifests";
 const ALWAYS_ALLOWED = [
   "/dashboard",
   "/settings",
+  // /settings/payments handles its own KYC + admin-approval gating.
+  "/settings/payments",
   "/search",
   "/notifications",
   // Roadmap + "Request Beta access" — every tenant, every vertical.
