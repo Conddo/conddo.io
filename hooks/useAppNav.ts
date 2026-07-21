@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Settings, Activity, Sparkles, Package, Scissors } from "lucide-react";
+import { Home, Settings, Activity, Sparkles, Package, Scissors, FileText } from "lucide-react";
 import { useManifests } from "./useManifests";
 import { useApiQuery } from "./useApiQuery";
 import { iconFor } from "@/lib/manifest/icons";
@@ -52,6 +52,14 @@ const VERTICAL_EXTRAS: Partial<Record<VerticalId, SpliceEntry[]>> = {
  *  Sit it right before Settings so it reads as a what's-coming entry, not a
  *  primary daily-driver link. */
 const PLATFORM_EXTRAS: SpliceEntry[] = [
+  // Invoicing is a Growth-tier feature (BE @RequiresFeature('invoicing')).
+  // We show the link for every tenant so upgrade discovery works — free /
+  // starter tenants land on the /invoices upgrade nudge instead of a 404.
+  // Anchor to /payments so it sits with the other money surfaces.
+  {
+    item: { label: "Invoices", href: "/invoices", icon: FileText },
+    insertAfter: "/payments",
+  },
   {
     item: { label: "What's new", href: "/features", icon: Sparkles },
     // Anchor not in manifest → falls through to "append at end", which lands
