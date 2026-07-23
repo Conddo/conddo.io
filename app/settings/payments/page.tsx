@@ -205,18 +205,22 @@ function BankSection({
   const [accountNumber, setAccountNumber] = useState(account.accountNumber ?? "");
   const [accountName, setAccountName] = useState(account.accountName ?? "");
   const [banks, setBanks] = useState<BankOption[]>([]);
+  const [banksState, setBanksState] = useState<"loading" | "loaded" | "failed">("loading");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   // Pull the canonical bank list (from Importapay) so tenants pick from a
-  // dropdown instead of typing a bank name + code by hand. This also
-  // eliminates the class of "validation failed because bankCode was blank"
-  // errors we were seeing before.
+  // dropdown instead of typing a bank name + code by hand. Distinct
+  // loading / loaded / failed states so a fetch error doesn't leave the
+  // select stuck on "Loading banks…" forever.
   useEffect(() => {
     payApi
       .banks()
-      .then((r) => setBanks(r.data))
-      .catch(() => setBanks([]));
+      .then((r) => {
+        setBanks(r.data);
+        setBanksState("loaded");
+      })
+      .catch(() => setBanksState("failed"));
   }, []);
 
   function onBankPick(name: string) {
@@ -254,20 +258,27 @@ function BankSection({
       <div className="grid gap-3 md:grid-cols-2">
         <Field label="Bank">
           <select
-            disabled={locked || banks.length === 0}
+            disabled={locked || banksState !== "loaded"}
             value={bankName}
             onChange={(e) => onBankPick(e.target.value)}
             className={inputClass}
           >
             <option value="">
-              {banks.length === 0 ? "Loading banks…" : "Select your bank…"}
+              {banksState === "loading" && "Loading banks…"}
+              {banksState === "failed" && "Bank list unavailable — try refresh"}
+              {banksState === "loaded" && "Select your bank…"}
             </option>
             {banks.map((b) => (
-              <option key={b.code} value={b.name}>
+              <option key={`${b.code}-${b.name}`} value={b.name}>
                 {b.name}
               </option>
             ))}
           </select>
+          {banksState === "failed" && (
+            <p className="mt-1 text-[11.5px] text-rose-300">
+              Couldn&rsquo;t reach the bank service. Refresh the page in a moment.
+            </p>
+          )}
         </Field>
         <Field label="Account number">
           <input
