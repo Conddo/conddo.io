@@ -15,7 +15,7 @@ import {
 import { SettingsShell } from "@/components/app/SettingsShell";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
-import { mediaApi } from "@/lib/api/media";
+import { uploadToCloudinary } from "@/lib/api/cloudinaryUpload";
 import {
   paymentAccountApi,
   type PaymentAccount,
@@ -436,8 +436,10 @@ function DocUploader({
     setUploading(true);
     setErr(null);
     try {
-      const res = await mediaApi.upload(file, "kyc");
-      onChange(res.data.url);
+      // Direct-to-Cloudinary — file bytes never touch our BE, sidesteps
+      // the 502s we hit on the proxied multipart path.
+      const res = await uploadToCloudinary(file, "kyc");
+      onChange(res.url);
     } catch (e) {
       setErr(e instanceof ApiError ? e.message : "Upload failed.");
     } finally {
