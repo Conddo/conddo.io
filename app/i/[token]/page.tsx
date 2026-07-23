@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PrintButton } from "./PrintButton";
+import { PayButton } from "./PayButton";
 
 /**
  * PUBLIC invoice / receipt view. Rendered in the tenant's brand
@@ -142,8 +143,11 @@ export default async function PublicInvoicePage({
           margin: "0 auto 16px",
           display: "flex",
           justifyContent: "flex-end",
+          gap: 10,
+          alignItems: "center",
         }}
       >
+        {!isPaid && <PayButton invoiceToken={token} primaryColor={primary} />}
         <PrintButton secondaryColor={secondary} />
       </div>
       <div

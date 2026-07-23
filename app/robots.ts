@@ -59,6 +59,9 @@ export default function robots(): MetadataRoute.Robots {
           // so we don't want search engines fanning it out. Individual
           // token pages also carry noindex via generateMetadata.
           "/i/",
+          // Customer-facing pay pages carry receiving-account info
+          // scoped to a single transaction — never appropriate to index.
+          "/pay/",
         ],
       },
     ],
