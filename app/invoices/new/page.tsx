@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
+import { InvoicingUpgradeNudge } from "@/components/app/InvoicingUpgradeNudge";
 import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Button } from "@/components/ui/Button";
 import {
@@ -52,6 +53,34 @@ export default function NewInvoicePage() {
   const [lines, setLines] = useState<LineDraft[]>([{ ...EMPTY_LINE }]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Plan probe — same signal /invoices/page.tsx uses. Cheap HEAD-ish
+  // call to invoicesApi.list() at mount tells us whether the tenant's
+  // plan unlocks invoicing at all. Free / Starter tenants who arrived
+  // here from the Payments Create Invoice button see the upgrade nudge
+  // instead of a form that would 403 on submit.
+  const [upgradeRequired, setUpgradeRequired] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    invoicesApi
+      .list()
+      .then(() => alive && setUpgradeRequired(false))
+      .catch((err) => {
+        if (!alive) return;
+        if (err instanceof ApiError && err.code === "PLAN_UPGRADE_REQUIRED") {
+          setUpgradeRequired(true);
+        } else {
+          // Any other failure — surface as a probe pass so the form
+          // still renders and its own submit-time error handling can
+          // take over. Failing closed on the gate would trap Growth+
+          // tenants behind an unrelated network hiccup.
+          setUpgradeRequired(false);
+        }
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const totals = useMemo(() => computeTotals(lines, discountNaira), [lines, discountNaira]);
 
@@ -121,6 +150,11 @@ export default function NewInvoicePage() {
       >
         <ArrowLeft size={13} /> Invoices
       </Link>
+
+      {upgradeRequired === true && <InvoicingUpgradeNudge />}
+
+      {upgradeRequired === false && (
+        <>
 
       <PaymentsStatusBanner context="invoices" />
 
@@ -216,6 +250,8 @@ export default function NewInvoicePage() {
           </Button>
         </div>
       </form>
+        </>
+      )}
     </AppShell>
   );
 }
