@@ -36,4 +36,5 @@ export const paymentAccountApi = {
     businessAddress?: string | null;
   }) => api.put<PaymentAccount>("/me/payments/account/kyc-docs", payload),
   submit: () => api.post<PaymentAccount>("/me/payments/account/submit", {}),
+  clearBank: () => api.del<PaymentAccount>("/me/payments/account/bank"),
 };

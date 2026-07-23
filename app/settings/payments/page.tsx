@@ -207,7 +207,28 @@ function BankSection({
   const [banks, setBanks] = useState<BankOption[]>([]);
   const [banksState, setBanksState] = useState<"loading" | "loaded" | "failed">("loading");
   const [saving, setSaving] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const hasBank = !!account.accountNumber;
+
+  async function removeBank() {
+    if (!confirm("Remove your bank details? You'll need to add them again before you can accept payments.")) return;
+    setRemoving(true);
+    setMsg(null);
+    try {
+      const res = await paymentAccountApi.clearBank();
+      onSaved(res.data);
+      setBankCode("");
+      setBankName("");
+      setAccountNumber("");
+      setAccountName("");
+      setMsg("Bank details removed.");
+    } catch (err) {
+      setMsg(err instanceof ApiError ? err.message : "Couldn't remove.");
+    } finally {
+      setRemoving(false);
+    }
+  }
 
   // Pull the canonical bank list (from Importapay) so tenants pick from a
   // dropdown instead of typing a bank name + code by hand. Distinct
@@ -312,6 +333,16 @@ function BankSection({
           <Button onClick={save} variant="primary" disabled={saving || !valid}>
             {saving ? <Loader2 size={13} className="animate-spin" /> : null} Save bank details
           </Button>
+          {hasBank && (
+            <button
+              type="button"
+              onClick={removeBank}
+              disabled={removing}
+              className="rounded-md border border-rose-400/30 bg-rose-500/[0.06] px-3 py-2 text-[13px] font-medium text-rose-200 transition-colors hover:bg-rose-500/[0.12] disabled:opacity-50"
+            >
+              {removing ? "Removing…" : "Remove"}
+            </button>
+          )}
           {msg && <span className="text-[13px] text-white/60">{msg}</span>}
         </div>
       )}
