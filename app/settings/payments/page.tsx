@@ -21,6 +21,7 @@ import {
   type PaymentAccount,
   type KycStatus,
 } from "@/lib/api/payment-account";
+import { payApi, type BankOption } from "@/lib/api/pay";
 
 /**
  * /settings/payments — single-scroll KYC + bank connect page.
@@ -203,10 +204,34 @@ function BankSection({
   const [bankName, setBankName] = useState(account.bankName ?? "");
   const [accountNumber, setAccountNumber] = useState(account.accountNumber ?? "");
   const [accountName, setAccountName] = useState(account.accountName ?? "");
+  const [banks, setBanks] = useState<BankOption[]>([]);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
+  // Pull the canonical bank list (from Importapay) so tenants pick from a
+  // dropdown instead of typing a bank name + code by hand. This also
+  // eliminates the class of "validation failed because bankCode was blank"
+  // errors we were seeing before.
+  useEffect(() => {
+    payApi
+      .banks()
+      .then((r) => setBanks(r.data))
+      .catch(() => setBanks([]));
+  }, []);
+
+  function onBankPick(name: string) {
+    setBankName(name);
+    const match = banks.find((b) => b.name === name);
+    setBankCode(match?.code ?? "");
+  }
+
+  const valid = bankName.trim() && bankCode.trim() && accountNumber.trim() && accountName.trim();
+
   async function save() {
+    if (!valid) {
+      setMsg("Please fill in every field before saving.");
+      return;
+    }
     setSaving(true);
     setMsg(null);
     try {
@@ -224,26 +249,25 @@ function BankSection({
     <Section
       icon={<Landmark size={18} />}
       title="Bank account"
-      description="Where your settled funds land. We verify the account name against your bank."
+      description="Where your settled funds land. Our compliance team confirms the account name matches during KYC review."
     >
       <div className="grid gap-3 md:grid-cols-2">
-        <Field label="Bank name">
-          <input
-            disabled={locked}
+        <Field label="Bank">
+          <select
+            disabled={locked || banks.length === 0}
             value={bankName}
-            onChange={(e) => setBankName(e.target.value)}
+            onChange={(e) => onBankPick(e.target.value)}
             className={inputClass}
-            placeholder="Access Bank"
-          />
-        </Field>
-        <Field label="Bank code">
-          <input
-            disabled={locked}
-            value={bankCode}
-            onChange={(e) => setBankCode(e.target.value)}
-            className={inputClass}
-            placeholder="044"
-          />
+          >
+            <option value="">
+              {banks.length === 0 ? "Loading banks…" : "Select your bank…"}
+            </option>
+            {banks.map((b) => (
+              <option key={b.code} value={b.name}>
+                {b.name}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Account number">
           <input
@@ -256,19 +280,25 @@ function BankSection({
             maxLength={10}
           />
         </Field>
-        <Field label="Account name">
-          <input
-            disabled={locked}
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-            className={inputClass}
-            placeholder="As returned by bank name enquiry"
-          />
-        </Field>
+        <div className="md:col-span-2">
+          <Field label="Account name">
+            <input
+              disabled={locked}
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+              className={inputClass}
+              placeholder="Exactly as it appears on your bank statement"
+            />
+          </Field>
+          <p className="mt-1.5 text-[11.5px] text-white/45">
+            Type it exactly as your bank displays it. Our team confirms the name matches the account
+            number during KYC review.
+          </p>
+        </div>
       </div>
       {!locked && (
         <div className="mt-4 flex items-center gap-3">
-          <Button onClick={save} variant="primary" disabled={saving}>
+          <Button onClick={save} variant="primary" disabled={saving || !valid}>
             {saving ? <Loader2 size={13} className="animate-spin" /> : null} Save bank details
           </Button>
           {msg && <span className="text-[13px] text-white/60">{msg}</span>}
