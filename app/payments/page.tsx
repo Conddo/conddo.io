@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Download, CalendarDays, AlertTriangle } from "lucide-react";
+import { Plus, CalendarDays, AlertTriangle } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 import { Button } from "@/components/ui/Button";
+import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Chip } from "@/components/ui/Chip";
 import { QueryBoundary } from "@/components/ui/QueryBoundary";
 import { EmptyState } from "@/components/ui/States";
@@ -61,18 +62,13 @@ export default function PaymentsPage() {
     <AppShell
       title="Payments"
       actions={
-        <>
-          <Button variant="secondary" size="md" className="hidden md:inline-flex">
-            <Download size={16} />
-            Export CSV
-          </Button>
-          <Button variant="primary" size="md">
-            <Plus size={17} />
-            <span className="hidden sm:inline">Create Invoice</span>
-          </Button>
-        </>
+        <Button variant="primary" size="md" href="/invoices/new">
+          <Plus size={17} />
+          <span className="hidden sm:inline">Create Invoice</span>
+        </Button>
       }
     >
+      <PaymentsStatusBanner />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px]">
         {/* Left: stats + table */}
         <div className="min-w-0 space-y-5">

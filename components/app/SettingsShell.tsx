@@ -6,7 +6,6 @@ import {
   CreditCard,
   IdCard,
   Link2,
-  LayoutGrid,
   MessageSquare,
   Palette,
   ShieldCheck,
@@ -26,7 +25,9 @@ type SettingsKey = "profile" | "brand" | "billing" | "payments" | "notifications
 const NAV: { key: SettingsKey; label: string; icon: LucideIcon; href: string }[] = [
   { key: "profile", label: "Business Profile", icon: Building2, href: "/settings" },
   { key: "brand", label: "Brand", icon: Palette, href: "/settings/brand" },
-  { key: "modules", label: "Modules", icon: LayoutGrid, href: "/settings/modules" },
+  // Modules is admin-only — the tenant can request modules via /features
+  // (Request Beta access), but choosing the active set is a Conddo Studio
+  // decision, not a self-serve tenant one.
   { key: "billing", label: "Subscription and Billing", icon: CreditCard, href: "/settings/billing" },
   { key: "payments", label: "Payments and Payouts", icon: ShieldCheck, href: "/settings/payments" },
   { key: "connections", label: "Connected Accounts", icon: Link2, href: "/settings/connections" },
@@ -42,11 +43,15 @@ export function SettingsShell({
   title,
   description,
   children,
+  wide = false,
 }: {
   active: SettingsKey;
   title: string;
   description: string;
   children: ReactNode;
+  /** Some sub-sections (billing plan grid, payments) need more horizontal
+   *  breathing room than the default 3xl (48rem) form column. */
+  wide?: boolean;
 }) {
   return (
     <AppShell title="Settings">
@@ -81,7 +86,7 @@ export function SettingsShell({
           </div>
         </nav>
 
-        <div className="min-w-0 max-w-3xl flex-1">
+        <div className={`min-w-0 flex-1 ${wide ? "max-w-6xl" : "max-w-3xl"}`}>
           <div className="mb-6">
             <h2 className="text-[22px] font-medium tracking-[-0.01em] text-white">{title}</h2>
             <p className="mt-1 text-[15px] text-white/65">{description}</p>

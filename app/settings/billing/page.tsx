@@ -192,7 +192,7 @@ export default function BillingSettings() {
   }
 
   return (
-    <SettingsShell active="billing" title="Subscription & Billing" description="Manage your plan, payment method, and invoices.">
+    <SettingsShell active="billing" title="Subscription & Billing" description="Manage your plan, payment method, and invoices." wide>
       <div className="space-y-8">
         {/* Hard error — only shown for real network/server failures, not
             "this tenant has no sub yet" (which is a normal first-visit). */}
@@ -291,7 +291,7 @@ export default function BillingSettings() {
               <CycleSelector value={selectedCycle} onChange={setSelectedCycle} />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {PLAN_CATALOG.map((p) => {
                 const isCurrent = p.id === currentPlan;
                 const price = p[selectedCycle];
@@ -304,40 +304,45 @@ export default function BillingSettings() {
                 return (
                   <div
                     key={p.id}
-                    className={`rounded-xl border bg-cinema-elev p-5 flex flex-col ${
+                    className={`flex flex-col rounded-2xl border bg-cinema-elev p-6 ${
                       isCurrent
-                        ? "border-2 border-primary"
-                        : "border-white/[0.06] hover:border-primary-light"
+                        ? "border-primary shadow-[0_0_0_1px_rgba(124,92,207,0.4)]"
+                        : "border-white/[0.06] hover:border-primary-light/50"
                     }`}
                   >
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-[13px] font-medium uppercase tracking-[0.08em] text-white/65">
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60">
                         {p.name}
                       </p>
                       {isCurrent && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/[0.08] px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                          <CheckCircle2 size={12} /> Current
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/[0.12] px-2 py-0.5 text-[10.5px] font-medium text-primary-light">
+                          <CheckCircle2 size={11} /> Current
                         </span>
                       )}
                     </div>
-                    <div className="mb-2 flex items-baseline gap-1">
-                      <span className="font-mono text-[22px] text-white">
-                        {price === 0 ? "Free" : naira(price)}
-                      </span>
-                      {price > 0 && (
-                        <span className="text-[13px] text-white/45">{perLabel}</span>
+                    <div className="mb-2.5 flex items-baseline gap-1">
+                      {price === 0 ? (
+                        <span className="text-[26px] font-semibold text-white">Free</span>
+                      ) : (
+                        <>
+                          <span className="text-[26px] font-semibold tracking-tight text-white">
+                            {naira(price)}
+                          </span>
+                          <span className="text-[12.5px] text-white/50">{perLabel}</span>
+                        </>
                       )}
                     </div>
-                    <p className="mb-3 text-[13px] text-white/65 flex-1">{p.blurb}</p>
+                    <p className="mb-3 min-h-[42px] text-[13px] leading-snug text-white/70">{p.blurb}</p>
                     {p.requiresAcademicEmail && (
-                      <p className="mb-3 text-[11px] text-white/45 leading-relaxed">
+                      <p className="mb-3 text-[11px] leading-snug text-white/40">
                         Requires an academic email (.edu, .edu.ng, .ac.uk).
                       </p>
                     )}
+                    <div className="flex-1" />
                     <Button
                       variant={isCurrent ? "secondary" : "primary"}
                       size="md"
-                      className="w-full"
+                      className="mt-4 w-full justify-center"
                       disabled={isCurrent || upgrading !== null}
                       onClick={() => selectPlan(p.id)}
                     >

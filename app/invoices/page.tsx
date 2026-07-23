@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, FileText, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
+import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Button } from "@/components/ui/Button";
 import {
   fmtNaira,
@@ -83,6 +84,7 @@ export default function InvoicesPage() {
 
       {!upgradeRequired && (
         <>
+          <PaymentsStatusBanner context="invoices" />
           <div className="mb-4 flex gap-1 rounded-lg border border-white/10 bg-white/[0.02] p-1">
             {STATUS_TABS.map((t) => (
               <button

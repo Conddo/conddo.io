@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
+import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Button } from "@/components/ui/Button";
 import {
   fmtNaira,
@@ -120,6 +121,8 @@ export default function NewInvoicePage() {
       >
         <ArrowLeft size={13} /> Invoices
       </Link>
+
+      <PaymentsStatusBanner context="invoices" />
 
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-400/25 bg-rose-500/[0.06] p-3 text-[13px] text-rose-200">
