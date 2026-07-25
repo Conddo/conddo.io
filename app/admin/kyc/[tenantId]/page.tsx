@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   AlertCircle,
@@ -20,13 +20,15 @@ import {
   type AdminKycRow,
 } from "@/lib/api/admin";
 
-type Props = { params: Promise<{ tenantId: string }> };
-
 /** /admin/kyc/[tenantId] — SUPER_ADMIN detailed KYC review. Shows every
  *  document + bank line, with Approve / Reject actions. Reject requires
  *  a reason the tenant will see back on their settings page. */
-export default function AdminKycDetailPage({ params }: Props) {
-  const { tenantId } = use(params);
+export default function AdminKycDetailPage() {
+  // Match the pattern used elsewhere in /admin (useParams hook) rather
+  // than Next 15's async `use(params)` — the deploy is on the older
+  // params-as-object contract and use() on a plain object throws a
+  // client-side exception.
+  const { tenantId } = useParams<{ tenantId: string }>();
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
 

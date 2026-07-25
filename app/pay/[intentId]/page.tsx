@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, use } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "next/navigation";
 import {
   AlertCircle,
   CheckCircle2,
@@ -19,8 +20,6 @@ import {
   type PublicIntent,
 } from "@/lib/api/pay";
 
-type Props = { params: Promise<{ intentId: string }> };
-
 /**
  * /pay/{intentId} — customer-facing bank-transfer pay page.
  *
@@ -33,8 +32,11 @@ type Props = { params: Promise<{ intentId: string }> };
  * The page is tenant-branded (logo + primary color from the intent's
  * business + brand block) so a customer sees the tenant, not Conddo.
  */
-export default function PayPage({ params }: Props) {
-  const { intentId } = use(params);
+export default function PayPage() {
+  // Match the codebase's params-as-object pattern via useParams — Next
+  // 15's `use(params)` async unwrap throws React error #438 on the
+  // current deploy contract.
+  const { intentId } = useParams<{ intentId: string }>();
   const [intent, setIntent] = useState<PublicIntent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [banks, setBanks] = useState<BankOption[]>([]);
