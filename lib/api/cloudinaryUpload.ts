@@ -35,7 +35,10 @@ export async function uploadToCloudinary(
   form.append("signature", sig.signature);
   form.append("folder", sig.folder);
 
-  const endpoint = `https://api.cloudinary.com/v1_1/${sig.cloudName}/auto/upload`;
+  // Use /image/upload rather than /auto/upload — Cloudinary treats PDFs
+  // as `image` resource type (same as the server-side CloudinaryObjectStorage
+  // does) and /auto has stricter validation that rejects PDF on some plans.
+  const endpoint = `https://api.cloudinary.com/v1_1/${sig.cloudName}/image/upload`;
 
   let res: Response;
   try {
