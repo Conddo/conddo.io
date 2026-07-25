@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCcw,
   XCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
 import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
@@ -172,7 +173,7 @@ function StatCard({
   value: string;
   hint?: string;
   tone: "primary" | "success" | "warning" | "danger";
-  Icon?: React.ComponentType<{ size?: number; className?: string }>;
+  Icon?: LucideIcon;
 }) {
   const toneCls =
     tone === "primary"
