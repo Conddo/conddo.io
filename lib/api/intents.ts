@@ -69,6 +69,27 @@ export type PagedResponse<T> = {
   totalPages: number;
 };
 
+export type CreatePaymentLinkInput = {
+  amountKobo: number;
+  currency?: string;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  description?: string;
+};
+
+export type CreatePaymentLinkResult = {
+  intentId: string;
+  status: string;
+  paymentUrl: string;
+  receivingBankName: string | null;
+  receivingAccountNumber: string | null;
+  receivingAccountName: string | null;
+  amountKobo: number;
+  currency: string;
+  createdAt: string;
+};
+
 export const intentsApi = {
   list: (opts: { status?: string; page?: number; size?: number } = {}) => {
     const qs = new URLSearchParams();
@@ -79,6 +100,10 @@ export const intentsApi = {
   },
   balance: () => api.get<TenantBalance>("/payments/intents/balance"),
   get: (id: string) => api.get<IntentDetail>(`/payments/intents/${id}`),
+
+  /** Create a shareable payment link backed by Importapay bank transfer. */
+  createPaymentLink: (input: CreatePaymentLinkInput) =>
+    api.post<CreatePaymentLinkResult>("/payments/links", input),
 };
 
 export const fmtNaira = (kobo: number) =>

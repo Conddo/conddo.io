@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   FileText,
+  Link as LinkIcon,
   Loader2,
   Plus,
   RefreshCcw,
@@ -14,6 +15,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
+import { PaymentLinkModal } from "@/components/app/PaymentLinkModal";
 import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Button } from "@/components/ui/Button";
 import { ApiError } from "@/lib/api/client";
@@ -49,6 +51,7 @@ export default function PaymentsPage() {
   const [filter, setFilter] = useState<IntentStatus | "all">("all");
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
 
   async function loadAll() {
     setError(null);
@@ -76,87 +79,101 @@ export default function PaymentsPage() {
   }
 
   return (
-    <AppShell
-      title="Payments"
-      subtitle="Every payment your customers make through Conddo — orders, invoices, bookings, and links."
-      actions={
-        <div className="flex gap-2">
-          <Button variant="secondary" size="md" onClick={refresh} disabled={refreshing}>
-            <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
-            <span className="hidden sm:inline">Refresh</span>
-          </Button>
-          <Button variant="primary" size="md" href="/invoices/new">
-            <Plus size={16} />
-            <span className="hidden sm:inline">Create Invoice</span>
-          </Button>
+    <>
+      <AppShell
+        title="Payments"
+        subtitle="Every payment your customers make through Conddo — orders, invoices, bookings, and links."
+        actions={
+          <div className="flex gap-2">
+            <Button variant="secondary" size="md" onClick={() => setLinkModalOpen(true)}>
+              <LinkIcon size={14} />
+              <span className="hidden sm:inline">Payment Link</span>
+            </Button>
+            <Button variant="secondary" size="md" onClick={refresh} disabled={refreshing}>
+              <RefreshCcw size={14} className={refreshing ? "animate-spin" : ""} />
+              <span className="hidden sm:inline">Refresh</span>
+            </Button>
+            <Button variant="primary" size="md" href="/invoices/new">
+              <Plus size={16} />
+              <span className="hidden sm:inline">Create Invoice</span>
+            </Button>
+          </div>
+        }
+      >
+        <PaymentsStatusBanner />
+
+        {error && (
+          <div className="mb-5 flex items-start gap-2 rounded-lg border border-rose-400/25 bg-rose-500/[0.06] p-3 text-[13px] text-rose-200">
+            <AlertCircle size={16} className="mt-0.5" /> {error}
+          </div>
+        )}
+
+        {/* Stat cards */}
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            label="Available balance"
+            value={balance ? fmtNaira(balance.availableKobo) : "—"}
+            tone="primary"
+            hint="Sum of successful payments (before payouts)"
+          />
+          <StatCard
+            label="Successful"
+            value={balance ? String(balance.succeededCount) : "—"}
+            tone="success"
+            Icon={CheckCircle2}
+          />
+          <StatCard
+            label="Pending"
+            value={balance ? String(balance.pendingCount) : "—"}
+            tone="warning"
+            Icon={Clock}
+          />
+          <StatCard
+            label="Failed"
+            value={balance ? String(balance.failedCount) : "—"}
+            tone="danger"
+            Icon={XCircle}
+          />
         </div>
-      }
-    >
-      <PaymentsStatusBanner />
 
-      {error && (
-        <div className="mb-5 flex items-start gap-2 rounded-lg border border-rose-400/25 bg-rose-500/[0.06] p-3 text-[13px] text-rose-200">
-          <AlertCircle size={16} className="mt-0.5" /> {error}
+        {/* Status tabs */}
+        <div className="mb-4 flex gap-1 overflow-x-auto rounded-lg border border-white/10 bg-white/[0.02] p-1">
+          {STATUS_TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setFilter(t.id)}
+              className={
+                "shrink-0 rounded-md px-3 py-1.5 text-[12.5px] font-medium transition " +
+                (filter === t.id
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:text-white/85")
+              }
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard
-          label="Available balance"
-          value={balance ? fmtNaira(balance.availableKobo) : "—"}
-          tone="primary"
-          hint="Sum of successful payments (before payouts)"
-        />
-        <StatCard
-          label="Successful"
-          value={balance ? String(balance.succeededCount) : "—"}
-          tone="success"
-          Icon={CheckCircle2}
-        />
-        <StatCard
-          label="Pending"
-          value={balance ? String(balance.pendingCount) : "—"}
-          tone="warning"
-          Icon={Clock}
-        />
-        <StatCard
-          label="Failed"
-          value={balance ? String(balance.failedCount) : "—"}
-          tone="danger"
-          Icon={XCircle}
-        />
-      </div>
+        {/* Table / states */}
+        {!rows && !error && (
+          <div className="flex items-center gap-2 py-10 text-[13px] text-white/50">
+            <Loader2 size={14} className="animate-spin" /> Loading transactions…
+          </div>
+        )}
 
-      {/* Status tabs */}
-      <div className="mb-4 flex gap-1 overflow-x-auto rounded-lg border border-white/10 bg-white/[0.02] p-1">
-        {STATUS_TABS.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setFilter(t.id)}
-            className={
-              "shrink-0 rounded-md px-3 py-1.5 text-[12.5px] font-medium transition " +
-              (filter === t.id
-                ? "bg-white/10 text-white"
-                : "text-white/60 hover:text-white/85")
-            }
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+        {rows && rows.length === 0 && !error && <EmptyState filter={filter} />}
 
-      {/* Table / states */}
-      {!rows && !error && (
-        <div className="flex items-center gap-2 py-10 text-[13px] text-white/50">
-          <Loader2 size={14} className="animate-spin" /> Loading transactions…
-        </div>
-      )}
+        {rows && rows.length > 0 && <TransactionsTable rows={rows} />}
+      </AppShell>
 
-      {rows && rows.length === 0 && !error && <EmptyState filter={filter} />}
-
-      {rows && rows.length > 0 && <TransactionsTable rows={rows} />}
-    </AppShell>
+      <PaymentLinkModal
+        open={linkModalOpen}
+        onClose={() => {
+          setLinkModalOpen(false);
+          loadAll();
+        }}
+      />
+    </>
   );
 }
 

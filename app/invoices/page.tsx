@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, FileText, Loader2, Plus } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
+import { InvoicingUpgradeNudge } from "@/components/app/InvoicingUpgradeNudge";
 import { PaymentsStatusBanner } from "@/components/app/PaymentsStatusBanner";
 import { Button } from "@/components/ui/Button";
 import {
@@ -80,7 +81,7 @@ export default function InvoicesPage() {
         )
       }
     >
-      {upgradeRequired && <UpgradeNudge />}
+      {upgradeRequired && <InvoicingUpgradeNudge />}
 
       {!upgradeRequired && (
         <>
@@ -182,22 +183,3 @@ function EmptyState() {
   );
 }
 
-function UpgradeNudge() {
-  return (
-    <div className="rounded-xl border border-amber-400/25 bg-amber-500/[0.06] p-6">
-      <h2 className="text-[15px] font-semibold text-amber-100">
-        Invoicing is a Growth-tier feature
-      </h2>
-      <p className="mt-2 max-w-lg text-[13.5px] leading-relaxed text-amber-100/80">
-        Send branded invoices to customers, take payment online, and track what&apos;s
-        paid — all from your dashboard. Upgrade to Growth to unlock invoicing.
-      </p>
-      <Link
-        href="/settings/billing"
-        className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-[13px] font-medium text-white hover:bg-primary/90"
-      >
-        See plans
-      </Link>
-    </div>
-  );
-}
