@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu, X, LogOut, type LucideIcon } from "lucide-react";
+import { Menu, Moon, Sun, X, LogOut, type LucideIcon } from "lucide-react";
 import { getAccessToken } from "@/lib/api/auth";
 import { refreshAccessToken } from "@/lib/api/client";
 import { useApiQuery } from "@/hooks/useApiQuery";
+import { useTheme } from "@/components/app/ThemeProvider";
 import { logout, meQuery } from "@/lib/api/account";
 import { landingPathFor, roleDefFor } from "@/lib/api/staff";
 
@@ -40,16 +41,18 @@ export function WorkShell({
   const [open, setOpen] = useState(false);
   const [authed, setAuthed] = useState<boolean | null>(null);
   const { data: me } = useApiQuery(meQuery);
+  const { mode, toggle: toggleTheme } = useTheme();
 
   // Cinema-base html background while inside the staff shell.
+  // Switches to light bg in light mode.
   useEffect(() => {
     const html = document.documentElement;
     const prev = html.style.backgroundColor;
-    html.style.backgroundColor = "#0a0a0c";
+    html.style.backgroundColor = mode === "light" ? "#f8f8f6" : "#0a0a0c";
     return () => {
       html.style.backgroundColor = prev;
     };
-  }, []);
+  }, [mode]);
 
   useEffect(() => {
     let active = true;
@@ -91,8 +94,10 @@ export function WorkShell({
   const userName = me?.user.fullName ?? me?.user.email ?? "Staff";
   const initials = me?.user.initials ?? "?";
 
+  const themeClass = mode === "light" ? "theme-light" : "theme-dark";
+
   return (
-    <div className="min-h-screen bg-cinema-base text-white">
+    <div className={`app-shell min-h-screen bg-cinema-base text-white ${themeClass}`}>
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 border-r border-white/[0.06] bg-cinema-elev lg:block">
         <SidebarBody
@@ -103,6 +108,8 @@ export function WorkShell({
           initials={initials}
           roleLabel={roleDef.label}
           onLogout={handleLogout}
+          onToggleTheme={toggleTheme}
+          currentMode={mode}
         />
       </aside>
 
@@ -127,6 +134,8 @@ export function WorkShell({
               initials={initials}
               roleLabel={roleDef.label}
               onLogout={handleLogout}
+              onToggleTheme={toggleTheme}
+              currentMode={mode}
             />
           </aside>
         </div>
@@ -149,7 +158,18 @@ export function WorkShell({
               {subtitle && <p className="truncate text-[12.5px] text-white/55">{subtitle}</p>}
             </div>
           </div>
-          {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={mode === "dark" ? "Light mode" : "Dark mode"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-white/55 hover:bg-white/[0.06] hover:text-white transition-colors"
+            >
+              {mode === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            {actions}
+          </div>
         </header>
 
         <div className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">{children}</div>
@@ -166,6 +186,8 @@ function SidebarBody({
   initials,
   roleLabel,
   onLogout,
+  onToggleTheme,
+  currentMode,
 }: {
   pathname: string;
   nav: WorkNavItem[];
@@ -174,6 +196,8 @@ function SidebarBody({
   initials: string;
   roleLabel: string;
   onLogout: () => void;
+  onToggleTheme: () => void;
+  currentMode: "dark" | "light";
 }) {
   return (
     <div className="flex h-full flex-col">
@@ -217,6 +241,23 @@ function SidebarBody({
           })}
         </ul>
       </nav>
+
+      {/* Theme toggle */}
+      <div className="px-4 pb-2">
+        <button
+          type="button"
+          onClick={onToggleTheme}
+          aria-label={currentMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          className="flex w-full items-center gap-2.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-[12.5px] text-white/60 transition-colors hover:border-primary/25 hover:bg-primary/[0.05] hover:text-white"
+        >
+          {currentMode === "dark" ? (
+            <Sun size={14} className="text-white/45" strokeWidth={1.85} />
+          ) : (
+            <Moon size={14} className="text-white/45" strokeWidth={1.85} />
+          )}
+          {currentMode === "dark" ? "Light mode" : "Dark mode"}
+        </button>
+      </div>
 
       {/* User strip */}
       <div className="border-t border-white/[0.06] px-4 py-4">

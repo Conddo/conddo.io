@@ -193,6 +193,59 @@
   }
 }
 
+/* =================================================================
+ * DARK / LIGHT MODE (Dashboard Shell)
+ *
+ * The `.app-shell` element carries a `.theme-light` class in light
+ * mode. These overrides swap every Tailwind colour utility used by
+ * the shell components so one class toggle changes the entire page
+ * without touching 200+ component files.
+ *
+ * The default (no `.theme-light`) stays dark — marketing pages
+ * outside `.app-shell` are completely unaffected.
+ * ================================================================= */
+
+/* ── Backgrounds ─────────────────────────────────────────────── */
+.app-shell.theme-light { background-color: #f8f8f6; }
+.app-shell.theme-light .bg-cinema-base { background-color: #f8f8f6 !important; }
+.app-shell.theme-light .bg-cinema-elev { background-color: #ffffff !important; }
+.app-shell.theme-light .bg-cinema-elev2 { background-color: #f2f2f0 !important; }
+.app-shell.theme-light .bg-cinema-base\/80 { background-color: rgba(248,248,246,0.8) !important; }
+/* .bg-black/65 (mobile drawer backdrop) — stays dark-ish in both modes */
+.app-shell.theme-light .bg-black\/30 { background-color: rgba(0,0,0,0.04) !important; }
+.app-shell.theme-light .bg-white\/\[0\.06\] { background-color: rgba(0,0,0,0.04) !important; }
+.app-shell.theme-light .bg-white\/\[0\.05\] { background-color: rgba(0,0,0,0.03) !important; }
+.app-shell.theme-light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.02) !important; }
+.app-shell.theme-light .bg-white\/\[0\.03\] { background-color: rgba(0,0,0,0.015) !important; }
+.app-shell.theme-light .bg-white\/\[0\.02\] { background-color: rgba(0,0,0,0.01) !important; }
+
+/* ── Text ────────────────────────────────────────────────────── */
+.app-shell.theme-light { color: #111111; }
+.app-shell.theme-light .text-white { color: #111111 !important; }
+.app-shell.theme-light .text-white\/80 { color: rgba(17,17,17,0.8) !important; }
+.app-shell.theme-light .text-white\/70 { color: rgba(17,17,17,0.7) !important; }
+.app-shell.theme-light .text-white\/65 { color: rgba(17,17,17,0.65) !important; }
+.app-shell.theme-light .text-white\/60 { color: rgba(17,17,17,0.60) !important; }
+.app-shell.theme-light .text-white\/55 { color: rgba(17,17,17,0.55) !important; }
+.app-shell.theme-light .text-white\/50 { color: rgba(17,17,17,0.50) !important; }
+.app-shell.theme-light .text-white\/45 { color: rgba(17,17,17,0.45) !important; }
+.app-shell.theme-light .text-white\/40 { color: rgba(17,17,17,0.40) !important; }
+.app-shell.theme-light .text-white\/35 { color: rgba(17,17,17,0.35) !important; }
+
+/* ── Borders ─────────────────────────────────────────────────── */
+.app-shell.theme-light .border-white\/\[0\.06\] { border-color: #e5e5e3 !important; }
+.app-shell.theme-light .border-white\/\[0\.08\] { border-color: #e5e5e3 !important; }
+.app-shell.theme-light .border-white\/\[0\.05\] { border-color: #e5e5e3 !important; }
+.app-shell.theme-light .border-white\/10 { border-color: #e5e5e3 !important; }
+
+/* ── Backdrop blur compatibility ─────────────────────────────── */
+.app-shell.theme-light .backdrop-blur-sm {
+  background-color: rgba(248,248,246,0.92) !important;
+}
+.app-shell.theme-light .backdrop-blur-xl {
+  background-color: rgba(248,248,246,0.92) !important;
+}
+
 /* Rotating-word entrance (hero headline). */
 @keyframes wordIn {
   from {

@@ -75,9 +75,14 @@ function BrandBody() {
     setError(null);
     try {
       const res = await brandApi.patch(patch);
-      // Trust the BE — it may have normalised the hex string or the
-      // font name. Overwrite local with the returned canonical values.
-      setBrand(res.data);
+      // Merge the API response with previous state so that even if the
+      // response is somehow partial we never lose the other fields.
+      setBrand((prev) => ({
+        logoUrl: res.data?.logoUrl ?? prev.logoUrl,
+        primaryColor: res.data?.primaryColor ?? prev.primaryColor ?? DEFAULT_BRAND.primaryColor,
+        secondaryColor: res.data?.secondaryColor ?? prev.secondaryColor ?? DEFAULT_BRAND.secondaryColor,
+        fontPairing: res.data?.fontPairing ?? prev.fontPairing ?? DEFAULT_BRAND.fontPairing,
+      }));
       setSavedFlash(true);
       setTimeout(() => setSavedFlash(false), 1200);
     } catch (err) {

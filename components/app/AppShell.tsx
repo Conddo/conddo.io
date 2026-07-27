@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, Bell, ExternalLink, LogOut, Menu, MessageSquare, Search, X } from "lucide-react";
+import { ArrowLeft, Bell, ExternalLink, LogOut, Menu, MessageSquare, Moon, Search, Sun, X } from "lucide-react";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useAppNav } from "@/hooks/useAppNav";
 import { useActiveModulePaths, isPathAllowed } from "@/hooks/useModuleAccess";
@@ -12,6 +12,7 @@ import { logout, meQuery, type Me } from "@/lib/api/account";
 import { getAccessToken } from "@/lib/api/auth";
 import { refreshAccessToken } from "@/lib/api/client";
 import { tenantWorkspaceHttpsUrl } from "@/lib/brand";
+import { useTheme } from "@/components/app/ThemeProvider";
 import { InstallAppButton } from "@/components/app/InstallAppButton";
 import { VerifyEmailBanner } from "@/components/app/VerifyEmailBanner";
 import { Wordmark } from "@/components/marketing/Wordmark";
@@ -131,6 +132,11 @@ function SidebarBody({
         </Link>
       </div>
 
+      {/* Theme toggle row */}
+      <div className="px-4 pb-2">
+        <ThemeToggle />
+      </div>
+
       {/* User panel at the bottom. */}
       <div className="border-t border-white/[0.06] px-4 py-4">
         <div className="mb-3 [&:empty]:hidden">
@@ -190,16 +196,18 @@ export function AppShell({
   const identity = deriveIdentity(me);
   const nav = useAppNav();
   const modulePaths = useActiveModulePaths();
+  const { mode, toggle: toggleTheme } = useTheme();
 
   // Cinema-base html background while inside the authed shell.
+  // Switches to light bg in light mode.
   useEffect(() => {
     const html = document.documentElement;
     const prev = html.style.backgroundColor;
-    html.style.backgroundColor = "#0a0a0c";
+    html.style.backgroundColor = mode === "light" ? "#f8f8f6" : "#0a0a0c";
     return () => {
       html.style.backgroundColor = prev;
     };
-  }, []);
+  }, [mode]);
 
   // Client-side auth guard: app screens require an access token.
   useEffect(() => {
@@ -248,8 +256,10 @@ export function AppShell({
     return <div className="min-h-screen bg-cinema-base" />;
   }
 
+  const themeClass = mode === "light" ? "theme-light" : "theme-dark";
+
   return (
-    <div className="min-h-screen bg-cinema-base text-white">
+    <div className={`app-shell min-h-screen bg-cinema-base text-white ${themeClass}`}>
       {/* Desktop sidebar — always open. Sits on cinema-elev so it's
           subtly elevated from the main content surface. */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-white/[0.06] bg-cinema-elev lg:block">
@@ -322,6 +332,15 @@ export function AppShell({
             >
               <Search size={18} />
             </Link>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              title={mode === "dark" ? "Light mode" : "Dark mode"}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md text-white/55 hover:bg-white/[0.06] hover:text-white transition-colors"
+            >
+              {mode === "dark" ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
             <Link
               href="/notifications"
               aria-label="Notifications"
@@ -342,5 +361,25 @@ export function AppShell({
         <main className="px-4 py-6 md:px-8">{children}</main>
       </div>
     </div>
+  );
+}
+
+/** Small dark/light toggle chip shown in the sidebar. */
+function ThemeToggle() {
+  const { mode, toggle } = useTheme();
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="flex w-full items-center gap-2.5 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-2 text-[12.5px] text-white/60 transition-colors hover:border-primary/25 hover:bg-primary/[0.05] hover:text-white"
+    >
+      {mode === "dark" ? (
+        <Sun size={14} className="text-white/45" strokeWidth={1.85} />
+      ) : (
+        <Moon size={14} className="text-white/45" strokeWidth={1.85} />
+      )}
+      {mode === "dark" ? "Light mode" : "Dark mode"}
+    </button>
   );
 }
