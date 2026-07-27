@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, Bell, LogOut, Menu, MessageSquare, Search, X } from "lucide-react";
+import { ArrowLeft, Bell, ExternalLink, LogOut, Menu, MessageSquare, Search, X } from "lucide-react";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { useAppNav } from "@/hooks/useAppNav";
 import { useActiveModulePaths, isPathAllowed } from "@/hooks/useModuleAccess";
@@ -11,6 +11,7 @@ import type { NavLink } from "@/lib/manifest/types";
 import { logout, meQuery, type Me } from "@/lib/api/account";
 import { getAccessToken } from "@/lib/api/auth";
 import { refreshAccessToken } from "@/lib/api/client";
+import { tenantWorkspaceHttpsUrl } from "@/lib/brand";
 import { InstallAppButton } from "@/components/app/InstallAppButton";
 import { VerifyEmailBanner } from "@/components/app/VerifyEmailBanner";
 import { Wordmark } from "@/components/marketing/Wordmark";
@@ -45,12 +46,14 @@ function deriveIdentity(me: Me | null): Identity {
 function SidebarBody({
   pathname,
   identity,
+  tenantSlug,
   nav,
   onNavigate,
   onLogout,
 }: {
   pathname: string;
   identity: Identity;
+  tenantSlug?: string | null;
   nav: NavLink[];
   onNavigate?: () => void;
   onLogout?: () => void;
@@ -62,7 +65,20 @@ function SidebarBody({
         <Link href="/dashboard" onClick={onNavigate} className="inline-block">
           <Wordmark tone="light" />
         </Link>
-        <p className="mt-2.5 truncate text-[12px] text-white/45">{identity.businessName}</p>
+        <div className="mt-2.5 flex items-center justify-between gap-2">
+          <p className="truncate text-[12px] text-white/45">{identity.businessName}</p>
+          {tenantSlug && (
+            <a
+              href={tenantWorkspaceHttpsUrl(tenantSlug)}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit website"
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded text-white/35 hover:bg-white/[0.06] hover:text-primary-light"
+            >
+              <ExternalLink size={12} />
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Nav — active route picks up a soft primary fill + side accent line. */}
@@ -237,7 +253,7 @@ export function AppShell({
       {/* Desktop sidebar — always open. Sits on cinema-elev so it's
           subtly elevated from the main content surface. */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-white/[0.06] bg-cinema-elev lg:block">
-        <SidebarBody pathname={pathname} identity={identity} nav={nav} onLogout={handleLogout} />
+        <SidebarBody pathname={pathname} identity={identity} tenantSlug={me?.tenant?.slug} nav={nav} onLogout={handleLogout} />
       </aside>
 
       {/* Mobile drawer — collapsible glass panel. */}
@@ -256,6 +272,7 @@ export function AppShell({
             <SidebarBody
               pathname={pathname}
               identity={identity}
+              tenantSlug={me?.tenant?.slug}
               nav={nav}
               onNavigate={() => setOpen(false)}
               onLogout={handleLogout}
