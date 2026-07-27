@@ -3,7 +3,9 @@
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Moon, Sun } from "lucide-react";
 import { Wordmark } from "@/components/marketing/Wordmark";
+import { useTheme } from "@/components/app/ThemeProvider";
 import { routeBySlug, TOTAL_STEPS } from "@/lib/onboarding-steps";
 import { BRAND_NAME } from "@/lib/brand";
 
@@ -21,29 +23,39 @@ export function OnboardingChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const slug = pathname.split("/").filter(Boolean).pop() ?? "";
   const current = routeBySlug(slug)?.progressIndex ?? 1;
+  const { mode, toggle: toggleTheme } = useTheme();
+  const themeClass = mode === "light" ? "theme-light" : "theme-dark";
 
   useEffect(() => {
     const html = document.documentElement;
     const prev = html.style.backgroundColor;
-    html.style.backgroundColor = "#0a0a0c";
+    html.style.backgroundColor = mode === "light" ? "#f8f8f6" : "#0a0a0c";
     return () => {
       html.style.backgroundColor = prev;
     };
-  }, []);
+  }, [mode]);
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-cinema-base text-white">
+    <div className={`app-shell relative flex min-h-screen flex-col overflow-hidden bg-cinema-base text-white ${themeClass}`}>
       {/* Ambient cinematic glow. */}
       <div className="absolute inset-0 bg-cinema-glow opacity-90 pointer-events-none" aria-hidden />
       <div className="marketing-hero-dark-grid absolute inset-0 opacity-30 pointer-events-none" aria-hidden />
 
-      {/* Header — wordmark + step counter + Save & Exit. Floating against
-          the cinematic surface, no border, glass-style on scroll. */}
+      {/* Header — wordmark + step counter + theme toggle + Save & Exit. */}
       <header className="relative z-10 flex w-full items-center justify-between px-6 py-5 md:px-8 md:py-6">
         <Link href="/" aria-label={`${BRAND_NAME} home`} className="inline-flex items-center">
-          <Wordmark tone="light" />
+          <Wordmark tone={mode === "light" ? "dark" : "light"} />
         </Link>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={mode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={mode === "dark" ? "Light mode" : "Dark mode"}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/60 backdrop-blur transition-colors hover:bg-white/[0.08] hover:text-white"
+          >
+            {mode === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
           <span className="font-mono text-[11px] uppercase tracking-loose text-white/45">
             Step {current} of {TOTAL_STEPS}
           </span>
