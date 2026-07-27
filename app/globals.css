@@ -213,6 +213,7 @@
 .app-shell.theme-light .bg-cinema-base\/80 { background-color: rgba(248,248,246,0.8) !important; }
 /* .bg-black/65 (mobile drawer backdrop) — stays dark-ish in both modes */
 .app-shell.theme-light .bg-black\/30 { background-color: rgba(0,0,0,0.04) !important; }
+.app-shell.theme-light .bg-white\/\[0\.08\] { background-color: rgba(0,0,0,0.06) !important; }
 .app-shell.theme-light .bg-white\/\[0\.06\] { background-color: rgba(0,0,0,0.04) !important; }
 .app-shell.theme-light .bg-white\/\[0\.05\] { background-color: rgba(0,0,0,0.03) !important; }
 .app-shell.theme-light .bg-white\/\[0\.04\] { background-color: rgba(0,0,0,0.02) !important; }
@@ -223,6 +224,7 @@
 .app-shell.theme-light { color: #111111; }
 .app-shell.theme-light .text-white { color: #111111 !important; }
 .app-shell.theme-light .text-white\/80 { color: rgba(17,17,17,0.8) !important; }
+.app-shell.theme-light .text-white\/75 { color: rgba(17,17,17,0.75) !important; }
 .app-shell.theme-light .text-white\/70 { color: rgba(17,17,17,0.7) !important; }
 .app-shell.theme-light .text-white\/65 { color: rgba(17,17,17,0.65) !important; }
 .app-shell.theme-light .text-white\/60 { color: rgba(17,17,17,0.60) !important; }
