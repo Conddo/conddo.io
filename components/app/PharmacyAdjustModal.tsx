@@ -130,10 +130,10 @@ export function PharmacyAdjustModal({
         </div>
 
         {variance != null && variance !== 0 && (
-          <div className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2 ${
+          <div className={`flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 ${
             variance > 0
-              ? "border-success/20 bg-emerald-500/15"
-              : "border-danger/20 bg-rose-500/[0.06]"
+              ? "border-success/30 bg-emerald-500/20"
+              : "border-danger/30 bg-rose-500/15"
           }`}>
             <span className="text-[13px] text-white/65">Variance</span>
             <span className={`font-mono text-[14px] font-medium ${variance > 0 ? "text-emerald-300" : "text-rose-200"}`}>
@@ -163,8 +163,8 @@ export function PharmacyAdjustModal({
           />
         </Field>
 
-        <p className="flex items-start gap-1.5 rounded-md bg-white/[0.02] px-3 py-2 text-[11px] text-white/45">
-          <AlertCircle size={11} className="mt-0.5 shrink-0" />
+        <p className="flex items-start gap-1.5 rounded-md bg-white/[0.06] px-3 py-2 text-[11px] text-white/60">
+          <AlertCircle size={11} className="mt-0.5 shrink-0 text-primary-light" />
           Adjustments are append-only in the audit log. You can't edit or delete this row later — pick the reason carefully.
         </p>
       </form>

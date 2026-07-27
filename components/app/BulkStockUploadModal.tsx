@@ -246,8 +246,8 @@ function PickStage({
         onDrop={onDrop}
         className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
           isDragging
-            ? "border-primary bg-primary/[0.08]"
-            : "border-white/[0.06] bg-white/[0.02] hover:border-primary hover:bg-primary/[0.08]"
+            ? "border-primary bg-primary/15"
+            : "border-white/[0.10] bg-white/[0.04] hover:border-primary hover:bg-primary/10"
         }`}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -267,17 +267,15 @@ function PickStage({
         />
       </div>
 
-      <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-[12px]">
+      <div className="rounded-md border border-white/[0.08] bg-white/[0.04] px-4 py-3 text-[12px]">
         <p className="mb-2 font-medium text-white">CSV format</p>
-        <ul className="space-y-1 text-white/65">
-          <li className="flex items-start gap-2">
+        <ul className="space-y-1 text-white/65">              <li className="flex items-start gap-2 text-white/80">
             <Chip tone="primary">Required</Chip>
             <code className="rounded bg-cinema-elev px-1 font-mono">sku</code>
             <code className="rounded bg-cinema-elev px-1 font-mono">stock</code>
-          </li>
-          <li className="flex items-start gap-2">
+          </li>              <li className="flex items-start gap-2 text-white/80">
             <Chip tone="neutral">Optional</Chip>
-            <span className="font-mono text-[11px] text-white/45">
+            <span className="font-mono text-[11px] text-white/60">
               name · price · reorder_threshold · batch_number · expiry_date (yyyy-MM-dd)
             </span>
           </li>
@@ -291,8 +289,8 @@ function PickStage({
         </button>
       </div>
 
-      <p className="flex items-start gap-1.5 rounded-md bg-amber-500/15 px-3 py-2 text-[11px] text-amber-300">
-        <AlertCircle size={11} className="mt-0.5 shrink-0" />
+      <p className="flex items-start gap-1.5 rounded-md bg-amber-500/15 px-3 py-2.5 text-[12px] text-amber-200">
+        <AlertCircle size={12} className="mt-0.5 shrink-0" />
         Existing SKUs have their stock <strong>set absolute</strong> (not added — it's a replacement). New SKUs create a Product. Every change is logged in the movement log so you can audit later.
       </p>
     </div>
@@ -323,9 +321,9 @@ function PreviewStage({
   return (
     <div className="space-y-4">
       {/* File chip */}
-      <div className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+      <div className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.08] bg-white/[0.04] px-3 py-2">
         <span className="flex min-w-0 items-center gap-2 text-[13px] text-white">
-          <FileText size={14} className="shrink-0 text-white/45" />
+          <FileText size={14} className="shrink-0 text-white/55" />
           <span className="truncate">{file.name}</span>
           <span className="font-mono text-[11px] text-white/45">· {fmtSize(file.size)}</span>
         </span>
@@ -449,9 +447,8 @@ function StatTile({ label, value, tone }: { label: string; value: number; tone: 
     warning: "text-amber-300",
     neutral: "text-white",
   };
-  return (
-    <div className="rounded-lg border border-white/[0.06] bg-cinema-elev p-3">
-      <p className="text-[10px] uppercase tracking-[0.05em] text-white/45">{label}</p>
+  return (      <div className="rounded-lg border border-white/[0.08] bg-cinema-elev2 p-3">
+      <p className="text-[10px] uppercase tracking-[0.05em] text-white/55">{label}</p>
       <p className={`mt-0.5 font-mono text-[18px] font-medium leading-none ${toneText[tone]}`}>{value}</p>
     </div>
   );
@@ -468,9 +465,8 @@ function DoneStage({ committed }: { committed: BulkUploadSummary }) {
         <p className="text-[13px] text-white/65">
           {committed.created} created · {committed.updated} updated · {committed.skipped} skipped
         </p>
-      </div>
-      <p className="flex items-start gap-1.5 rounded-md bg-white/[0.02] px-3 py-2 text-[11px] text-white/45">
-        <AlertCircle size={11} className="mt-0.5 shrink-0" />
+      </div>        <p className="flex items-start gap-1.5 rounded-md bg-white/[0.06] px-3 py-2 text-[12px] text-white/60">
+        <AlertCircle size={12} className="mt-0.5 shrink-0 text-primary-light" />
         Each row generated a movement-log entry (RESTOCK for new products, ADJUSTMENT for stock changes) — audit them on the Movements page anytime.
       </p>
     </div>

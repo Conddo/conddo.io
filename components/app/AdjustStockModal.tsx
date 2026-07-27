@@ -89,14 +89,14 @@ export function AdjustStockModal({
           <button
             type="button"
             onClick={() => setDirection(1)}
-            className={`flex items-center justify-center gap-1.5 rounded-md border py-2 text-[14px] font-medium ${direction === 1 ? "border-success bg-emerald-500/15 text-emerald-300" : "border-white/[0.06] text-white/65 hover:bg-white/[0.02]"}`}
+            className={`flex items-center justify-center gap-1.5 rounded-md border py-2.5 text-[14px] font-medium transition-colors ${direction === 1 ? "border-success/40 bg-emerald-500/20 text-emerald-300" : "border-white/[0.08] text-white/65 hover:bg-white/[0.06] hover:text-white"}`}
           >
             <Plus size={15} /> Add
           </button>
           <button
             type="button"
             onClick={() => setDirection(-1)}
-            className={`flex items-center justify-center gap-1.5 rounded-md border py-2 text-[14px] font-medium ${direction === -1 ? "border-danger bg-rose-500/[0.06] text-rose-200" : "border-white/[0.06] text-white/65 hover:bg-white/[0.02]"}`}
+            className={`flex items-center justify-center gap-1.5 rounded-md border py-2.5 text-[14px] font-medium transition-colors ${direction === -1 ? "border-danger/40 bg-rose-500/15 text-rose-200" : "border-white/[0.08] text-white/65 hover:bg-white/[0.06] hover:text-white"}`}
           >
             <Minus size={15} /> Remove
           </button>
@@ -109,7 +109,7 @@ export function AdjustStockModal({
             {REASONS.map((r) => <option key={r} value={r}>{r}</option>)}
           </Select>
         </Field>
-        <p className="rounded-md bg-white/[0.02] px-3 py-2 text-[13px] text-white/65">
+        <p className="rounded-md bg-white/[0.06] px-3 py-2.5 text-[13px] text-white/80">
           New stock level: <span className="font-mono font-medium text-white">{Math.max(0, projected)}</span>
         </p>
       </form>

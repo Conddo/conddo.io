@@ -168,8 +168,8 @@ export function RestockModal({
           />
         </Field>
 
-        <p className="flex items-start gap-1.5 rounded-md bg-white/[0.02] px-3 py-2 text-[11px] text-white/45">
-          <AlertCircle size={11} className="mt-0.5 shrink-0" />
+        <p className="flex items-start gap-1.5 rounded-md bg-white/[0.06] px-3 py-2 text-[11px] text-white/60">
+          <AlertCircle size={11} className="mt-0.5 shrink-0 text-primary-light" />
           Stock levels update immediately. Subscribe to the dashboard live-stock events for real-time updates across devices.
         </p>
       </form>

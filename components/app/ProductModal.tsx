@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, AlertCircle, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Camera, ImagePlus, Loader2, Sparkles, AlertCircle, X, ChevronDown, ChevronUp } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Chip } from "@/components/ui/Chip";
@@ -85,11 +85,14 @@ export function ProductModal({
   const [reorder, setReorder] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [active, setActive] = useState(true);
+  const [images, setImages] = useState<string[]>([]);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [saving, setSaving] = useState(false);
 
   // AI assistant state — pharmacy only.
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const imageFileRef = useRef<HTMLInputElement | null>(null);
   const [aiBusy, setAiBusy] = useState<"upload" | "analyse" | null>(null);
   const [aiResult, setAiResult] = useState<AiSuggestFromImageResult | null>(null);
   const [aiCollapsed, setAiCollapsed] = useState(false);
@@ -104,6 +107,7 @@ export function ProductModal({
     setReorder(product?.reorderThreshold != null ? String(product.reorderThreshold) : "");
     setExpiryDate(product?.expiryDate ?? "");
     setActive(product?.active ?? true);
+    setImages(product?.images ?? []);
     setErrors({});
     setAiResult(null);
     setAiCollapsed(false);
@@ -141,6 +145,7 @@ export function ProductModal({
       // tenants that never touch this field.
       expiryDate: expiryDate ? expiryDate : (editing ? null : undefined),
       active,
+      images: images.length > 0 ? images : undefined,
     };
     setSaving(true);
     try {
@@ -193,6 +198,29 @@ export function ProductModal({
     setErrors((prev) => ({ ...prev, name: undefined }));
   }
 
+  async function onPickProductImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const { data } = await mediaApi.upload(file, "product");
+      setImages((prev) => [...prev, data.url]);
+      toast.success("Image added", "Product image uploaded successfully.");
+    } catch (err) {
+      toast.error(
+        "Couldn't upload image",
+        err instanceof ApiError ? err.message : "Please try again.",
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
+  function removeImage(url: string) {
+    setImages((prev) => prev.filter((u) => u !== url));
+  }
+
   function applyAiCategory() {
     const hint = aiResult?.suggestion.suggestedCategory?.trim().toLowerCase();
     if (!hint) return;
@@ -230,14 +258,14 @@ export function ProductModal({
     >
       <form id="product-form" onSubmit={submit} className="space-y-4">
         {isPharmacy && (
-          <div className="rounded-lg border border-primary/20 bg-primary/[0.08] p-3">
+          <div className="rounded-lg border border-primary/25 bg-primary/[0.12] p-3">
             {!aiResult ? (
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-start gap-2.5">
-                  <Sparkles size={16} className="mt-0.5 shrink-0 text-primary" />
+                  <Sparkles size={16} className="mt-0.5 shrink-0 text-primary-light" />
                   <div>
                     <p className="text-[13px] font-medium text-white">Scan packaging with AI</p>
-                    <p className="mt-0.5 text-[12px] text-white/45">
+                    <p className="mt-0.5 text-[12px] text-white/55">
                       Take a photo and we'll extract the drug name, NAFDAC number, indications, and warnings for you to review.
                     </p>
                   </div>
@@ -246,7 +274,7 @@ export function ProductModal({
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={aiBusy !== null}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-primary/30 bg-cinema-elev px-3 py-1.5 text-[12px] font-medium text-primary hover:bg-primary hover:text-white disabled:opacity-60"
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-primary/40 bg-primary/[0.08] px-3 py-1.5 text-[12px] font-medium text-primary-light hover:bg-primary hover:text-white disabled:opacity-60"
                 >
                   {aiBusy === "upload" ? (
                     <><Loader2 size={13} className="animate-spin" /> Uploading…</>
@@ -317,8 +345,8 @@ export function ProductModal({
                       <AiRow label="Storage" value={aiResult.suggestion.storage} />
                       <AiRow label="Description" value={aiResult.suggestion.description} />
                     </div>
-                    <p className="mt-2 flex items-start gap-1.5 text-[11px] text-white/45">
-                      <AlertCircle size={11} className="mt-0.5 shrink-0" />
+                    <p className="mt-2 flex items-start gap-1.5 text-[11px] text-white/55">
+                      <AlertCircle size={11} className="mt-0.5 shrink-0 text-primary-light" />
                       {aiResult.note}
                     </p>
                     <button
@@ -347,6 +375,65 @@ export function ProductModal({
         <Field label="Product name" htmlFor="pr-name" required error={errors.name}>
           <TextInput id="pr-name" value={name} error={errors.name} onChange={(e) => setName(e.target.value)} placeholder={namePlaceholder} autoFocus />
         </Field>
+
+        {/* ── Product Images ── */}
+        <div className="space-y-3">
+          <label className="block text-[13px] font-medium text-white/65">Product images</label>
+          {images.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {images.map((url) => (
+                <div key={url} className="group relative h-20 w-20 overflow-hidden rounded-lg border border-white/[0.06]">
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(url)}
+                    className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => imageFileRef.current?.click()}
+                disabled={uploadingImage}
+                className="flex h-20 w-20 items-center justify-center rounded-lg border-2 border-dashed border-white/[0.06] text-white/35 hover:border-primary/50 hover:text-primary-light transition-colors"
+              >
+                {uploadingImage ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={18} />}
+              </button>
+            </div>
+          )}
+          {images.length === 0 && (
+            <button
+              type="button"
+              onClick={() => imageFileRef.current?.click()}
+              disabled={uploadingImage}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-white/[0.06] px-4 py-6 text-[13px] text-white/45 hover:border-primary/50 hover:text-primary-light transition-colors"
+            >
+              {uploadingImage ? (
+                <><Loader2 size={14} className="animate-spin" /> Uploading…</>
+              ) : (
+                <><ImagePlus size={16} /> Upload product image</>
+              )}
+            </button>
+          )}
+          <input
+            ref={imageFileRef}
+            type="file"
+            accept="image/*"
+            onChange={onPickProductImage}
+            className="hidden"
+          />
+          {images.length > 0 && (
+            <p className="text-[11px] text-white/45">{images.length} image{images.length !== 1 ? "s" : ""} uploaded</p>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="SKU" htmlFor="pr-sku">
             <TextInput id="pr-sku" value={sku} onChange={(e) => setSku(e.target.value)} placeholder="Optional" />

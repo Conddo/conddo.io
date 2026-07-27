@@ -17,6 +17,7 @@ export type Product = {
   active: boolean;
   expiryDate?: string | null;  // YYYY-MM-DD; pharmacy-only, optional
   batchNumber?: string | null; // pharmacy-only, optional (Phase 2)
+  images?: string[];            // Cloudinary URLs surfaced on public catalog
 };
 
 // FE-derived expiry status. Same banding the dashboard widget uses.
@@ -64,6 +65,7 @@ export type CreateProductInput = {
   active?: boolean;
   expiryDate?: string | null;  // YYYY-MM-DD; pharmacy-only
   batchNumber?: string | null; // pharmacy-only (Phase 2)
+  images?: string[];            // Cloudinary URLs surfaced on public catalog
 };
 export type UpdateProductInput = Partial<CreateProductInput>;
 
