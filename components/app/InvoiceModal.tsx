@@ -4,9 +4,11 @@ import { Printer, X, Download } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useApiQuery } from "@/hooks/useApiQuery";
 import { meQuery } from "@/lib/api/account";
+import { brandApi } from "@/lib/api/brand";
 import { naira } from "@/lib/format";
 import type { OrderDetail } from "@/lib/api/orders";
-import { tenantWorkspaceUrl } from "@/lib/brand";
+import { APP_DOMAIN, tenantWorkspaceUrl } from "@/lib/brand";
+import type { TenantBrand } from "@/conddo-templates/types";
 
 // Print stylesheet — when the user hits Print, the browser's Save-as-PDF
 // option is one of the destinations they can pick. We hide everything on
@@ -55,9 +57,12 @@ export function InvoiceModal({
   onClose: () => void;
 }) {
   const { data: me } = useApiQuery(meQuery);
+  const { data: brand } = useApiQuery(() => brandApi.get());
   if (!open) return null;
 
   const tenant = me?.tenant;
+  const primary = brand?.primaryColor ?? "#7C5CBF";
+  const logoUrl = brand?.logoUrl ?? null;
   const customer = typeof order.customer === "string" ? { name: order.customer } : order.customer ?? {};
   const items = order.items ?? [];
   const computedSubtotal = items.reduce((sum, it) => {
@@ -71,7 +76,7 @@ export function InvoiceModal({
   return (
     <div className="conddo-invoice-printable fixed inset-0 z-[80] flex items-start justify-center overflow-y-auto bg-black/60 p-4 py-10">
       <style>{PRINT_CSS}</style>
-      <div className="conddo-invoice-page w-full max-w-2xl rounded-lg bg-white p-10 shadow-xl">
+      <div className="conddo-invoice-page w-full max-w-2xl rounded-lg bg-white p-10 shadow-xl" style={{ borderTop: `4px solid ${primary}` }}>
         {/* Header */}
         <div className="conddo-invoice-no-print mb-6 flex items-center justify-between">
           <p className="font-mono text-[11px] uppercase tracking-[0.06em] text-white/45">Invoice preview</p>
@@ -85,16 +90,27 @@ export function InvoiceModal({
           </button>
         </div>
 
-        {/* Business header */}
+        {/* Business header — branded with logo + primary color */}
         <div className="mb-8 flex items-start justify-between border-b border-white/[0.06] pb-6">
-          <div>
-            <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-white">{tenant?.name ?? "Your business"}</h1>
-            <p className="mt-0.5 font-mono text-[12px] text-white/45">
-              {tenant?.subdomain ? tenantWorkspaceUrl(tenant.subdomain) : ""}
-            </p>
+          <div className="flex items-center gap-3">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt={tenant?.name ?? "Logo"}
+                className="h-10 w-auto max-w-[160px] rounded object-contain"
+                style={{ objectFit: "contain" }}
+              />
+            ) : null}
+            <div>
+              <h1 className="text-[26px] font-semibold tracking-[-0.01em] text-white">{tenant?.name ?? "Your business"}</h1>
+              <p className="mt-0.5 font-mono text-[12px] text-white/45">
+                {tenant?.subdomain ? tenantWorkspaceUrl(tenant.subdomain) : `${APP_DOMAIN}`}
+              </p>
+            </div>
           </div>
           <div className="text-right">
-            <p className="text-[20px] font-bold uppercase tracking-[0.1em] text-primary">INVOICE</p>
+            <p className="text-[20px] font-bold uppercase tracking-[0.1em]" style={{ color: primary }}>INVOICE</p>
             <p className="mt-1 font-mono text-[12px] text-white/65">{order.reference}</p>
             <p className="mt-0.5 font-mono text-[12px] text-white/45">{fmtDate(order.orderedAt)}</p>
           </div>
@@ -189,8 +205,8 @@ export function InvoiceModal({
           </div>
         )}
 
-        <p className="mt-10 text-center font-mono text-[10px] uppercase tracking-[0.1em] text-white/45">
-          Thank you for your business — Powered by Conddo.io
+        <p className="mt-10 text-center font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: "#9CA3AF" }}>
+          Thank you for your business — Powered by {APP_DOMAIN}
         </p>
 
         {/* Action bar (hidden when printing) */}

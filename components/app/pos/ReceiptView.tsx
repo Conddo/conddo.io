@@ -2,6 +2,8 @@
 
 import { Printer, X, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { useApiQuery } from "@/hooks/useApiQuery";
+import { brandApi } from "@/lib/api/brand";
 import { naira } from "@/lib/format";
 import type { PosReceipt } from "@/lib/api/pos";
 
@@ -29,6 +31,10 @@ export function ReceiptView({
   /** Optional dismiss without starting another sale. */
   onClose?: () => void;
 }) {
+  const { data: brand } = useApiQuery(() => brandApi.get());
+  const primary = brand?.primaryColor ?? "#7C5CBF";
+  const logoUrl = brand?.logoUrl ?? null;
+
   function print() {
     if (typeof window !== "undefined") {
       window.print();
@@ -90,8 +96,17 @@ export function ReceiptView({
 
         {/* Receipt body */}
         <div id="pos-receipt-print" className="px-5 py-4 font-mono text-[12px] leading-relaxed">
-          {/* Tenant header */}
+          {/* Tenant header — branded with logo if available */}
           <div className="border-b border-dashed border-white/10 pb-2 text-center">
+            {logoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logoUrl}
+                alt={receipt.tenant.name}
+                className="mx-auto mb-1 h-8 w-auto max-w-[140px] object-contain"
+                style={{ objectFit: "contain" }}
+              />
+            )}
             <p className="text-[14px] font-medium text-white">{receipt.tenant.name}</p>
             {receipt.tenant.address && <p className="text-[11px] text-white/65">{receipt.tenant.address}</p>}
             {receipt.tenant.phone && <p className="text-[11px] text-white/65">{receipt.tenant.phone}</p>}
@@ -155,8 +170,10 @@ export function ReceiptView({
 
           {/* Footer */}
           <p className="mt-3 border-t border-dashed border-white/10 pt-2 text-center text-[10px] text-white/45">
-            Thank you for shopping with us.
-          </p>
+            Thank you
+          </p>            <p className="text-center text-[9px] tracking-[0.05em]" style={{ color: primary, opacity: 0.55 }}>
+              Powered by {receipt.tenant.name}
+            </p>
         </div>
 
         {/* Action row */}
