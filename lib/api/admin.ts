@@ -372,6 +372,69 @@ export const adminApi = {
     request<ManagedSiteDto>(`/admin/tenants/${id}/managed-site/publish`, {
       method: "POST",
     }),
+
+  // ----- payments (cross-tenant support triage) -----
+  paymentsSummary: () => request<PlatformPaymentSummary>("/admin/payments/summary"),
+  payments: (opts: { status?: string; page?: number; size?: number } = {}) => {
+    const qs = new URLSearchParams();
+    if (opts.status) qs.set("status", opts.status);
+    qs.set("page", String(opts.page ?? 0));
+    qs.set("size", String(opts.size ?? 25));
+    return request<AdminPaymentsPage>(`/admin/payments?${qs.toString()}`);
+  },
+  payment: (id: string) => request<AdminPaymentDetail>(`/admin/payments/${id}`),
+  reverifyPayment: (id: string) =>
+    request<AdminPaymentDetail>(`/admin/payments/${id}/reverify`, { method: "POST" }),
+};
+
+export type PlatformPaymentSummary = {
+  grossSucceededKobo: number;
+  refundedKobo: number;
+  succeededCount: number;
+  pendingCount: number;
+  failedCount: number;
+  refundedCount: number;
+};
+
+export type AdminPaymentsPage = {
+  content: AdminPaymentRow[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+};
+
+export type AdminPaymentRow = {
+  id: string;
+  tenantId: string;
+  status: string;
+  origin: string;
+  amountKobo: number;
+  currency: string;
+  provider: string;
+  customerName: string | null;
+  originReference: string | null;
+  initiatedAt: string;
+  completedAt: string | null;
+};
+
+export type AdminPaymentDetail = AdminPaymentRow & {
+  feeKobo: number;
+  netKobo: number;
+  providerReference: string | null;
+  customerEmail: string | null;
+  customerPhone: string | null;
+  receivingBankName: string | null;
+  receivingAccountNumber: string | null;
+  receivingAccountName: string | null;
+  senderBankName: string | null;
+  senderAccountNumber: string | null;
+  matchedTransactionRef: string | null;
+  failureReason: string | null;
+  originOrderId: string | null;
+  originInvoiceId: string | null;
+  originBookingId: string | null;
+  lastVerifiedAt: string | null;
 };
 
 /** Wire shape returned by the managed-site endpoints. */

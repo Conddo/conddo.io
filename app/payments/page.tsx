@@ -85,6 +85,10 @@ export default function PaymentsPage() {
         subtitle="Every payment your customers make through Conddo — orders, invoices, bookings, and links."
         actions={
           <div className="flex gap-2">
+            <Button variant="secondary" size="md" href="/payments/payouts">
+              <span className="hidden sm:inline">Payouts</span>
+              <span className="sm:hidden">Payouts</span>
+            </Button>
             <Button variant="secondary" size="md" onClick={() => setLinkModalOpen(true)}>
               <LinkIcon size={14} />
               <span className="hidden sm:inline">Payment Link</span>
