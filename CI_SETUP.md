@@ -1,8 +1,7 @@
 # Conddo CI/CD Setup Guide
 
-*Companion to `conddo_infrastructure_deployment_doc.md` §5. Working
-checklist — tick boxes as you complete steps. Everything in code is
-already in place (see "Already shipped" below); the rest of this doc
+*Working checklist — tick boxes as you complete steps. Everything in code
+is already in place (see "Already shipped" below); the rest of this doc
 is the GitHub-UI clicks that aren't representable in code.*
 
 ---
@@ -22,11 +21,11 @@ feature/<short-name>  ─┘
 | `staging` | Pre-release rehearsal — mirrors prod config | Staging environment | merge to `staging` |
 | `production` | Live | Production environment | merge to `production`, gated by PR review |
 
-This applies identically to `conddo-app`, `conddo-studio`, and
-`conddo-backend`. The three repos ship in lock-step on a release —
-a `dev` → `staging` promotion on one is meaningless without the
-other two moving with it. (Once the FastAPI services land per the
-architecture addendum, they slot into the same flow.)
+This applies identically to `conddo-app` and `conddo-backend`. The two
+repos ship in lock-step on a release — a `dev` → `staging` promotion on
+one is meaningless without the other moving with it. (Once the FastAPI
+services land per the architecture addendum, they slot into the same
+flow.)
 
 ---
 
@@ -36,11 +35,9 @@ architecture addendum, they slot into the same flow.)
 |---|---|
 | FE quality gate (lint + typecheck + build) | `conddo-app/.github/workflows/ci.yml` |
 | FE ESLint config | `conddo-app/.eslintrc.json` |
-| Studio quality gate (lint + typecheck + build) | `conddo-studio/.github/workflows/ci.yml` |
-| Studio ESLint config | `conddo-studio/.eslintrc.json` |
 | BE quality gate (Maven verify) | `conddo-backend/.github/workflows/ci.yml` |
 
-All three workflows fire on every push to `main`/`dev`/`staging`/
+All workflows fire on every push to `main`/`dev`/`staging`/
 `production` AND every PR. `concurrency` is set so a fresh push
 cancels the in-flight run for the same branch — keeps the
 2,000-min/month GitHub Actions free tier honest.
@@ -49,8 +46,8 @@ cancels the in-flight run for the same branch — keeps the
 
 ## Manual setup checklist — per repo
 
-Do this once per repo (`conddo-app`, `conddo-studio`,
-`conddo-backend`). Click through every box.
+Do this once per repo (`conddo-app`, `conddo-backend`). Click through
+every box.
 
 ### 1. Create the long-lived branches
 
@@ -69,7 +66,6 @@ You now have four long-lived branches per repo. `main` stays as the
 historical line but new work should target `dev`.
 
 - [ ] `conddo-app` — dev / staging / production pushed
-- [ ] `conddo-studio` — dev / staging / production pushed
 - [ ] `conddo-backend` — dev / staging / production pushed
 
 ### 2. Branch protection rules
@@ -92,7 +88,6 @@ PR author. Self-approval on production is how a Friday-evening tired
 push becomes a Saturday-morning outage.
 
 - [ ] `conddo-app` — three protection rules applied
-- [ ] `conddo-studio` — three protection rules applied
 - [ ] `conddo-backend` — three protection rules applied
 
 ### 3. GitHub Actions variables + secrets
@@ -118,14 +113,13 @@ that should differ per environment. Typically:
 | Name | Set per environment | Example values |
 |---|---|---|
 | `NEXT_PUBLIC_API_URL` | yes | dev: `https://api-dev.conddo.io` · staging: `https://api-staging.conddo.io` · prod: `https://api.conddo.io` |
-| `NEXT_PUBLIC_STUDIO_API_URL` | yes (Studio only) | as above for the Studio backend |
+| `NEXT_PUBLIC_PAYMENTS_API_URL` | yes | as above for the payments backend |
 | `CONDDO_DB_URL` | yes (BE only — **secret**) | one DB per environment, never share |
 
 Environments also let you require manual approval before a deploy
 runs — turn this on for `production`.
 
 - [ ] `conddo-app` — variables + environments configured
-- [ ] `conddo-studio` — variables + environments configured
 - [ ] `conddo-backend` — variables + environments configured
 
 ### 4. Deploy workflows (not yet shipped)
@@ -133,14 +127,13 @@ runs — turn this on for `production`.
 The current CI workflows verify quality but don't deploy. The deploy
 side depends on what runs where:
 
-| Repo | Current deploy target | Future per Infra Doc |
+| Repo | Current deploy target | Future |
 |---|---|---|
-| `conddo-app` | Vercel (auto on `main` push) | TBD — possibly AWS Amplify or self-hosted on the AWS account |
-| `conddo-studio` | Vercel (auto on `main` push) | same |
-| `conddo-backend` | Render (auto on `main` push) | AWS EC2 / Fargate per Infra Doc §3 |
+| `conddo-app` | Vercel (auto on `main` push) | Vercel |
+| `conddo-backend` | Render (auto on `main` push) | Railway |
 
 Concrete deploy workflows go in `.github/workflows/deploy.yml` per
-repo once the AWS migration in the Infra Doc lands. Until then:
+repo once the Railway migration lands. Until then:
 
 - Disconnect Vercel/Render auto-deploy from `main`
 - Reconnect each environment to its corresponding long-lived branch
@@ -152,7 +145,6 @@ repo once the AWS migration in the Infra Doc lands. Until then:
 Manual UI clicks:
 - [ ] Vercel — point conddo-app project to `dev` for the
       Preview env, `staging` for Staging, `production` for Production
-- [ ] Vercel — same for conddo-studio
 - [ ] Render — point each service to its matching branch
 - [ ] Note in this doc which environment URLs map to which branch
       once configured
@@ -199,7 +191,7 @@ git log --oneline production ^dev   # should be empty in steady state
 Infra Doc §7 caps:
 - **GitHub Actions**: 2,000 free min/month (Free plan), more on Pro.
   The `concurrency` directive in every workflow file cancels stale
-  in-flight runs to keep minute consumption honest. Three repos
+  in-flight runs to keep minute consumption honest. Two repos
   running ~5-min CI on every push + every PR is comfortably inside
   this budget unless you're pushing several hundred commits a week.
 

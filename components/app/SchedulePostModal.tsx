@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ImagePlus, X, Sparkles, Loader2, Film, Image as ImageIcon } from "lucide-react";
+import { ImagePlus, X, Loader2, Film, Image as ImageIcon } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Field, TextInput, TextArea } from "@/components/ui/Field";
@@ -9,7 +9,6 @@ import { useToast } from "@/components/ui/Toast";
 import { marketingApi, type MarketingPost } from "@/lib/api/marketing";
 import { mediaApi, type UploadedMedia } from "@/lib/api/media";
 import { ApiError } from "@/lib/api/client";
-import { NewCreativeRequestModal } from "@/components/app/NewCreativeRequestModal";
 
 const PLATFORMS = [
   { value: "instagram", label: "Instagram" },
@@ -31,9 +30,7 @@ type AttachedMedia = UploadedMedia & {
 };
 
 /** Schedule a social post across one or more platforms (POST /marketing/posts).
- *  Upload images / videos that get attached as `mediaIds` on the post. The
- *  composer also opens a "Need creative help?" flow that routes the post to
- *  a paid creative service (spec §5). */
+ *  Upload images / videos that get attached as `mediaIds` on the post. */
 export function SchedulePostModal({
   open,
   onClose,
@@ -55,7 +52,6 @@ export function SchedulePostModal({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
-  const [creativeOpen, setCreativeOpen] = useState(false);
 
   function reset() {
     setTitle(""); setContent(""); setPlatforms(["instagram"]);
@@ -231,13 +227,6 @@ export function SchedulePostModal({
                   {uploading ? <Loader2 size={15} className="animate-spin" /> : <ImagePlus size={15} />}
                   {uploading ? "Uploading…" : media.length === 0 ? "Add media" : "Add more"}
                 </Button>
-                <button
-                  type="button"
-                  onClick={() => setCreativeOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-primary/20 bg-primary/[0.08] px-3 py-1.5 text-[12px] font-medium text-primary transition-colors hover:bg-primary/10"
-                >
-                  <Sparkles size={13} /> Need creative help?
-                </button>
               </div>
               {media.length === 0 && !uploading && (
                 <p className="flex items-center gap-1 text-[11px] text-white/45">
@@ -270,13 +259,6 @@ export function SchedulePostModal({
           </Field>
         </form>
       </Modal>
-
-      <NewCreativeRequestModal
-        open={creativeOpen}
-        onClose={() => setCreativeOpen(false)}
-        attachedMediaIds={media.map((m) => m.id).filter((id): id is string => Boolean(id))}
-        socialPostId={null}
-      />
     </>
   );
 }

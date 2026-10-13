@@ -23,7 +23,7 @@ export type UploadedFile = {
  *  invoice attachment). */
 export async function uploadToCloudinary(
   file: File,
-  folder: "kyc" | "logo" | "brand" | "website" | "product" | "media" | "social" | "creative" = "media",
+  folder: "kyc" | "logo" | "brand" | "website" | "product" | "media" | "social" = "media",
 ): Promise<UploadedFile> {
   const sigRes = await api.get<Signature>(`/media/upload-signature?folder=${folder}`);
   const sig = sigRes.data;

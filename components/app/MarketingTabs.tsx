@@ -7,7 +7,6 @@ const TABS = [
   { label: "Email", href: "/marketing/email" },
   { label: "SMS", href: "/marketing/sms" },
   { label: "Leads", href: "/marketing/leads" },
-  { label: "Brand Packages", href: "/marketing/brand-packages" },
 ];
 
 /** Sub-navigation shared by the Marketing Hub screens. */

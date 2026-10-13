@@ -38,17 +38,10 @@ Core operator dashboard, fully wired to the live backend (verified by a 22/22 li
 - [ ] **10. Business hours** — `/settings/business-hours` (GET/PUT). Wire the static hours editor.
 - [ ] **11. Smaller** — create inventory category; delete customer/product; `/staff/{id}/activity`; consume `/staff/roles` & `/verticals/{id}/config` in onboarding.
 
-## 🟣 Track B — Conddo Studio (internal Jobs Board) — NOT built (separate app)
-Full backend at `/api/jobs/*`; zero frontend. Its own login + portal:
-- [ ] Worker portal — `/api/jobs` (my-jobs, available, claim, start, submit) + `/api/jobs/auth` + `/api/jobs/notifications`
-- [ ] Admin/manager — `/api/jobs/admin` (dashboard, staff, create/reassign, extend-SLA, escalate)
-- [ ] QA review — `/api/jobs/qa` (queue, start, approve, return)
-- [ ] Performance — `/api/jobs/performance`
-
-## ⚙️ Track C — Platform super-admin console — NOT built
+## ⚙️ Track B — Platform super-admin console — NOT built
 - [ ] Manage all tenants — `GET /api/v1/tenants` + `X-Act-As-Tenant`.
 
-## 🌐 Track D — Public storefront — NOT built (may be Studio-produced)
+## 🌐 Track C — Public storefront — NOT built
 - [ ] Rendered public website for `businessname.conddo.io` — `/api/v1/public/tenant`. (We have public booking only.)
 
 ## 🚀 Prod readiness
