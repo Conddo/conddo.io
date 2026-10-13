@@ -13,10 +13,9 @@ import { BRAND_NAME } from "@/lib/brand";
  *  the footer's language but stays "Businesses" in the header for
  *  scannability. */
 const links: { label: string; href: string }[] = [
-  { label: "Product", href: "/product" },
-  { label: "Businesses", href: "/businesses" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "About", href: "/about" },
+  { label: "Our Ecosystem", href: "/#ecosystem" },
+  { label: "About Us", href: "/about" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const isActive = (pathname: string, href: string) =>
@@ -118,12 +117,12 @@ export function Nav() {
                 Sign in
               </Link>
               <Link
-                href="/onboarding/create-account"
+                href="/#ecosystem"
                 className={`group inline-flex items-center gap-1.5 rounded-full bg-white text-ink font-medium tracking-tight transition-all hover:bg-white/90 hover:gap-2 ${
                   scrolled ? "px-3.5 py-1.5 text-[12.5px]" : "px-4 py-2 text-[13px]"
                 }`}
               >
-                Get started
+                Explore Our Solutions
                 <ArrowRight size={13} strokeWidth={2.5} className="transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -184,11 +183,11 @@ export function Nav() {
                   Sign in
                 </Link>
                 <Link
-                  href="/onboarding/create-account"
+                  href="/#ecosystem"
                   className="flex items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3 text-[14px] font-medium text-ink"
                 >
                   <Sparkles size={13} />
-                  Start free trial
+                  Explore Our Solutions
                 </Link>
               </div>
             </div>

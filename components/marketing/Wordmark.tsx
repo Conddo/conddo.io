@@ -10,16 +10,18 @@
 export function Wordmark({
   tone = "light",
   className = "",
+  showTld = false,
 }: {
   tone?: "light" | "dark";
   className?: string;
+  showTld?: boolean;
 }) {
   const text = tone === "light" ? "text-white" : "text-ink";
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <BrandMark />
-      <span className={`text-[15px] font-semibold tracking-[-0.02em] leading-none ${text}`}>
-        conddo<span className="text-primary-light">.io</span>
+      <span className={`text-[16px] font-semibold tracking-[-0.02em] leading-none ${text}`}>
+        Conddo{showTld && <span className="text-primary-light">.io</span>}
       </span>
     </span>
   );

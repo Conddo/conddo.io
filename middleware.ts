@@ -53,7 +53,12 @@ export function middleware(request: NextRequest) {
   const host = rawHost.split(":")[0];
 
   // Apex + www pass through — the app owns these.
-  if (host === "getconddo.com" || host === "www.getconddo.com") {
+  if (
+    host === "getconddo.com" ||
+    host === "www.getconddo.com" ||
+    host === "conddo.io" ||
+    host === "www.conddo.io"
+  ) {
     return NextResponse.next();
   }
 

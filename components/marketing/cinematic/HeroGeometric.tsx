@@ -148,8 +148,8 @@ export function HeroGeometric({
       </div>
 
       {/* Copy column */}
-      <div className="relative z-10 container-x py-24">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="relative z-10 container-x py-20 md:py-28">
+        <div className="max-w-5xl mx-auto text-center">
           <motion.div
             custom={0}
             variants={fadeUp}

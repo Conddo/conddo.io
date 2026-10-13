@@ -1,87 +1,73 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { HeroGeometric } from "@/components/marketing/cinematic/HeroGeometric";
-import { TrustStrip } from "@/components/marketing/cinematic/TrustStrip";
-import { ProblemSection } from "@/components/marketing/cinematic/ProblemSection";
-import { AnimatedBento } from "@/components/marketing/cinematic/AnimatedBento";
-import { DifferentiatorSection } from "@/components/marketing/cinematic/DifferentiatorSection";
-import { FlexibilitySection } from "@/components/marketing/cinematic/FlexibilitySection";
-import { TeamSection } from "@/components/marketing/cinematic/TeamSection";
-import { TrustSection } from "@/components/marketing/cinematic/TrustSection";
-import { CinematicFinalCTA } from "@/components/marketing/cinematic/CinematicFinalCTA";
 import { MarketingShell } from "@/components/marketing/MarketingShell";
 import { Button } from "@/components/ui/Button";
+import { EcosystemHeroVisual } from "@/components/marketing/ecosystem/EcosystemHeroVisual";
+import { EcosystemIntro } from "@/components/marketing/ecosystem/EcosystemIntro";
+import { WhyConddoExists } from "@/components/marketing/ecosystem/WhyConddoExists";
+import { FindYourConddo } from "@/components/marketing/ecosystem/FindYourConddo";
+import { OurApproachSection } from "@/components/marketing/ecosystem/OurApproachSection";
+import { WhatsNextSection } from "@/components/marketing/ecosystem/WhatsNextSection";
+import { EcosystemFinalCTA } from "@/components/marketing/ecosystem/EcosystemFinalCTA";
 
 export const metadata: Metadata = {
-  title: "Conddo.io — The Operating System for Modern Businesses",
+  title: "Conddo — Technology for the way we live, work and do business",
   description:
-    "Run your business from one platform. Manage customers, orders, payments, inventory, bookings, marketing, and team operations in one connected workspace.",
+    "Conddo builds practical software solutions for businesses, independent sellers and working professionals. Explore Conddo Enterprise, Conddo App, and Conddo Commute.",
   openGraph: {
-    title: "Conddo.io — The Operating System for Modern Businesses",
+    title: "Conddo — Technology for the way we live, work and do business",
     description:
-      "Replace spreadsheets, disconnected tools, and manual processes with a system designed to help your business operate efficiently and grow with confidence.",
+      "One ecosystem. Different solutions. Practical software built around real-world needs.",
     type: "website",
   },
 };
 
-/** Cinematic home — the eight-section operations-positioning narrative.
+/**
+ * Repositioned Conddo Homepage
  *
- *   1. Hero               — positioning ("Run your business from one platform")
- *   2. Trust strip        — three-phrase rhythm transition
- *   3. ProblemSection     — fragmented-state recognition
- *   4. AnimatedBento      — 8 modules (Solution + Capabilities)
- *   5. DifferentiatorSection — "Everything works together" + connectivity diagram
- *   6. FlexibilitySection — industry adaptability (4 archetypes)
- *   7. TeamSection        — collaboration + role-based access
- *   8. TrustSection       — testimonials
- *   9. CinematicFinalCTA  — closing conversion strip
- *
- *  Every section sits on the same #0a0a0c surface so the page reads as
- *  one continuous cinematic flow rather than a strip-mall of sections. */
+ * 1. Hero: "Technology for the way we live, work and do business."
+ *    + Visual: 3-product connected interface preview (Enterprise / App / Commute)
+ * 2. Introducing the Ecosystem: "Different challenges. Purpose-built solutions."
+ * 3. The Problem We Solve: "Life is complicated enough. Your tools shouldn't make it harder."
+ * 4. Find Your Conddo: "Start with what you need." (Persona matcher)
+ * 5. Our Approach: "Useful technology. Real-world impact."
+ * 6. What's Next?: "We're building for more of everyday life."
+ * 7. Closing CTA: "Let's find the right solution for you."
+ */
 export default function Home() {
   return (
     <MarketingShell>
       <HeroGeometric
-        eyebrow="The operating system for modern businesses"
-        titleTop="Run your business"
+        eyebrow="ONE ECOSYSTEM. DIFFERENT SOLUTIONS."
+        titleTop="Technology for the way we"
         titleBottom={
           <span className="bg-gradient-to-r from-primary-light via-white/95 to-rose-300 bg-clip-text text-transparent">
-            from one platform.
+            live, work and do business.
           </span>
         }
-        lede={
-          <>
-            <p>
-              Manage customers, orders, payments, inventory, bookings, marketing, and team operations in one connected workspace.
-            </p>
-            <p className="text-white/45">
-              Replace spreadsheets, disconnected tools, and manual processes with a system designed to help your business operate efficiently and grow with confidence.
-            </p>
-          </>
-        }
+        lede="Conddo builds practical software solutions for businesses, independent sellers and working professionals. Each solution is designed around a real need, helping people work smarter, operate better and move forward."
       >
-        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button href="/onboarding/create-account" variant="primary" size="lg">
-            Start free trial
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Button href="#ecosystem" variant="primary" size="lg">
+            Explore Our Solutions
             <ArrowRight size={18} />
           </Button>
-          <Button href="/product" variant="secondary-dark" size="lg">
-            Explore product
+          <Button href="/about" variant="secondary-dark" size="lg">
+            About Conddo
           </Button>
         </div>
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.15em] text-white/35">
-          14-day free trial · No credit card required
-        </p>
+
+        {/* Visual Direction: Connected 3-product interface preview */}
+        <EcosystemHeroVisual />
       </HeroGeometric>
 
-      <TrustStrip />
-      <ProblemSection />
-      <AnimatedBento />
-      <DifferentiatorSection />
-      <FlexibilitySection />
-      <TeamSection />
-      <TrustSection />
-      <CinematicFinalCTA />
+      <EcosystemIntro />
+      <WhyConddoExists />
+      <FindYourConddo />
+      <OurApproachSection />
+      <WhatsNextSection />
+      <EcosystemFinalCTA />
     </MarketingShell>
   );
 }
