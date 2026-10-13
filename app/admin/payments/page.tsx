@@ -9,6 +9,7 @@ import {
   Loader2,
   RefreshCcw,
   XCircle,
+  type LucideIcon,
 } from "lucide-react";
 import { StudioNav } from "@/components/admin/StudioNav";
 import {
@@ -242,7 +243,7 @@ function StatCard({
   label: string;
   value: string;
   tone: "primary" | "success" | "warning" | "danger";
-  Icon?: React.ComponentType<{ size?: number; className?: string }>;
+  Icon?: LucideIcon;
 }) {
   const cls =
     tone === "primary"
